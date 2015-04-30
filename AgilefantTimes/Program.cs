@@ -29,13 +29,15 @@ namespace AgilefantTimes
                     where agilefantSprint.Name.Contains(config.SprintNumber.ToString())
                     select agilefantSprint.Id).First();
 
-                Console.WriteLine("{\"Hours\":{");
-                foreach (var agilefantUser in users)
+                Console.WriteLine("{\"Hours\":[");
+                for (int i = 0; i < users.Length; i++)
                 {
-                    var tasks = AgilefantTime.GetAgilefantTime(config.TeamNumber, backlogs[0].Id, sprintId, agilefantUser.Id, ref session);
-                    Console.WriteLine("{{\"Name\":\"{0}\",\"StoryHours\":{1},\"TaskHours\":{2},\"TotalHours\":{3}}},", agilefantUser.Name, tasks.StoryHours, tasks.TaskHours, tasks.TotalHours);
+                    var tasks = AgilefantTime.GetAgilefantTime(config.TeamNumber, backlogs[0].Id, sprintId,
+                        users[i].Id, ref session);
+                    Console.WriteLine("{{\"Name\":\"{0}\",\"StoryHours\":{1},\"TaskHours\":{2},\"TotalHours\":{3}}}" + (i+1 == users.Length ? "" : ","),
+                        users[i].Name, tasks.StoryHours, tasks.TaskHours, tasks.TotalHours);
                 }
-                Console.WriteLine("}}");
+                Console.WriteLine("]}");
             }
             catch (Exception e)
             {
