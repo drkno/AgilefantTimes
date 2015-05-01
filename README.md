@@ -2,6 +2,10 @@
 
 Getting the hours spent for all members in Agilefant is a time consuming process and difficult, expecially when you just want an overview. This project is to create a simple web-based dashboard that can display times for users and some simple statistics regarding their hours.
 
+## Download
+Release versions can be found [here](https://github.com/mrkno/AgilefantTimes/releases).<br>
+For up to date snapshots, please clone the source and compile yourself.
+
 ## Usage
 During this development phase it requires manual setup.<br>
 In the same directory as the compiled .exe create a new file called <code>aftimes.conf</code>.<br>
