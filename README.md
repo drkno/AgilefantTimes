@@ -20,7 +20,11 @@ Inside the file paste the following configuration, edited where appropriate:<br>
 ```
 To run the program, just double click the `AgilefantTimes.exe` executable, and, provided everything is setup correctly and you did not encounter a bug it will run.<br>
 On platforms other than Windows the executable **should** be able to be run using Mono, provided the version being used supports all the features used in the program. To do this run from within a shell:<br>
-```mono AgilefantTimes.exe```
+```mono AgilefantTimes.exe```<br>
+
+* Known NOT to be working on Mono 3.2.8 (what is on the lab machines).
+* Known to be working on 3.12.1 which can be aquired for many linux distros [here](http://software.opensuse.org/download.html?project=home%3Atpokorra%3Amono&package=mono-opt). If you are on RedHat use the CentOS release.
+
 <br>Alternatively provided Wine is setup correctly it could be run using:<br>
 ```wine AgilefantTimes.exe```
 

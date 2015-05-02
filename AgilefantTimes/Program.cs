@@ -1,23 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
+﻿#region
+
+using System;
 using System.Linq;
-using System.Net;
-using System.Text;
-using System.Threading.Tasks;
 using AgilefantTimes.API;
 using AgilefantTimes.Output;
 
+#endregion
+
 namespace AgilefantTimes
 {
-    
-
     public static class Program
     {
-        private static JsonPrinter jsonPrinter = new JsonPrinter();
+        private static readonly JsonPrinter JsonPrinter = new JsonPrinter();
 
-        public static void Main(string[] args)
+        public static void Main()
         {
             try
             {
@@ -32,20 +28,26 @@ namespace AgilefantTimes
                     select agilefantSprint.Id).First();
 
                 Console.WriteLine("{\n    \"Hours\":[");
-                for (int i = 0; i < users.Length; i++)
+                for (var i = 0; i < users.Length; i++)
                 {
                     var tasks = AgilefantTime.GetAgilefantTime(config.TeamNumber, backlogs[0].Id, sprintId,
                         users[i].Id, ref session);
 
-                    var json = string.Format("{{\"Name\":\"{0}\",\"StoryHours\":{1},\"TaskHours\":{2},\"TotalHours\":{3}}}" + (i + 1 == users.Length ? "" : ","),
-                        users[i].Name, tasks.StoryHours, tasks.TaskHours, tasks.TotalHours);
-                    jsonPrinter.WriteLine(json, 2);
+                    var json =
+                        string.Format(
+                            "{{\"Name\":\"{0}\",\"StoryHours\":{1},\"TaskHours\":{2},\"TotalHours\":{3}}}" +
+                            (i + 1 == users.Length ? "" : ","),
+                            users[i].Name, tasks.StoryHours, tasks.TaskHours, tasks.TotalHours);
+                    JsonPrinter.WriteLine(json, 2);
                 }
                 Console.WriteLine("    ]\n}");
             }
             catch (Exception e)
             {
                 Console.Error.WriteLine("An error occured at runtime:\n" + e.Message);
+#if DEBUG
+                throw;
+#endif
             }
 
 #if DEBUG

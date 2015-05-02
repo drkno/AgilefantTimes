@@ -1,5 +1,9 @@
-﻿using System.Net;
+﻿#region
+
+using System.Net;
 using System.Text;
+
+#endregion
 
 namespace AgilefantTimes.API.Common
 {

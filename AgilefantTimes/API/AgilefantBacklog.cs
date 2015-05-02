@@ -1,23 +1,69 @@
-﻿using System.IO;
+﻿#region
+
+using System.IO;
 using System.Net;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Json;
 using System.Text;
 using AgilefantTimes.API.Common;
 
+#endregion
+
 namespace AgilefantTimes.API
 {
     [DataContract]
     public class AgilefantBacklog
     {
+        [DataMember(Name = "backlogSize")]
+        public object BacklogSize { get; set; }
+
+        [DataMember(Name = "baselineLoad")]
+        public int BaselineLoad { get; set; }
+
+        [DataMember(Name = "class")]
+        public string InternalClass { get; set; }
+
+        [DataMember(Name = "description")]
+        public string Description { get; set; }
+
+        [DataMember(Name = "endDate")]
+        public long EndDate { get; set; }
+
+        [DataMember(Name = "id")]
+        public int Id { get; set; }
+
+        [DataMember(Name = "name")]
+        public string Name { get; set; }
+
+        [DataMember(Name = "product")]
+        public bool Product { get; set; }
+
+        [DataMember(Name = "rank")]
+        public int Rank { get; set; }
+
+        [DataMember(Name = "root")]
+        public AgilefantBacklogProductSummary Root { get; set; }
+
+        [DataMember(Name = "standAlone")]
+        public bool StandAlone { get; set; }
+
+        [DataMember(Name = "startDate")]
+        public long StartDate { get; set; }
+
+        [DataMember(Name = "status")]
+        public string Status { get; set; }
+
         public static AgilefantBacklog[] GetAgilefantBacklogs(int teamNumber, ref CookieContainer sessionCookies)
         {
-            var webRequest = (HttpWebRequest)WebRequest.Create("http://agilefant.cosc.canterbury.ac.nz:8080/agilefant302/ajax/retrieveSubBacklogs.action");
+            var webRequest =
+                (HttpWebRequest)
+                    WebRequest.Create(
+                        "http://agilefant.cosc.canterbury.ac.nz:8080/agilefant302/ajax/retrieveSubBacklogs.action");
             webRequest.AllowAutoRedirect = true;
             webRequest.CookieContainer = sessionCookies;
             webRequest.SetPostData("backlogId=" + teamNumber);
             string jsonData = null;
-            using (var webResponse = (HttpWebResponse)webRequest.GetResponse())
+            using (var webResponse = (HttpWebResponse) webRequest.GetResponse())
             {
                 sessionCookies = webRequest.CookieContainer;
                 var stream = webResponse.GetResponseStream();
@@ -35,8 +81,8 @@ namespace AgilefantTimes.API
             stream.Write(Encoding.UTF8.GetBytes(json), 0, json.Length);
             stream.Position = 0;
 
-            var serializer = new DataContractJsonSerializer(typeof(AgilefantBacklogJsonRoot));
-            var jsonRoot = (AgilefantBacklogJsonRoot)serializer.ReadObject(stream);
+            var serializer = new DataContractJsonSerializer(typeof (AgilefantBacklogJsonRoot));
+            var jsonRoot = (AgilefantBacklogJsonRoot) serializer.ReadObject(stream);
 
             return jsonRoot.Backlogs;
         }
@@ -53,43 +99,21 @@ namespace AgilefantTimes.API
         {
             [DataMember(Name = "class")]
             public string InternalClass { get; set; }
+
             [DataMember(Name = "description")]
             public string Description { get; set; }
+
             [DataMember(Name = "id")]
             public int Id { get; set; }
+
             [DataMember(Name = "name")]
             public string Name { get; set; }
+
             [DataMember(Name = "product")]
             public bool Product { get; set; }
+
             [DataMember(Name = "standAlone")]
             public bool StandAlone { get; set; }
         }
-
-        [DataMember(Name = "backlogSize")]
-        public object BacklogSize { get; set; }
-        [DataMember(Name = "baselineLoad")]
-        public int BaselineLoad { get; set; }
-        [DataMember(Name = "class")]
-        public string InternalClass { get; set; }
-        [DataMember(Name = "description")]
-        public string Description { get; set; }
-        [DataMember(Name = "endDate")]
-        public long EndDate { get; set; }
-        [DataMember(Name = "id")]
-        public int Id { get; set; }
-        [DataMember(Name = "name")]
-        public string Name { get; set; }
-        [DataMember(Name = "product")]
-        public bool Product { get; set; }
-        [DataMember(Name = "rank")]
-        public int Rank { get; set; }
-        [DataMember(Name = "root")]
-        public AgilefantBacklogProductSummary Root { get; set; }
-        [DataMember(Name = "standAlone")]
-        public bool StandAlone { get; set; }
-        [DataMember(Name = "startDate")]
-        public long StartDate { get; set; }
-        [DataMember(Name = "status")]
-        public string Status { get; set; }
     }
 }

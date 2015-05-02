@@ -1,54 +1,54 @@
-﻿using System;
-using System.Collections.Generic;
+﻿#region
+
+using System;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
+#endregion
 
 namespace AgilefantTimes.Output
 {
     /// <summary>
-    /// A class that helps format and print Json
+    ///     A class that helps format and print Json
     /// </summary>
     public class JsonPrinter
     {
-        /// <summary>
-        /// The string that the JsonPrinter uses as an Indent. Defaults
-        /// to four spaces.
-        /// </summary>
-        public string IndentString { get; set; }
+        private readonly TextWriter _writer;
 
         /// <summary>
-        /// The string that the JsonPrinter uses as a Newline. Defaults
-        /// to '\n'
-        /// </summary>
-        public string NewLineString { get; set; }
-
-        private TextWriter _writer;
-
-        /// <summary>
-        /// Creates a new JsonPrinter that writes to Console.Out
+        ///     Creates a new JsonPrinter that writes to Console.Out
         /// </summary>
         public JsonPrinter()
             : this(Console.Out)
         {
-
         }
 
         /// <summary>
-        /// Creates a new JsonPrinter 
+        ///     Creates a new JsonPrinter
         /// </summary>
         /// <param name="outputStream">The stream the JsonPrinter will output to</param>
         public JsonPrinter(TextWriter outputStream)
         {
-            this._writer = outputStream;
+            _writer = outputStream;
 
             IndentString = "    ";
             NewLineString = "\n";
         }
 
         /// <summary>
-        /// Prettifies a Json string. Note: This is likely to mangle non json strings..
+        ///     The string that the JsonPrinter uses as an Indent. Defaults
+        ///     to four spaces.
+        /// </summary>
+        public string IndentString { get; set; }
+
+        /// <summary>
+        ///     The string that the JsonPrinter uses as a Newline. Defaults
+        ///     to '\n'
+        /// </summary>
+        public string NewLineString { get; set; }
+
+        /// <summary>
+        ///     Prettifies a Json string. Note: This is likely to mangle non json strings..
         /// </summary>
         /// <param name="json">The Json to prettify</param>
         /// <param name="baseIndent">The level of indentation to start at</param>
@@ -57,12 +57,14 @@ namespace AgilefantTimes.Output
         {
             json = json.Trim(' ', '\t', '\r', '\n');
 
-            var beginChars = new char[]{
-                '{', ',', '['
-            };
-            var endChars = new char[]{
-                '}', ']'
-            };
+            var beginChars = new[]
+                             {
+                                 '{', ',', '['
+                             };
+            var endChars = new[]
+                           {
+                               '}', ']'
+                           };
 
             var formatted = GetIndent(indent);
 
@@ -95,19 +97,19 @@ namespace AgilefantTimes.Output
         }
 
         /// <summary>
-        /// Prettifies and then writes a Json string to the specified output stream.
-        /// Note: This is likely to mangle non json strings...
+        ///     Prettifies and then writes a Json string to the specified output stream.
+        ///     Note: This is likely to mangle non json strings...
         /// </summary>
         /// <param name="json">The json to print</param>
         /// <param name="baseIndent">The base level of indentation</param>
-        public void Write(string json, int baseIndent=0)
+        public void Write(string json, int baseIndent = 0)
         {
             var formatted = Prettify(json, baseIndent);
             _writer.Write(formatted);
         }
 
         /// <summary>
-        /// Prettifies and then writes a Json string and adds a trailing newline
+        ///     Prettifies and then writes a Json string and adds a trailing newline
         /// </summary>
         /// <param name="json">The json</param>
         /// <param name="baseIndent">The base indent level</param>
@@ -118,8 +120,8 @@ namespace AgilefantTimes.Output
         }
 
         /// <summary>
-        /// Gets a string of the IndentChar repeated 
-        /// 'indent' times
+        ///     Gets a string of the IndentChar repeated
+        ///     'indent' times
         /// </summary>
         /// <param name="indent">The amount to indent</param>
         /// <returns>The indentation string</returns>
