@@ -1,6 +1,7 @@
 # AgilefantTimes
 
 Getting the hours spent for all members in Agilefant is a time consuming process and difficult, expecially when you just want an overview. This project is to create a simple web-based dashboard that can display times for users and some simple statistics regarding their hours.
+[A demo can be seen here](http://csse-s302g1.canterbury.ac.nz/).
 
 ## Download
 Release versions can be found [here](https://github.com/mrkno/AgilefantTimes/releases).<br>
