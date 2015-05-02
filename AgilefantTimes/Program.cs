@@ -28,7 +28,7 @@ namespace AgilefantTimes
                 var sprintName = "";
                 if (config.SprintNumber < 0)
                 {
-                    var currentDate = DateTime.Now;
+                    var currentDate = DateTime.Now.Date;
                     foreach (var sprint in sprints.Where(sprint => sprint.StartDate <= currentDate && sprint.EndDate >= currentDate))
                     {
                         sprintId = sprint.Id;
@@ -63,7 +63,7 @@ namespace AgilefantTimes
                             (config.DisplayUsercode ? users[i].UserCode : users[i].Name), tasks.StoryHours, tasks.TaskHours, tasks.TotalHours);
                     JsonPrinter.WriteLine(json, 2);
                 }
-                Console.WriteLine("    ]\n}");
+                Console.WriteLine("\t]\n}");
             }
             catch (Exception e)
             {
