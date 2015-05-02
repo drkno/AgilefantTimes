@@ -13,6 +13,10 @@
             display: inline-block;
         }
 
+        #statsTable {
+            display: none;
+        }
+
         table {
             border: none;
             outline: none;
@@ -37,9 +41,9 @@
             border-left: 1px solid #E9E9E9;
         }
 
-            td:first-child {
-                border-left: none;
-            }
+        td:first-child {
+            border-left: none;
+        }
     </style>
 </head>
 <body>
@@ -47,7 +51,7 @@
     <br>
     <canvas id="canvas" height="250" width="600"></canvas>
     <br>
-    <table>
+    <table id="statsTable">
         <thead>
             <tr>
                 <th>Average</th>
@@ -76,7 +80,7 @@
 				{
 				    fillColor: "rgba(220,220,220,0.5)",
 				    strokeColor: "rgba(220,220,220,0.8)",
-				    highlightFill: "rgba(220,220,220,0.75)",
+				    highlightFill: "#FF5A5E",
 				    highlightStroke: "rgba(220,220,220,1)",
 				    data: data
 				}
@@ -135,6 +139,7 @@
         document.getElementById("min").innerHTML = roundToOneDp(data[minIndex]) + " (" + columns[minIndex] + ")";
         var median = getMedian(data);
         document.getElementById("median").innerHTML = roundToOneDp(data[median]) + " (" + columns[median] + ")";
+        document.getElementById("statsTable").style.display = "inline-block";
     }
 
     function roundToOneDp(number) {
@@ -142,7 +147,7 @@
     }
 
     function getMedian(values) {
-        var vals = values;
+        var vals = values.slice();
         vals.sort();
         var half = Math.floor(values.length / 2);
         return values.indexOf(vals[half]);
