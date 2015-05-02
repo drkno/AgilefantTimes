@@ -15,7 +15,8 @@ Inside the file paste the following configuration, edited where appropriate:<br>
 	"Username":"abc12",
 	"Password":"12345678",
 	"TeamNumber":1,
-	"SprintNumber":2
+	"SprintNumber":2,
+	"DisplayUsercode":false // optional, will replace Names with UserCodes.
 }
 ```
 To run the program, just double click the `AgilefantTimes.exe` executable, and, provided everything is setup correctly and you did not encounter a bug it will run.<br>
@@ -28,6 +29,12 @@ On platforms other than Windows the executable **should** be able to be run usin
 <br>Alternatively provided Wine is setup correctly it could be run using:<br>
 ```wine AgilefantTimes.exe```
 
+### GetJson.php
+`GetJson.php` can be used to extract the output of the .exe into a php or html webpage. To use set the variables inside the variables section of the file.
+
+## Known Working Minimum Requirements
+.NET 4.5 or Mono 3.12.1 (see above).
 This application is currently targeted at the .NET 4.5 runtime so you either need that installed or a compatible version of .NET/Mono.
 
+## License and Contributions
 This program is licensed under the MIT license. Pull requests and contributions welcome.

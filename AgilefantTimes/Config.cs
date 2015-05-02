@@ -24,6 +24,9 @@ namespace AgilefantTimes
         [DataMember]
         public int SprintNumber { get; set; }
 
+        [DataMember(IsRequired = false)]
+        public bool DisplayUsercode { get; set; }
+
         public static Config Load(string location)
         {
             if (!File.Exists(location))

@@ -11,6 +11,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		README.md = README.md
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Web", "Web", "{11F4ADCE-3650-406D-879E-AC49672A7A2C}"
+	ProjectSection(SolutionItems) = preProject
+		GetJson.php = GetJson.php
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -24,5 +29,8 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{11F4ADCE-3650-406D-879E-AC49672A7A2C} = {80656A14-71E9-4F44-8111-7000AFA541D4}
 	EndGlobalSection
 EndGlobal

@@ -37,7 +37,7 @@ namespace AgilefantTimes
                         string.Format(
                             "{{\"Name\":\"{0}\",\"StoryHours\":{1},\"TaskHours\":{2},\"TotalHours\":{3}}}" +
                             (i + 1 == users.Length ? "" : ","),
-                            users[i].Name, tasks.StoryHours, tasks.TaskHours, tasks.TotalHours);
+                            (config.DisplayUsercode ? users[i].UserCode : users[i].Name), tasks.StoryHours, tasks.TaskHours, tasks.TotalHours);
                     JsonPrinter.WriteLine(json, 2);
                 }
                 Console.WriteLine("    ]\n}");

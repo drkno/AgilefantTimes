@@ -34,7 +34,7 @@ namespace AgilefantTimes.API
         public bool Enabled { get; protected set; }
 
         [DataMember(Name = "fullName")]
-        public string FullName { get; protected set; }
+        public string Name { get; protected set; }
 
         [DataMember(Name = "id")]
         public int Id { get; protected set; }
@@ -49,7 +49,7 @@ namespace AgilefantTimes.API
         public string MarkStoryStarted { get; protected set; }
 
         [DataMember(Name = "name")]
-        public string Name { get; protected set; }
+        public string UserCode { get; protected set; }
 
         [DataMember(Name = "recentItemsNumberOfWeeks")]
         public int RecentItemsNumberOfWeeks { get; protected set; }
