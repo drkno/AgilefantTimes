@@ -1,10 +1,18 @@
 # AgilefantTimes
 
 Getting the hours spent for all members in Agilefant is a time consuming process and difficult, expecially when you just want an overview. This project is to create a simple web-based dashboard that can display times for users and some simple statistics regarding their hours.
+[A demo can be seen here](http://csse-s302g1.canterbury.ac.nz/).
 
 ## Download
 Release versions can be found [here](https://github.com/mrkno/AgilefantTimes/releases).<br>
-For up to date snapshots, please clone the source and compile yourself.
+For up to date snapshots, please clone the source and compile yourself.<br>
+If you are installing this on the University of Canterbury Jenkins servers, the following commands will automate the process:<br>
+```
+wget https://github.com/mrkno/AgilefantTimes/releases/download/v0.4/RedHatInstall.sh
+sed -i 's/\r//' RedHatInstall.sh
+chmod +x RedHatInstall.sh
+./RedHatInstall.sh
+```
 
 ## Usage
 During this development phase it requires manual setup.<br>
