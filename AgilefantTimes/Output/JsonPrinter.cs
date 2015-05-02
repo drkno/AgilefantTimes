@@ -51,9 +51,12 @@ namespace AgilefantTimes.Output
         /// Prettifies a Json string. Note: This is likely to mangle non json strings..
         /// </summary>
         /// <param name="json">The Json to prettify</param>
+        /// <param name="baseIndent">The level of indentation to start at</param>
         /// <returns>The prettified string</returns>
-        public string Prettify(string json)
+        public string Prettify(string json, int indent = 0)
         {
+            json = json.Trim(' ', '\t', '\r', '\n');
+
             var beginChars = new char[]{
                 '{', ',', '['
             };
@@ -61,8 +64,7 @@ namespace AgilefantTimes.Output
                 '}', ']'
             };
 
-            var formatted = "";
-            var indent = 0;
+            var formatted = GetIndent(indent);
 
             for (var i = 0; i < json.Length; ++i)
             {
@@ -85,7 +87,8 @@ namespace AgilefantTimes.Output
                 //If this is one of the beginnning characters its time to move onto the next line
                 if (beginChars.Any(b => b == c))
                 {
-                    formatted += NewLineString + GetIndent(indent);
+                    if (i < json.Length - 1)
+                        formatted += NewLineString + GetIndent(indent);
                 }
             }
             return formatted;
@@ -95,11 +98,23 @@ namespace AgilefantTimes.Output
         /// Prettifies and then writes a Json string to the specified output stream.
         /// Note: This is likely to mangle non json strings...
         /// </summary>
-        /// <param name="json"></param>
-        public void Write(string json)
+        /// <param name="json">The json to print</param>
+        /// <param name="baseIndent">The base level of indentation</param>
+        public void Write(string json, int baseIndent=0)
         {
-            var formatted = Prettify(json);
+            var formatted = Prettify(json, baseIndent);
             _writer.Write(formatted);
+        }
+
+        /// <summary>
+        /// Prettifies and then writes a Json string and adds a trailing newline
+        /// </summary>
+        /// <param name="json">The json</param>
+        /// <param name="baseIndent">The base indent level</param>
+        public void WriteLine(string json, int baseIndent = 0)
+        {
+            Write(json, baseIndent);
+            _writer.Write("\n");
         }
 
         /// <summary>
