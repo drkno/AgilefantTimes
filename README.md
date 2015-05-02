@@ -15,7 +15,7 @@ Inside the file paste the following configuration, edited where appropriate:<br>
 	"Username":"abc12",
 	"Password":"12345678",
 	"TeamNumber":1,
-	"SprintNumber":2,
+	"SprintNumber":2,       // set to -1 to attempt to automatically determine (defaults to 1 if not found).
 	"DisplayUsercode":false // optional, will replace Names with UserCodes.
 }
 ```

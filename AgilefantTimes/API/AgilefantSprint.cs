@@ -1,5 +1,6 @@
 ﻿#region
 
+using System;
 using System.IO;
 using System.Net;
 using System.Runtime.Serialization;
@@ -27,7 +28,12 @@ namespace AgilefantTimes.API
         public string Description { get; set; }
 
         [DataMember(Name = "endDate")]
-        public long EndDate { get; set; }
+        protected long EndDateLong { get; set; }
+
+        public DateTime EndDate
+        {
+            get { return new DateTime(1970, 1, 1).AddMilliseconds(EndDateLong); }
+        }
 
         [DataMember(Name = "id")]
         public int Id { get; set; }
@@ -48,7 +54,12 @@ namespace AgilefantTimes.API
         public bool StandAlone { get; set; }
 
         [DataMember(Name = "startDate")]
-        public long StartDate { get; set; }
+        protected long StartDateLong { get; set; }
+
+        public DateTime StartDate
+        {
+            get { return new DateTime(1970, 1, 1).AddMilliseconds(StartDateLong); }
+        }
 
         public static AgilefantSprint[] GetAgilefantSprints(int backlogId, ref CookieContainer sessionCookies)
         {

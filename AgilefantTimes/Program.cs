@@ -23,9 +23,22 @@ namespace AgilefantTimes
                 var users = AgilefantUser.GetAgilefantUsers(ref session);
                 var backlogs = AgilefantBacklog.GetAgilefantBacklogs(config.TeamNumber, ref session);
                 var sprints = AgilefantSprint.GetAgilefantSprints(backlogs[0].Id, ref session);
-                var sprintId = (from agilefantSprint in sprints
-                    where agilefantSprint.Name.Contains(config.SprintNumber.ToString())
-                    select agilefantSprint.Id).First();
+                var sprintId = 1;
+                if (config.SprintNumber < 0)
+                {
+                    var currentDate = DateTime.Now;
+                    foreach (var sprint in sprints.Where(sprint => sprint.StartDate <= currentDate && sprint.EndDate >= currentDate))
+                    {
+                        sprintId = sprint.Id;
+                        break;
+                    }
+                }
+                else
+                {
+                    sprintId = (from agilefantSprint in sprints
+                                    where agilefantSprint.Name.Contains(config.SprintNumber.ToString())
+                                    select agilefantSprint.Id).First();
+                }
 
                 Console.WriteLine("{\n    \"Hours\":[");
                 for (var i = 0; i < users.Length; i++)
