@@ -29,8 +29,10 @@ On platforms other than Windows the executable **should** be able to be run usin
 <br>Alternatively provided Wine is setup correctly it could be run using:<br>
 ```wine AgilefantTimes.exe```
 
-### GetJson.php
-`GetJson.php` can be used to extract the output of the .exe into a php or html webpage. To use set the variables inside the variables section of the file.
+### GetJson.php and index.html
+`GetJson.php` can be used to extract the output of the .exe into a php or html webpage. To use set the variables inside the variables section of the file.<br>
+`index.html` is a quick and dirty example of how the data could be displayed on a webpage.<br>
+A working example of these files can be seen [here](http://csse-s302g1.canterbury.ac.nz/).
 
 ## Known Working Minimum Requirements
 .NET 4.5 or Mono 3.12.1 (see above).

@@ -1,0 +1,74 @@
+﻿<!DOCTYPE html>
+
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <title>Agilefant Times</title>
+</head>
+<style>
+body {
+    text-align: center;
+}
+
+#times {
+    display: inline-block;
+}
+
+table {
+    border: none;
+    outline: none;
+    text-align: center;
+    display: inline-block;
+    border-collapse: collapse;
+}
+
+thead {
+    margin: 0px;
+    font-weight: light;
+    background-color: #E9E9E9;
+}
+
+th {
+    padding: 5px 10px 5px 10px;
+}
+
+td {
+    padding: 5px;
+    width: 200px;
+    border-left: 1px solid #E9E9E9;
+}
+
+td:first-child {
+    border-left: none;
+}
+</style>
+
+<body>
+    <div id="times">Please Wait, loading times...</div>
+<script>
+    function loadTimes() {
+        var webRequest = (window.XMLHttpRequest) ? new XMLHttpRequest() : new ActiveXObject("Microsoft.XMLHTTP");
+        webRequest.onreadystatechange = function() {
+            if (webRequest.readyState === 4 && webRequest.status === 200) {
+                var response = JSON.parse(webRequest.responseText);
+                displayTimes(response.Hours);
+            }
+        }
+        webRequest.open("GET", "GetJson.php", true);
+        webRequest.send();
+    }
+
+    function displayTimes(times) {
+        var table = "<table><thead><tr><th>Person</th><th>Task Hours</th><th>Story Hours</th><th>Total Hours</th></tr></thead><tbody>";
+        for (var i = 0; i < times.length; i++) {
+            table += "<tr><td>" + times[i].Name + "</td><td>" + times[i].TaskHours + "</td><td>" + times[i].StoryHours + "</td><td>" + times[i].TotalHours + "</td></tr>";
+        }
+        table += "</tbody></table>";
+        var element = document.getElementById("times");
+        element.innerHTML = table;
+    }
+
+    loadTimes();
+</script>
+</body>
+</html>

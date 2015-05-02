@@ -14,6 +14,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Web", "Web", "{11F4ADCE-3650-406D-879E-AC49672A7A2C}"
 	ProjectSection(SolutionItems) = preProject
 		GetJson.php = GetJson.php
+		index.html = index.html
 	EndProjectSection
 EndProject
 Global
