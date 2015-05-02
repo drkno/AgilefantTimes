@@ -1,0 +1,154 @@
+﻿<!DOCTYPE html>
+
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <title>Agilefant Times</title>
+    <style>
+        body {
+            text-align: center;
+        }
+
+        #times {
+            display: inline-block;
+        }
+
+        table {
+            border: none;
+            outline: none;
+            text-align: center;
+            display: inline-block;
+            border-collapse: collapse;
+        }
+
+        thead {
+            margin: 0;
+            font-weight: light;
+            background-color: #E9E9E9;
+        }
+
+        th {
+            padding: 5px 10px 5px 10px;
+        }
+
+        td {
+            padding: 5px;
+            width: 200px;
+            border-left: 1px solid #E9E9E9;
+        }
+
+            td:first-child {
+                border-left: none;
+            }
+    </style>
+</head>
+<body>
+<div id="times">Please Wait, loading times...</div>
+    <br>
+    <canvas id="canvas" height="250" width="600"></canvas>
+    <br>
+    <table>
+        <thead>
+            <tr>
+                <th>Average</th>
+                <th>Minimum</th>
+                <th>Median</th>
+                <th>Maximum</th>
+                <th>Total</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td id="average"></td>
+                <td id="min"></td>
+                <td id="median"></td>
+                <td id="max"></td>
+                <td id="total"></td>
+            </tr>
+        </tbody>
+    </table>
+<script src="Chart.min.js"></script>
+<script>
+    function displayGraph(columns, data) {
+        var barChartData = {
+            labels: columns,
+            datasets: [
+				{
+				    fillColor: "rgba(220,220,220,0.5)",
+				    strokeColor: "rgba(220,220,220,0.8)",
+				    highlightFill: "rgba(220,220,220,0.75)",
+				    highlightStroke: "rgba(220,220,220,1)",
+				    data: data
+				}
+            ]
+        };
+
+        var canvas = document.getElementById("canvas");
+        canvas.height = 250;
+        canvas.width = 900;
+        var ctx = canvas.getContext("2d");
+        window.myBar = new Chart(ctx).Bar(barChartData, {
+            responsive: true
+        });
+    }
+
+    function loadTimes() {
+        var webRequest = (window.XMLHttpRequest) ? new XMLHttpRequest() : new ActiveXObject("Microsoft.XMLHTTP");
+        webRequest.onreadystatechange = function() {
+            if (webRequest.readyState === 4 && webRequest.status === 200) {
+                var response = JSON.parse(webRequest.responseText);
+                displayTimes(response.Hours);
+            }
+        }
+        webRequest.open("GET", "GetJson.php", true);
+        webRequest.send();
+    }
+
+    function displayTimes(times) {
+        var columns = [];
+        var data = [];
+        var average = 0.0;
+        var table = "<table><thead><tr><th>Person</th><th>Task Hours</th><th>Story Hours</th><th>Total Hours</th></tr></thead><tbody>";
+        for (var i = 0; i < times.length; i++) {
+            table += "<tr><td>"
+                + times[i].Name + "</td><td>"
+                + roundToOneDp(times[i].TaskHours) + "</td><td>"
+                + roundToOneDp(times[i].StoryHours) + "</td><td>"
+                + roundToOneDp(times[i].TotalHours) + "</td></tr>";
+
+            columns[columns.length] = times[i].Name;
+            data[data.length] = times[i].TotalHours;
+            average += times[i].TotalHours;
+        }
+        table += "</tbody></table>";
+        var element = document.getElementById("times");
+        element.innerHTML = table;
+
+        displayGraph(columns, data);
+
+        document.getElementById("total").innerHTML = roundToOneDp(average);
+        average /= data.length;
+        document.getElementById("average").innerHTML = roundToOneDp(average);
+        var maxIndex = data.indexOf(Math.max.apply(Math, data));
+        document.getElementById("max").innerHTML = roundToOneDp(data[maxIndex]) + " (" + columns[maxIndex] + ")";
+        var minIndex = data.indexOf(Math.min.apply(Math, data));
+        document.getElementById("min").innerHTML = roundToOneDp(data[minIndex]) + " (" + columns[minIndex] + ")";
+        var median = getMedian(data);
+        document.getElementById("median").innerHTML = roundToOneDp(data[median]) + " (" + columns[median] + ")";
+    }
+
+    function roundToOneDp(number) {
+        return +(Math.round(number + "e+1") + "e-1");
+    }
+
+    function getMedian(values) {
+        var vals = values;
+        vals.sort();
+        var half = Math.floor(values.length / 2);
+        return values.indexOf(vals[half]);
+    }
+
+    loadTimes();
+</script>
+</body>
+</html>
