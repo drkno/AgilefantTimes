@@ -4,7 +4,14 @@ Getting the hours spent for all members in Agilefant is a time consuming process
 
 ## Download
 Release versions can be found [here](https://github.com/mrkno/AgilefantTimes/releases).<br>
-For up to date snapshots, please clone the source and compile yourself.
+For up to date snapshots, please clone the source and compile yourself.<br>
+If you are installing this on the University of Canterbury Jenkins servers, the following commands will automate the process:<br>
+```
+wget https://github.com/mrkno/AgilefantTimes/releases/download/v0.4/RedHatInstall.sh
+sed -i 's/\r//' RedHatInstall.sh
+chmod +x RedHatInstall.sh
+./RedHatInstall.sh
+```
 
 ## Usage
 During this development phase it requires manual setup.<br>
