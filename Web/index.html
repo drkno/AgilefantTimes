@@ -8,6 +8,12 @@
         body {
             text-align: center;
         }
+        
+	    #title {
+		    font-family: Arial, Helvetica;
+		    margin-top: 0;
+		    margin-bottom: 2px;
+	    }
 
         #times {
             display: inline-block;
@@ -47,7 +53,8 @@
     </style>
 </head>
 <body>
-<div id="times">Please Wait, loading times...</div>
+    <h2 id="title"></h2>
+    <div id="times">Please Wait, loading times...</div>
     <br>
     <canvas id="canvas" height="250" width="600"></canvas>
     <br>
@@ -102,6 +109,9 @@
             if (webRequest.readyState === 4 && webRequest.status === 200) {
                 var response = JSON.parse(webRequest.responseText);
                 displayTimes(response.Hours);
+                document.getElementById("title").innerHTML = response.Sprint + " (" + response.TeamName + ")";
+            } else if (webRequest.readyState === 4 && webRequest.status >= 400) {
+                document.getElementById("times").innerHTML = "An error with code " + webRequest.status + " occured while retreiving times.";
             }
         }
         webRequest.open("GET", "GetJson.php", true);
