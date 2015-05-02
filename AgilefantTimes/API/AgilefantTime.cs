@@ -72,17 +72,14 @@ namespace AgilefantTimes.API
             {
                 if (lines[i].Contains("storyContainer"))
                 {
+                    run = true;
                     mode = true;
                     continue;
                 }
                 if (lines[i].Contains("taskContainer"))
                 {
-                    mode = false;
-                    continue;
-                }
-                if (lines[i].Contains("timesheet-content"))
-                {
                     run = true;
+                    mode = false;
                     continue;
                 }
                 if (lines[i].Contains("</ul>"))
