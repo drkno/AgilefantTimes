@@ -58,42 +58,55 @@
     <br>
     <canvas id="canvas" height="250" width="600"></canvas>
     <br>
-    <table id="statsTable">
-        <thead>
-            <tr>
-                <th>Average</th>
-                <th>Minimum</th>
-                <th>Median</th>
-                <th>Maximum</th>
-                <th>Total</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td id="average"></td>
-                <td id="min"></td>
-                <td id="median"></td>
-                <td id="max"></td>
-                <td id="total"></td>
-            </tr>
-        </tbody>
-    </table>
+<table id="statsTable">
+    <thead>
+    <tr>
+        <th>Average</th>
+        <th>Minimum</th>
+        <th>Median</th>
+        <th>Maximum</th>
+        <th>Total</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td id="average"></td>
+        <td id="min"></td>
+        <td id="median"></td>
+        <td id="max"></td>
+        <td id="total"></td>
+    </tr>
+    </tbody>
+</table>
+<select onchange="loadTimes(this.value)">
+    <option value="">default</option>
+    <option value="1">1</option>
+    <option value="2">2</option>
+    <option value="3">3</option>
+    <option value="4">4</option>
+    <option value="5">5</option>
+    <option value="6">6</option>
+</select>
+
 <script src="Chart.min.js"></script>
 <script>
     function displayGraph(columns, data) {
         var barChartData = {
             labels: columns,
             datasets: [
-				{
-				    fillColor: "rgba(220,220,220,0.5)",
-				    strokeColor: "rgba(220,220,220,0.8)",
-				    highlightFill: "#FF5A5E",
-				    highlightStroke: "rgba(220,220,220,1)",
-				    data: data
-				}
+                {
+                    fillColor: "rgba(220,220,220,0.5)",
+                    strokeColor: "rgba(220,220,220,0.8)",
+                    highlightFill: "#FF5A5E",
+                    highlightStroke: "rgba(220,220,220,1)",
+                    data: data
+                }
             ]
         };
 
+        if (window.myBar) {
+            window.myBar.destroy();
+        }
         var canvas = document.getElementById("canvas");
         canvas.height = 250;
         canvas.width = 900;
@@ -103,7 +116,12 @@
         });
     }
 
-    function loadTimes() {
+    function loadTimes(sprint) {
+        var sprintArgs = "";
+        if (sprint && !isNaN(sprint)) {
+            sprintArgs = "/sprint/" + sprint;
+        }
+
         var webRequest = (window.XMLHttpRequest) ? new XMLHttpRequest() : new ActiveXObject("Microsoft.XMLHTTP");
         webRequest.onreadystatechange = function() {
             if (webRequest.readyState === 4 && webRequest.status === 200) {
@@ -114,7 +132,7 @@
                 document.getElementById("times").innerHTML = "An error with code " + webRequest.status + " occured while retreiving times.";
             }
         }
-        webRequest.open("GET", "GetJson.php", true);
+        webRequest.open("GET", "GetJson.php" + sprintArgs, true);
         webRequest.send();
     }
 

@@ -13,11 +13,21 @@ namespace AgilefantTimes
     {
         private static readonly JsonPrinter JsonPrinter = new JsonPrinter();
 
-        public static void Main()
+        public static void Main(string[] args)
         {
             try
             {
                 var config = Config.Load("aftimes.conf");
+                var options = new OptionSet()
+                {
+                    {"sprint|S", "The sprint you want to use", s =>
+                    {
+                        int result;
+                        int.TryParse(s, out result);
+                        config.SprintNumber = result;
+                    }}
+                };
+                options.ParseExceptionally(args);
 
                 var session = AgilefantLogin.PerformLogin(config.Username, config.Password);
                 var users = AgilefantUser.GetAgilefantUsers(ref session);
