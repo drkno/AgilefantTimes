@@ -87,9 +87,10 @@ namespace AgilefantTimes
             if (spId < 0)
             {
                 if (config.SprintNumber <= 0) config.SprintNumber = 1;
-                sprintId = (from agilefantSprint in sprintPool
+                spId = (from agilefantSprint in sprintPool
                             where agilefantSprint.Name.Contains(config.SprintNumber.ToString())
                             select agilefantSprint.Id).First();
+                sprintId = spId;
                 sprintName = (from sprint in sprintPool
                               where sprint.Id == spId
                               select sprint.Name).First();
