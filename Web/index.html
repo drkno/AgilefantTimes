@@ -114,7 +114,7 @@
         webRequest.onreadystatechange = function() {
             if (webRequest.readyState === 4 && webRequest.status === 200) {
                 var response = JSON.parse(webRequest.responseText);
-                displayTimes(response.Hours);
+                displayTimes(response.Hours, response.SprintName, response.TeamName);
                 displayLoading(false);
             } else if (webRequest.readyState === 4 && webRequest.status >= 400) {
                 document.getElementById("times").innerHTML = "An error with code " + webRequest.status + " occured while retreiving times.";
