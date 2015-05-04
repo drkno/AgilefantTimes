@@ -23,6 +23,12 @@
             display: none;
         }
 
+        #sprintPicker {
+            display: none;
+            margin-top: 1px;
+            margin-bottom: 1px;
+        }
+
         table {
             border: none;
             outline: none;
@@ -53,44 +59,107 @@
     </style>
 </head>
 <body>
-    <h2 id="title"></h2>
+<h2 id="title"></h2>
+    <p id="sprintPicker">
+        Sprint:
+        <select onchange="loadTimes(this.value)">
+            <option value="">Auto Detect</option>
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+            <option value="6">6</option>
+        </select>
+    </p>
     <div id="times">Please Wait, loading times...</div>
     <br>
     <canvas id="canvas" height="250" width="600"></canvas>
     <br>
-    <table id="statsTable">
-        <thead>
-            <tr>
-                <th>Average</th>
-                <th>Minimum</th>
-                <th>Median</th>
-                <th>Maximum</th>
-                <th>Total</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td id="average"></td>
-                <td id="min"></td>
-                <td id="median"></td>
-                <td id="max"></td>
-                <td id="total"></td>
-            </tr>
-        </tbody>
-    </table>
+<table id="statsTable">
+    <thead>
+    <tr>
+        <th>Average</th>
+        <th>Minimum</th>
+        <th>Median</th>
+        <th>Maximum</th>
+        <th>Total</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td id="average"></td>
+        <td id="min"></td>
+        <td id="median"></td>
+        <td id="max"></td>
+        <td id="total"></td>
+    </tr>
+    </tbody>
+</table>
 <script src="Chart.min.js"></script>
 <script>
+    /**
+     * Loads times from the API.
+     * @param sprint the sprint number to load
+     */
+    function loadTimes(sprint) {
+        displayLoading(true);
+
+        var sprintArgs = "";
+        if (sprint && !isNaN(sprint)) {
+            sprintArgs = "/sprint/" + sprint;
+        }
+
+        var webRequest = (window.XMLHttpRequest) ? new XMLHttpRequest() : new ActiveXObject("Microsoft.XMLHTTP");
+        webRequest.onreadystatechange = function() {
+            if (webRequest.readyState === 4 && webRequest.status === 200) {
+                var response = JSON.parse(webRequest.responseText);
+                displayTimes(response.Hours, response.SprintName, response.TeamName);
+                displayLoading(false);
+            } else if (webRequest.readyState === 4 && webRequest.status >= 400) {
+                document.getElementById("times").innerHTML = "An error with code " + webRequest.status + " occured while retreiving times.";
+            }
+        }
+        webRequest.open("GET", "GetJson.php" + sprintArgs, true);
+        webRequest.send();
+    }
+
+    /**
+     * Displays or removes the loading UI from the page.
+     * @param currentlyLoading wheather the page is currently loading or not.
+     */
+    function displayLoading(currentlyLoading) {
+        if (currentlyLoading) {
+            document.getElementById("times").innerHTML = "Please Wait, loading times...";
+            document.getElementById("title").style.display = "none";
+            document.getElementById("statsTable").style.display = "none";
+            document.getElementById("sprintPicker").style.display = "none";
+            if (window.myBar) {
+                window.myBar.destroy();
+            }
+        } else {
+            document.getElementById("title").style.display = "block";
+            document.getElementById("statsTable").style.display = "inline-block";
+            document.getElementById("sprintPicker").style.display = "block";
+        }
+    }
+
+    /**
+     * Displays a bar graph of values.
+     * @param columns column names to display.
+     * @param data data to display.
+     */
     function displayGraph(columns, data) {
         var barChartData = {
             labels: columns,
             datasets: [
-				{
-				    fillColor: "rgba(220,220,220,0.5)",
-				    strokeColor: "rgba(220,220,220,0.8)",
-				    highlightFill: "#FF5A5E",
-				    highlightStroke: "rgba(220,220,220,1)",
-				    data: data
-				}
+                {
+                    fillColor: "rgba(220,220,220,0.5)",
+                    strokeColor: "rgba(220,220,220,0.8)",
+                    highlightFill: "#FF5A5E",
+                    highlightStroke: "rgba(220,220,220,1)",
+                    data: data
+                }
             ]
         };
 
@@ -103,22 +172,15 @@
         });
     }
 
-    function loadTimes() {
-        var webRequest = (window.XMLHttpRequest) ? new XMLHttpRequest() : new ActiveXObject("Microsoft.XMLHTTP");
-        webRequest.onreadystatechange = function() {
-            if (webRequest.readyState === 4 && webRequest.status === 200) {
-                var response = JSON.parse(webRequest.responseText);
-                displayTimes(response.Hours);
-                document.getElementById("title").innerHTML = response.Sprint + " (" + response.TeamName + ")";
-            } else if (webRequest.readyState === 4 && webRequest.status >= 400) {
-                document.getElementById("times").innerHTML = "An error with code " + webRequest.status + " occured while retreiving times.";
-            }
-        }
-        webRequest.open("GET", "GetJson.php", true);
-        webRequest.send();
-    }
+    /**
+     * Updates the UI to show the specified times.
+     * @param times times to display.
+     * @param sprint sprint that these times represent.
+     * @param teamName Agilefant team name that these values represent.
+     */
+    function displayTimes(times, sprint, teamName) {
+        document.getElementById("title").innerHTML = sprint + " (" + teamName + ")";
 
-    function displayTimes(times) {
         var columns = [];
         var data = [];
         var average = 0.0;
@@ -131,7 +193,7 @@
                 + roundToOneDp(times[i].TotalHours) + "</td></tr>";
 
             columns[columns.length] = times[i].Name;
-            data[data.length] = times[i].TotalHours;
+            data[data.length] = roundToOneDp(times[i].TotalHours);
             average += times[i].TotalHours;
         }
         table += "</tbody></table>";
@@ -149,13 +211,23 @@
         document.getElementById("min").innerHTML = roundToOneDp(data[minIndex]) + " (" + columns[minIndex] + ")";
         var median = getMedian(data);
         document.getElementById("median").innerHTML = roundToOneDp(data[median]) + " (" + columns[median] + ")";
-        document.getElementById("statsTable").style.display = "inline-block";
+        
     }
 
+    /**
+     * Rounds a number to 1dp or less.
+     * @param number number to round.
+     * @returns number rounded to 1dp or less.
+     */
     function roundToOneDp(number) {
         return +(Math.round(number + "e+1") + "e-1");
     }
 
+    /**
+     * Gets the median index of an array of values.
+     * @param values array to get median of.
+     * @returns index of median.
+     */
     function getMedian(values) {
         var vals = values.slice();
         vals.sort();
