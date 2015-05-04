@@ -98,6 +98,57 @@
 </table>
 <script src="Chart.min.js"></script>
 <script>
+    /**
+     * Loads times from the API.
+     * @param sprint the sprint number to load
+     */
+    function loadTimes(sprint) {
+        displayLoading(true);
+
+        var sprintArgs = "";
+        if (sprint && !isNaN(sprint)) {
+            sprintArgs = "/sprint/" + sprint;
+        }
+
+        var webRequest = (window.XMLHttpRequest) ? new XMLHttpRequest() : new ActiveXObject("Microsoft.XMLHTTP");
+        webRequest.onreadystatechange = function() {
+            if (webRequest.readyState === 4 && webRequest.status === 200) {
+                var response = JSON.parse(webRequest.responseText);
+                displayTimes(response.Hours);
+                displayLoading(false);
+            } else if (webRequest.readyState === 4 && webRequest.status >= 400) {
+                document.getElementById("times").innerHTML = "An error with code " + webRequest.status + " occured while retreiving times.";
+            }
+        }
+        webRequest.open("GET", "GetJson.php" + sprintArgs, true);
+        webRequest.send();
+    }
+
+    /**
+     * Displays or removes the loading UI from the page.
+     * @param currentlyLoading wheather the page is currently loading or not.
+     */
+    function displayLoading(currentlyLoading) {
+        if (currentlyLoading) {
+            document.getElementById("times").innerHTML = "Please Wait, loading times...";
+            document.getElementById("title").style.display = "none";
+            document.getElementById("statsTable").style.display = "none";
+            document.getElementById("sprintPicker").style.display = "none";
+            if (window.myBar) {
+                window.myBar.destroy();
+            }
+        } else {
+            document.getElementById("title").style.display = "block";
+            document.getElementById("statsTable").style.display = "inline-block";
+            document.getElementById("sprintPicker").style.display = "block";
+        }
+    }
+
+    /**
+     * Displays a bar graph of values.
+     * @param columns column names to display.
+     * @param data data to display.
+     */
     function displayGraph(columns, data) {
         var barChartData = {
             labels: columns,
@@ -112,11 +163,6 @@
             ]
         };
 
-        if (window.myBar) {
-            window.myBar.destroy();
-        }
-
-        document.getElementById("canvas").style.display = "inline-block";
         var canvas = document.getElementById("canvas");
         canvas.height = 250;
         canvas.width = 900;
@@ -126,32 +172,15 @@
         });
     }
 
-    function loadTimes(sprint) {
-        document.getElementById("title").style.display = "none";
-        document.getElementById("times").innerHTML = "Please Wait, loading times...";
-        document.getElementById("canvas").style.display = "none";
-        document.getElementById("statsTable").style.display = "none";
-        document.getElementById("sprintPicker").style.display = "none";
-        var sprintArgs = "";
-        if (sprint && !isNaN(sprint)) {
-            sprintArgs = "/sprint/" + sprint;
-        }
+    /**
+     * Updates the UI to show the specified times.
+     * @param times times to display.
+     * @param sprint sprint that these times represent.
+     * @param teamName Agilefant team name that these values represent.
+     */
+    function displayTimes(times, sprint, teamName) {
+        document.getElementById("title").innerHTML = sprint + " (" + teamName + ")";
 
-        var webRequest = (window.XMLHttpRequest) ? new XMLHttpRequest() : new ActiveXObject("Microsoft.XMLHTTP");
-        webRequest.onreadystatechange = function() {
-            if (webRequest.readyState === 4 && webRequest.status === 200) {
-                var response = JSON.parse(webRequest.responseText);
-                displayTimes(response.Hours);
-                document.getElementById("title").innerHTML = response.Sprint + " (" + response.TeamName + ")";
-            } else if (webRequest.readyState === 4 && webRequest.status >= 400) {
-                document.getElementById("times").innerHTML = "An error with code " + webRequest.status + " occured while retreiving times.";
-            }
-        }
-        webRequest.open("GET", "GetJson.php" + sprintArgs, true);
-        webRequest.send();
-    }
-
-    function displayTimes(times) {
         var columns = [];
         var data = [];
         var average = 0.0;
@@ -182,15 +211,23 @@
         document.getElementById("min").innerHTML = roundToOneDp(data[minIndex]) + " (" + columns[minIndex] + ")";
         var median = getMedian(data);
         document.getElementById("median").innerHTML = roundToOneDp(data[median]) + " (" + columns[median] + ")";
-        document.getElementById("statsTable").style.display = "inline-block";
-        document.getElementById("sprintPicker").style.display = "block";
-        document.getElementById("title").style.display = "block";
+        
     }
 
+    /**
+     * Rounds a number to 1dp or less.
+     * @param number number to round.
+     * @returns number rounded to 1dp or less.
+     */
     function roundToOneDp(number) {
         return +(Math.round(number + "e+1") + "e-1");
     }
 
+    /**
+     * Gets the median index of an array of values.
+     * @param values array to get median of.
+     * @returns index of median.
+     */
     function getMedian(values) {
         var vals = values.slice();
         vals.sort();

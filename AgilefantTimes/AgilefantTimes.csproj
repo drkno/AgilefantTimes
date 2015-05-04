@@ -65,6 +65,8 @@
     <Compile Include="Config.cs" />
     <Compile Include="API\Common\Extensions.cs" />
     <Compile Include="Options.cs" />
+    <Compile Include="Output\JsonOutput.cs" />
+    <Compile Include="Output\JsonOutputTime.cs" />
     <Compile Include="Output\JsonPrinter.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
