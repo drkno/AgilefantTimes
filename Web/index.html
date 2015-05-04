@@ -23,6 +23,12 @@
             display: none;
         }
 
+        #sprintPicker {
+            display: none;
+            margin-top: 1px;
+            margin-bottom: 1px;
+        }
+
         table {
             border: none;
             outline: none;
@@ -53,7 +59,19 @@
     </style>
 </head>
 <body>
-    <h2 id="title"></h2>
+<h2 id="title"></h2>
+    <p id="sprintPicker">
+        Sprint:
+        <select onchange="loadTimes(this.value)">
+            <option value="">Auto Detect</option>
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+            <option value="6">6</option>
+        </select>
+    </p>
     <div id="times">Please Wait, loading times...</div>
     <br>
     <canvas id="canvas" height="250" width="600"></canvas>
@@ -78,16 +96,6 @@
     </tr>
     </tbody>
 </table>
-<select onchange="loadTimes(this.value)">
-    <option value="">default</option>
-    <option value="1">1</option>
-    <option value="2">2</option>
-    <option value="3">3</option>
-    <option value="4">4</option>
-    <option value="5">5</option>
-    <option value="6">6</option>
-</select>
-
 <script src="Chart.min.js"></script>
 <script>
     function displayGraph(columns, data) {
@@ -107,6 +115,8 @@
         if (window.myBar) {
             window.myBar.destroy();
         }
+
+        document.getElementById("canvas").style.display = "inline-block";
         var canvas = document.getElementById("canvas");
         canvas.height = 250;
         canvas.width = 900;
@@ -117,6 +127,11 @@
     }
 
     function loadTimes(sprint) {
+        document.getElementById("title").style.display = "none";
+        document.getElementById("times").innerHTML = "Please Wait, loading times...";
+        document.getElementById("canvas").style.display = "none";
+        document.getElementById("statsTable").style.display = "none";
+        document.getElementById("sprintPicker").style.display = "none";
         var sprintArgs = "";
         if (sprint && !isNaN(sprint)) {
             sprintArgs = "/sprint/" + sprint;
@@ -149,7 +164,7 @@
                 + roundToOneDp(times[i].TotalHours) + "</td></tr>";
 
             columns[columns.length] = times[i].Name;
-            data[data.length] = times[i].TotalHours;
+            data[data.length] = roundToOneDp(times[i].TotalHours);
             average += times[i].TotalHours;
         }
         table += "</tbody></table>";
@@ -168,6 +183,8 @@
         var median = getMedian(data);
         document.getElementById("median").innerHTML = roundToOneDp(data[median]) + " (" + columns[median] + ")";
         document.getElementById("statsTable").style.display = "inline-block";
+        document.getElementById("sprintPicker").style.display = "block";
+        document.getElementById("title").style.display = "block";
     }
 
     function roundToOneDp(number) {
