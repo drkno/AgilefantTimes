@@ -53,7 +53,7 @@ namespace AgilefantTimes
                     Console.Error.WriteLine("An error occured at runtime:\n" + e.Message);
                 }
 #if DEBUG
-                throw;
+                 throw;
 #endif
             }
 

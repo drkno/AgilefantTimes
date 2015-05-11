@@ -15,10 +15,10 @@ namespace AgilefantTimes.API
     public class AgilefantBacklog
     {
         [DataMember(Name = "backlogSize")]
-        public object BacklogSize { get; set; }
+        public string BacklogSize { get; set; }
 
         [DataMember(Name = "baselineLoad")]
-        public int BaselineLoad { get; set; }
+        public string BaselineLoad { get; set; }
 
         [DataMember(Name = "class")]
         public string InternalClass { get; set; }
