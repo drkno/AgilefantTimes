@@ -1,0 +1,65 @@
+<link rel="import" href="bower_components/core-item/core-item.html">
+<link rel="import" href="bower_components/chartjs/Chart.js">
+
+<polymer-element name="view-sprint" attributes="show">
+
+    <template>
+        <style>
+            :host {
+                position: absolute;
+                width: 100%;
+                height: 100%;
+                box-sizing: border-box;
+            }
+            #chart_js {
+                width: 60%;
+                height: 50%;
+                left: 0rem;
+                top: 40%;
+                position: absolute;
+            }
+            #chart_js1 {
+                width: 40%;
+                height: 50%;
+                left: 60%;
+                top: 40%;
+                position: absolute;
+            }
+            #core_card {
+                position: absolute;
+                width: 100%;
+                height: 40%;
+                border-radius: 2px;
+                box-shadow: rgba(0, 0, 0, 0.0980392) 0px 2px 4px, rgba(0, 0, 0, 0.0980392) 0px 0px 3px;
+                left: 0rem;
+                top: 0rem;
+                background-color: rgb(255, 255, 255);
+            }
+            #core_card1 {
+                position: absolute;
+                width: 100%;
+                height: 10%;
+                border-radius: 2px;
+                box-shadow: rgba(0, 0, 0, 0.0980392) 0px 2px 4px, rgba(0, 0, 0, 0.0980392) 0px 0px 3px;
+                left: 0rem;
+                top: 90%;
+                background-color: rgb(255, 255, 255);
+            }
+        </style>
+        <chart-js kind="pie" id="chart_js" class="bar_chart"></chart-js>
+        <chart-js id="chart_js1" class="pie_chart"></chart-js>
+        <core-card id="core_card" layout vertical class="userStat_table_card"></core-card>
+        <core-card id="core_card1" layout vertical class="stat_table_card"></core-card>
+    </template>
+
+    <script>
+
+        Polymer({
+            sprintNum: 40
+
+        });
+        console.log(this.sprintNum);
+        console.log(this);
+    </script>
+
+</polymer-element>
