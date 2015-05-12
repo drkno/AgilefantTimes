@@ -134,7 +134,14 @@ namespace AgilefantTimes
                             {
                                 throw new OptionException("Option expects arguments and none provided.", arg);
                             }
-                            _options[optionRead].Action(arg);
+                            try
+                            {
+                                _options[optionRead].Action(arg);
+                            }
+                            catch (Exception)
+                            {
+                                throw new OptionException("Invalid value for option.", arg);
+                            }
                         }
                         catch (OptionException)
                         {
@@ -192,7 +199,7 @@ namespace AgilefantTimes
             if (result.Count <= 0) return;
             var options = "";
             options = result.Aggregate(options, (current, r) => current + (" " + r));
-            throw new OptionException("Unknown option" + (result.Count > 1 ? "s" : "") + " " + options, result.ToArray());
+            throw new OptionException("An error occured with option" + (result.Count > 1 ? "s" : "") + " " + options, result.ToArray());
         }
 
         /// <summary>
