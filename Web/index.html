@@ -230,7 +230,7 @@
      */
     function getMedian(values) {
         var vals = values.slice();
-        vals.sort();
+        vals.sort(function (a, b) { return a - b });
         var half = Math.floor(values.length / 2);
         return values.indexOf(vals[half]);
     }
