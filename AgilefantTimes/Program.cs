@@ -62,9 +62,9 @@ namespace AgilefantTimes
                 {
                     Console.Error.WriteLine(e.StackTrace);
 #if DEBUG
-                    throw;
+                throw;
 #endif
-                }
+            }
             }
 
             if (_config.DebugMode) Console.ReadKey();

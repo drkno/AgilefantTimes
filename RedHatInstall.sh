@@ -11,7 +11,7 @@ wget https://raw.githubusercontent.com/mrkno/AgilefantTimes/master/Web/index.htm
 wget https://raw.githubusercontent.com/mrkno/AgilefantTimes/master/Web/GetJson.php
 wget https://raw.githubusercontent.com/mrkno/AgilefantTimes/master/Web/Chart.min.js
 cd ..
-wget https://github.com/mrkno/AgilefantTimes/releases/download/v0.4/AgilefantTimes.exe
+wget https://github.com/mrkno/AgilefantTimes/releases/download/v0.6/AgilefantTimes.exe
 
 # Setup Configuration
 read -p "Enter your Agilefant username: " username </dev/tty

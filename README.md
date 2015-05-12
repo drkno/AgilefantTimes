@@ -8,7 +8,7 @@ Release versions can be found [here](https://github.com/mrkno/AgilefantTimes/rel
 For up to date snapshots, please clone the source and compile yourself.<br>
 If you are installing this on the University of Canterbury Jenkins servers, the following commands will automate the process:<br>
 ```
-wget https://github.com/mrkno/AgilefantTimes/releases/download/v0.4/RedHatInstall.sh
+wget https://github.com/mrkno/AgilefantTimes/releases/download/v0.6/RedHatInstall.sh
 sed -i 's/\r//' RedHatInstall.sh
 chmod +x RedHatInstall.sh
 ./RedHatInstall.sh
@@ -28,6 +28,7 @@ Inside the file paste the following configuration, edited where appropriate:<br>
 }
 ```
 To run the program, just double click the `AgilefantTimes.exe` executable, and, provided everything is setup correctly and you did not encounter a bug it will run.<br>
+The program supports command line arguments, to view these start the application with the `-h` or `--help` option. Command line arguments override values in the configuration file.<br>
 On platforms other than Windows the executable **should** be able to be run using Mono, provided the version being used supports all the features used in the program. To do this run from within a shell:<br>
 ```mono AgilefantTimes.exe```<br>
 
@@ -38,7 +39,7 @@ On platforms other than Windows the executable **should** be able to be run usin
 ```wine AgilefantTimes.exe```
 
 ### GetJson.php and index.html
-`GetJson.php` can be used to extract the output of the .exe into a php or html webpage. To use set the variables inside the variables section of the file.<br>
+`GetJson.php` can be used to extract the output of the .exe into a php or html webpage. To use set the variables inside the variables section of the file. It also supports a restful API. This can be used by calling `GetJson.php/sprints/{sprintNum}` where `{sprintNum}` is the sprint number.<br>
 `index.html` is a quick and dirty example of how the data could be displayed on a webpage.<br>
 A working example of these files can be seen [here](http://csse-s302g1.canterbury.ac.nz/).
 
