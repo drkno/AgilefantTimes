@@ -46,20 +46,24 @@
                 background-color: rgb(255, 255, 255);
             }
         </style>
-        <chart-js kind="pie" id="chart_js" class="bar_chart"></chart-js>
-        <chart-js id="chart_js1" class="pie_chart"></chart-js>
-        <core-card id="core_card" layout vertical class="userStat_table_card"></core-card>
-        <core-card id="core_card1" layout vertical class="stat_table_card"></core-card>
+        <div>
+            This is <b>{{sprintNum}}</b>'s name-tag element.
+        </div>
+        <!--<chart-js kind="pie" id="chart_js" class="bar_chart"></chart-js>-->
+        <!--<chart-js id="chart_js1" class="pie_chart"></chart-js>-->
+        <!--<core-card id="core_card" layout vertical class="userStat_table_card"></core-card>-->
+        <!--<core-card id="core_card1" layout vertical class="stat_table_card"></core-card>-->
     </template>
 
     <script>
 
-        Polymer({
-            sprintNum: 40
+        Polymer('view-sprint', {
+            // initialize the element's model
+            ready: function() {
+                this.sprintNum = 0;
+            }
 
         });
-        console.log(this.sprintNum);
-        console.log(this);
     </script>
 
 </polymer-element>
