@@ -2,17 +2,23 @@
 <link rel="import" href="bower_components/chartjs/Chart.js">
 <link rel="import" href="bower_components/polymer/polymer.html">
 <link rel="import" href="bower_components/core-ajax/core-ajax.html">
+<link rel="import" href="model-users.html">
+<link rel="import" href="bower_components/core-localstorage/core-localstorage.html">
+<link rel="import" href="bower_components/polymer-loading-spinner/loading-spinner.html">
 
-<polymer-element name="view-sprint">
+<polymer-element name="view-sprint" attributes="sprintNum">
 
     <template>
         <style>
             :host {
-                /*position: absolute;*/
                 width: 100%;
                 height: 100%;
                 box-sizing: border-box;
             }
+            #userTable {
+                display: none;
+            }
+
             #chart_js {
                 width: 60%;
                 height: 50%;
@@ -49,17 +55,14 @@
             }
         </style>
         <div id="container">
+            <loading-spinner startColor="#3FCADA" middleColor="#1074C5" endColor="#3FCADA"></loading-spinner>
             <core-ajax
                     id="ajax"
-                    auto
                     url="../GetJson.php/sprint/{{sprintNum}}"
                     handleAs="json"
                     hidden></core-ajax>
-            <div>
-                This is <b>{{sprintNum}}</b>'s name-tag element.
-            </div>
-            <div>
-                {{data}}
+            <div id="userTable" center-center horizontal layout>
+                <model-users></model-users>
             </div>
             <!--<chart-js kind="pie" id="chart_js" class="bar_chart"></chart-js>-->
             <!--<chart-js id="chart_js1" class="pie_chart"></chart-js>-->
@@ -73,19 +76,36 @@
         Polymer('view-sprint', {
             // initialize the element's model
             sprintNum: 0,
-            JSON: null,
             data: {
                 Hours: {},
                 SprintName: {},
                 TeamName: {}
             },
-
             ready: function() {
+                var spinner = this.shadowRoot.querySelector('loading-spinner');
+                spinner.show();
+                this.userData = this.userData || {};
                 var ajax = this.$.ajax;
                 ajax.addEventListener("core-response", function(event) {
                     this.data = event.detail.response;
-                    console.log(this.data);
-                });
+                    this.fire('core-signal', {name: "new-userdata", data: this.data.Hours});
+                    this.showData();
+                }.bind(this));
+            },
+            showData: function() {
+                var spinner = this.shadowRoot.querySelector('loading-spinner');
+                spinner.hide();
+                this.$.userTable.style.display = "inline-block";
+            },
+            sprintNumChanged: function(oldVal, newVal) {
+                var spinner = this.shadowRoot.querySelector('loading-spinner');
+                spinner.show();
+                var ajax = this.$.ajax;
+                ajax.go();
+                this.hideData();
+            },
+            hideData: function() {
+                this.$.userTable.style.display = "none";
             }
 
         });

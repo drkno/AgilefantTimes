@@ -1,0 +1,89 @@
+<link rel="import" href="bower_components/core-signals/core-signals.html">
+
+<polymer-element name="model-users">
+
+    <template>
+        <style>
+            :host {
+                width: 100%;
+                height: 100%;
+                box-sizing: border-box;
+            }
+            table {
+                border: none;
+                outline: none;
+                text-align: center;
+                display: inline-block;
+                border-collapse: collapse;
+            }
+
+            thead {
+                margin: 0;
+                font-weight: lighter;
+                background-color: #f42d2d;
+            }
+
+            th {
+                padding: 5px 10px 5px 10px;
+            }
+
+            td {
+                text-align: right;
+                padding: 5px;
+                width: 200px;
+                border-left: 1px solid #9c9c9c;
+            }
+
+            td:first-child {
+                text-align: left;
+                border-left: none;
+            }
+
+        </style>
+
+        <core-signals on-core-signal-new-userdata="{{newData}}"></core-signals>
+
+        <table>
+            <thead>
+            <tr>
+                <th>Person</th>
+                <th>Task Hours</th>
+                <th>Story Hours</th>
+                <th>Total Hours</th>
+            </tr>
+            </thead>
+            <tbody>
+            <template repeat="{{user in userData}}">
+                <tr>
+                    <td>{{user.Name}}</td>
+                    <td>{{roundup1dp(user.TaskHours)}}</td>
+                    <td>{{roundup1dp(user.StoryHours)}}</td>
+                    <td>{{roundup1dp(user.TotalHours)}}</td>
+                </tr>
+            </template>
+            </tbody>
+        </table>
+
+    </template>
+
+    <script>
+        Polymer('model-users', {
+            userData: [],
+            ready: function() {
+            },
+            newData: function(e, detail, sender) {
+                this.userData = detail;
+            },
+
+            /**
+             * Rounds a number to 1dp or less.
+             * @param number number to round.
+             * @returns number rounded to 1dp or less.
+             */
+            roundup1dp: function(number) {
+                return +(Math.round(number + "e+1") + "e-1");
+        }
+
+        });
+    </script>
+</polymer-element>
