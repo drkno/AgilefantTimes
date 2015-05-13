@@ -14,6 +14,7 @@
     "commit": "2770ee4b62899d7897e3f3be94b69c03be6b20fa"
   },
   "_source": "git://github.com/Polymer/core-toolbar.git",
-  "_target": "^0.5",
-  "_originalSource": "Polymer/core-toolbar"
+  "_target": "~0.5.6",
+  "_originalSource": "Polymer/core-toolbar",
+  "_direct": true
 }

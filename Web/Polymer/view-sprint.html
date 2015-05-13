@@ -1,12 +1,14 @@
 <link rel="import" href="bower_components/core-item/core-item.html">
 <link rel="import" href="bower_components/chartjs/Chart.js">
+<link rel="import" href="bower_components/polymer/polymer.html">
+<link rel="import" href="bower_components/core-ajax/core-ajax.html">
 
-<polymer-element name="view-sprint" attributes="show">
+<polymer-element name="view-sprint">
 
     <template>
         <style>
             :host {
-                position: absolute;
+                /*position: absolute;*/
                 width: 100%;
                 height: 100%;
                 box-sizing: border-box;
@@ -46,21 +48,44 @@
                 background-color: rgb(255, 255, 255);
             }
         </style>
-        <div>
-            This is <b>{{sprintNum}}</b>'s name-tag element.
+        <div id="container">
+            <core-ajax
+                    id="ajax"
+                    auto
+                    url="../GetJson.php/sprint/{{sprintNum}}"
+                    handleAs="json"
+                    hidden></core-ajax>
+            <div>
+                This is <b>{{sprintNum}}</b>'s name-tag element.
+            </div>
+            <div>
+                {{data}}
+            </div>
+            <!--<chart-js kind="pie" id="chart_js" class="bar_chart"></chart-js>-->
+            <!--<chart-js id="chart_js1" class="pie_chart"></chart-js>-->
+            <!--<core-card id="core_card" layout vertical class="userStat_table_card"></core-card>-->
+            <!--<core-card id="core_card1" layout vertical class="stat_table_card"></core-card>-->
         </div>
-        <!--<chart-js kind="pie" id="chart_js" class="bar_chart"></chart-js>-->
-        <!--<chart-js id="chart_js1" class="pie_chart"></chart-js>-->
-        <!--<core-card id="core_card" layout vertical class="userStat_table_card"></core-card>-->
-        <!--<core-card id="core_card1" layout vertical class="stat_table_card"></core-card>-->
     </template>
 
     <script>
 
         Polymer('view-sprint', {
             // initialize the element's model
+            sprintNum: 0,
+            JSON: null,
+            data: {
+                Hours: {},
+                SprintName: {},
+                TeamName: {}
+            },
+
             ready: function() {
-                this.sprintNum = 0;
+                var ajax = this.$.ajax;
+                ajax.addEventListener("core-response", function(event) {
+                    this.data = event.detail.response;
+                    console.log(this.data);
+                });
             }
 
         });
