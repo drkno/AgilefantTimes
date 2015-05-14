@@ -1,10 +1,10 @@
 <link rel="import" href="bower_components/core-item/core-item.html">
-<link rel="import" href="bower_components/chartjs/Chart.js">
 <link rel="import" href="bower_components/polymer/polymer.html">
 <link rel="import" href="bower_components/core-ajax/core-ajax.html">
 <link rel="import" href="model-users.html">
 <link rel="import" href="bower_components/core-localstorage/core-localstorage.html">
 <link rel="import" href="bower_components/polymer-loading-spinner/loading-spinner.html">
+<link rel="import" href="data-charts.html">
 
 <polymer-element name="view-sprint" attributes="sprintNum">
 
@@ -20,40 +20,16 @@
                 opacity: 0;
                 transition: opacity 600ms ease-in-out;
             }
-
-            #chart_js {
-                width: 60%;
-                height: 50%;
-                left: 0rem;
-                top: 40%;
-                position: absolute;
+            loading-spinner {
+                opacity: 1;
+                display: block;
+                transition: opacity 600ms ease-in-out;
             }
-            #chart_js1 {
-                width: 40%;
-                height: 50%;
-                left: 60%;
-                top: 40%;
-                position: absolute;
-            }
-            #core_card {
-                position: absolute;
-                width: 100%;
-                height: 40%;
-                border-radius: 2px;
-                box-shadow: rgba(0, 0, 0, 0.0980392) 0px 2px 4px, rgba(0, 0, 0, 0.0980392) 0px 0px 3px;
-                left: 0rem;
-                top: 0rem;
-                background-color: rgb(255, 255, 255);
-            }
-            #core_card1 {
-                position: absolute;
-                width: 100%;
-                height: 10%;
-                border-radius: 2px;
-                box-shadow: rgba(0, 0, 0, 0.0980392) 0px 2px 4px, rgba(0, 0, 0, 0.0980392) 0px 0px 3px;
-                left: 0rem;
-                top: 90%;
-                background-color: rgb(255, 255, 255);
+            data-charts {
+                margin: 0 auto;
+                margin-top: 100px;
+                opacity: 0;
+                transition: opacity 600ms ease-in-out;
             }
         </style>
         <div id="container">
@@ -66,10 +42,9 @@
             <div id="userTable">
                 <model-users flex></model-users>
             </div>
-            <!--<chart-js kind="pie" id="chart_js" class="bar_chart"></chart-js>-->
-            <!--<chart-js id="chart_js1" class="pie_chart"></chart-js>-->
-            <!--<core-card id="core_card" layout vertical class="userStat_table_card"></core-card>-->
-            <!--<core-card id="core_card1" layout vertical class="stat_table_card"></core-card>-->
+            <br>
+            <data-charts vertical layout center flex></data-charts>
+            <br>
         </div>
     </template>
 
@@ -80,30 +55,35 @@
             sprintNum: -1,
             data: {
                 Hours: {},
-                SprintName: {},
-                TeamName: {}
+                SprintName: null,
+                TeamName: null
             },
             url : '',
             ready: function() {
+                var spinner = this.shadowRoot.querySelector('loading-spinner');
+                spinner.addEventListener('transitionend', function(event){
+                    spinner.style.display = "none";
+                });
                 var ajax = this.$.ajax;
                 ajax.addEventListener("core-response", function(event) {
                     this.data = event.detail.response;
                     this.fire('core-signal', {name: "new-userdata", data: this.data.Hours});
-                    this.fire('change-toolbar', {sprintNum: this.sprintNum});
-                    this.showData();
+                    this.fire('core-signal', {name: "new-chartdata", data: this.data.Hours});
+                    this.fire('change-toolbar', {sprintNum: this.sprintNum, sprintName: this.data.SprintName});
+                    this.showData()
                 }.bind(this));
                 ajax.go();
             },
             showData: function() {
                 var spinner = this.shadowRoot.querySelector('loading-spinner');
-                spinner.hide();
+                spinner.style.opacity = 0;
                 var userTableStyle = this.$.userTable.style;
                 userTableStyle.opacity = 1;
+                var charts = this.shadowRoot.querySelector('data-charts');
+                charts.style.opacity = 1;
             },
             sprintNumChanged: function(oldVal, newVal) {
                 this.hideData();
-                var spinner = this.shadowRoot.querySelector('loading-spinner');
-                spinner.show();
                 if (newVal == -1) {
                     this.url = '';
                 }
@@ -116,8 +96,13 @@
             hideData: function() {
                 var userTableStyle = this.$.userTable.style;
                 userTableStyle.opacity = 0;
-            }
+                var charts = this.shadowRoot.querySelector('data-charts');
+                charts.style.opacity = 0;
+                var spinner = this.shadowRoot.querySelector('loading-spinner');
+                spinner.style.display = "block";
+                spinner.style.opacity = 1;
 
+            }
         });
     </script>
 

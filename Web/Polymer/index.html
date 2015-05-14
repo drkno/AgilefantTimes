@@ -10,16 +10,17 @@
     <script src="bower_components/webcomponentsjs/webcomponents.js"></script>
     <link rel="import" href="view-sprint.html">
     <link rel="import" href="toolbar-sprint.html">
+    <link rel="import" href="chart-elements.html">
 
     <style>
         html,body {
-            height: 100%;
+            height: auto;
             margin: 0;
             background-color: #E5E5E5;
             font-family: 'RobotoDraft', sans-serif;
         }
         toolbar-sprint {
-            min-height: 5%;
+            min-height: 10%;
         }
         .content {
             margin-top: 7%;
@@ -45,7 +46,7 @@
     });
     sprint.addEventListener('change-toolbar', function (event) {
 //        todo doesn't yet actually get the sprint number from the json, don't have enough information for that yet.
-        toolbar.setSprintNum(event.detail.sprintNum);
+        toolbar.setSprint(event.detail);
     });
 </script>
 

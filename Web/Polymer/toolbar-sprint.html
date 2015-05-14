@@ -18,7 +18,7 @@
                 -webkit-overflow-scrolling: touch;
             }
             core-toolbar {
-                background: #f42d2d;
+                background: #03A9F4;
                 color: white;
             }
             paper-tabs {
@@ -34,10 +34,15 @@
                 text-align: center;
                 display: block;
             }
+            #sprintName {
+                margin: 0 auto;
+                color: white;
+                text-align: center;
+            }
         </style>
 
         <core-header-panel fit>
-            <core-toolbar>
+            <core-toolbar vertical layout>
                 <paper-tabs selected="{{selected}}" id="tabs" fit self-end>
                     <!--Todo auto generate sprints from json request-->
                     <paper-tab name="1">Sprint 1</paper-tab>
@@ -47,6 +52,7 @@
                     <paper-tab name="5">Sprint 5</paper-tab>
                     <paper-tab name="6">Sprint 6</paper-tab>
                 </paper-tabs>
+                <div id="sprintName" flex>{{sprintName}}</div>
             </core-toolbar>
         </core-header-panel>
     </template>
@@ -54,6 +60,7 @@
     <script>
         Polymer('toolbar-sprint', {
             selected: null,
+            sprintName: null,
 
             ready: function() {
                 var tabs = this.$.tabs;
@@ -61,11 +68,12 @@
                     this.fire('change-sprint', {sprintNum: tabs.selected});
                 });
             },
-            setSprintNum: function(newVal) {
-            if (newVal !== this.selected) {
-                this.selected = newVal;
+            setSprint: function(newVal) {
+                if (newVal.sprintNum !== this.selected) {
+                    this.selected = newVal.sprintNum;
+                }
+                this.sprintName = newVal.sprintName;
             }
-        }
         });
     </script>
 </polymer-element>

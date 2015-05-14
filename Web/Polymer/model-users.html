@@ -19,7 +19,8 @@
 
             thead {
                 font-weight: lighter;
-                background-color: #f42d2d;
+                background-color: #03A9F4;
+                color: white;
             }
 
             th {
@@ -34,9 +35,13 @@
                 border-left: 1px solid #9c9c9c;
             }
 
-            td:first-child {
+            .text {
                 text-align: left;
-                border-left: none;
+                border-left: 0 none;
+            }
+
+            .stats {
+                text-align: center;
             }
 
         </style>
@@ -55,12 +60,33 @@
             <tbody>
             <template repeat="{{user in userData}}">
                 <tr>
-                    <td>{{user.Name}}</td>
+                    <td class="text">{{user.Name}}</td>
                     <td>{{roundup1dp(user.TaskHours)}}</td>
                     <td>{{roundup1dp(user.StoryHours)}}</td>
                     <td>{{roundup1dp(user.TotalHours)}}</td>
                 </tr>
             </template>
+            </tbody>
+        </table>
+        <br>
+        <table  vertical layout center id="statsTable">
+            <thead>
+            <tr>
+                <th>Average</th>
+                <th>Minimum</th>
+                <th>Median</th>
+                <th>Maximum</th>
+                <th>Total</th>
+            </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td id="mean" class="stats"></td>
+                    <td id="min" class="stats"></td>
+                    <td id="median" class="stats"></td>
+                    <td id="max" class="stats"></td>
+                    <td id="total" class="stats"></td>
+                </tr>
             </tbody>
         </table>
 
@@ -73,6 +99,30 @@
             },
             newData: function(e, detail, sender) {
                 this.userData = detail;
+                var i = 0,
+                        totalHoursArray = [],
+                        min,
+                        max,
+                        median,
+                        mean = 0,
+                        total = 0,
+                        minIndex,
+                        maxIndex,
+                        medianIndex;
+
+                for (i; i < this.userData.length; i++) {
+                    totalHoursArray[i] = this.userData[i].TotalHours;
+                    total += parseInt(totalHoursArray[i]);
+                }
+                mean = total / totalHoursArray.length;
+                maxIndex = totalHoursArray.indexOf(Math.max.apply(Math, totalHoursArray));
+                minIndex = totalHoursArray.indexOf(Math.min.apply(Math, totalHoursArray));
+                medianIndex = this.getMedian(totalHoursArray);
+                this.$.min.innerHTML = this.roundup1dp(totalHoursArray[minIndex]) + " (" + this.userData[minIndex].Name + ")";
+                this.$.max.innerHTML = this.roundup1dp(totalHoursArray[maxIndex]) + " (" + this.userData[maxIndex].Name + ")";
+                this.$.median.innerHTML = this.roundup1dp(totalHoursArray[medianIndex]) + " (" + this.userData[medianIndex].Name + ")";
+                this.$.mean.innerHTML = this.roundup1dp(mean);
+                this.$.total.innerHTML = this.roundup1dp(total);
             },
 
             /**
@@ -82,8 +132,22 @@
              */
             roundup1dp: function(number) {
                 return +(Math.round(number + "e+1") + "e-1");
-        }
+            },
 
+
+            /**
+             * Gets the median index of an array of values.
+             * @param values array to get median of.
+             * @returns index of median.
+             */
+            getMedian: function(values) {
+            var vals = values.slice();
+            vals.sort(function(a, b) {
+                return a - b;
+            });
+            var half = Math.floor(values.length / 2);
+            return values.indexOf(vals[half]);
+        }
         });
     </script>
 </polymer-element>
