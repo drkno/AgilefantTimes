@@ -53,14 +53,19 @@
 
     <script>
         Polymer('toolbar-sprint', {
-            selected: 1,
+            selected: null,
 
-            ready: function () {
+            ready: function() {
                 var tabs = this.$.tabs;
                 tabs.addEventListener('core-select', function (event) {
                     this.fire('change-sprint', {sprintNum: tabs.selected});
                 });
+            },
+            setSprintNum: function(newVal) {
+            if (newVal !== this.selected) {
+                this.selected = newVal;
             }
+        }
         });
     </script>
 </polymer-element>

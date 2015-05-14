@@ -13,18 +13,18 @@
                 border: none;
                 outline: none;
                 text-align: center;
-                display: inline-block;
+                display: block;
                 border-collapse: collapse;
             }
 
             thead {
-                margin: 0;
                 font-weight: lighter;
                 background-color: #f42d2d;
             }
 
             th {
-                padding: 5px 10px 5px 10px;
+                width: 200px;
+                padding: 5px;
             }
 
             td {
@@ -43,7 +43,7 @@
 
         <core-signals on-core-signal-new-userdata="{{newData}}"></core-signals>
 
-        <table>
+        <table vertical layout center>
             <thead>
             <tr>
                 <th>Person</th>

@@ -21,7 +21,7 @@
         toolbar-sprint {
             min-height: 5%;
         }
-        .container {
+        .content {
             margin-top: 7%;
             left: 0;
             width: 100%;
@@ -33,15 +33,19 @@
     <div class = toolbar>
     <toolbar-sprint></toolbar-sprint>
     </div>
-    <div class="container">
+    <div class="content">
         <view-sprint></view-sprint>
     </div>
 </body>
 <script>
-    var toolbar = document.querySelector(".toolbar");
+    var toolbar = document.querySelector("toolbar-sprint");
     var sprint = document.querySelector("view-sprint");
     toolbar.addEventListener('change-sprint', function (event) {
         sprint.sprintNum = event.detail.sprintNum;
+    });
+    sprint.addEventListener('change-toolbar', function (event) {
+//        todo doesn't yet actually get the sprint number from the json, don't have enough information for that yet.
+        toolbar.setSprintNum(event.detail.sprintNum);
     });
 </script>
 

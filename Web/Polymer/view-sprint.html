@@ -16,7 +16,9 @@
                 box-sizing: border-box;
             }
             #userTable {
-                display: none;
+                margin: 0 auto;
+                opacity: 0;
+                transition: opacity 600ms ease-in-out;
             }
 
             #chart_js {
@@ -58,11 +60,11 @@
             <loading-spinner startColor="#3FCADA" middleColor="#1074C5" endColor="#3FCADA"></loading-spinner>
             <core-ajax
                     id="ajax"
-                    url="../GetJson.php/sprint/{{sprintNum}}"
+                    url="../GetJson.php/sprint/{{url}}"
                     handleAs="json"
                     hidden></core-ajax>
-            <div id="userTable" center-center horizontal layout>
-                <model-users></model-users>
+            <div id="userTable">
+                <model-users flex></model-users>
             </div>
             <!--<chart-js kind="pie" id="chart_js" class="bar_chart"></chart-js>-->
             <!--<chart-js id="chart_js1" class="pie_chart"></chart-js>-->
@@ -75,37 +77,45 @@
 
         Polymer('view-sprint', {
             // initialize the element's model
-            sprintNum: 0,
+            sprintNum: -1,
             data: {
                 Hours: {},
                 SprintName: {},
                 TeamName: {}
             },
+            url : '',
             ready: function() {
-                var spinner = this.shadowRoot.querySelector('loading-spinner');
-                spinner.show();
-                this.userData = this.userData || {};
                 var ajax = this.$.ajax;
                 ajax.addEventListener("core-response", function(event) {
                     this.data = event.detail.response;
                     this.fire('core-signal', {name: "new-userdata", data: this.data.Hours});
+                    this.fire('change-toolbar', {sprintNum: this.sprintNum});
                     this.showData();
                 }.bind(this));
+                ajax.go();
             },
             showData: function() {
                 var spinner = this.shadowRoot.querySelector('loading-spinner');
                 spinner.hide();
-                this.$.userTable.style.display = "inline-block";
+                var userTableStyle = this.$.userTable.style;
+                userTableStyle.opacity = 1;
             },
             sprintNumChanged: function(oldVal, newVal) {
+                this.hideData();
                 var spinner = this.shadowRoot.querySelector('loading-spinner');
                 spinner.show();
+                if (newVal == -1) {
+                    this.url = '';
+                }
+                else {
+                    this.url = newVal;
+                }
                 var ajax = this.$.ajax;
                 ajax.go();
-                this.hideData();
             },
             hideData: function() {
-                this.$.userTable.style.display = "none";
+                var userTableStyle = this.$.userTable.style;
+                userTableStyle.opacity = 0;
             }
 
         });
