@@ -2,15 +2,14 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Net;
+using System.Net.Http;
 using System.Text.RegularExpressions;
-using AgilefantTimes.API.Common;
+using System.Threading.Tasks;
 
 #endregion
 
-namespace AgilefantTimes.API
+namespace AgilefantTimes.API.Agilefant
 {
     public class AgilefantTime
     {
@@ -38,30 +37,34 @@ namespace AgilefantTimes.API
         public AgilefantElementTime[] Stories { get; protected set; }
         public AgilefantElementTime[] Tasks { get; protected set; }
 
-        public static AgilefantTime GetAgilefantTime(int teamNumber, int backlogId, int sprintId, int userId,
-            ref CookieContainer sessionCookies)
+        internal static async Task<AgilefantTime> GetTimes(int teamNumber, int backlogId, int sprintId, int userId,
+            AgilefantSession session)
         {
-            var webRequest =
-                (HttpWebRequest)
-                    WebRequest.Create("http://agilefant.cosc.canterbury.ac.nz:8080/agilefant302/generateTree.action");
-            webRequest.AllowAutoRedirect = true;
-            webRequest.CookieContainer = sessionCookies;
-            webRequest.SetPostData("backlogSelectionType=0&productIds=" + teamNumber + "&projectIds=" + backlogId +
-                                   "&iterationIds=" + sprintId + "&interval=NO_INTERVAL&startDate=&endDate=&userIds=" +
-                                   userId);
-            string htmlData = null;
-            using (var webResponse = (HttpWebResponse) webRequest.GetResponse())
+            var data = new FormUrlEncodedContent(new Dictionary<string, string>
             {
-                sessionCookies = webRequest.CookieContainer;
-                var stream = webResponse.GetResponseStream();
-                var streamReader = new StreamReader(stream);
-                htmlData = streamReader.ReadToEnd();
-                streamReader.Close();
-            }
-            return HtmlToAgilefantTime(htmlData);
+                {"backlogSelectionType", "0"},
+                {"productIds", teamNumber.ToString()},
+                {"projectIds", backlogId.ToString()},
+                {"iterationIds", sprintId.ToString()},
+                {"interval", "NO_INTERVAL"},
+                {"startDate", ""},
+                {"endDate", ""},
+                {"userIds", userId.ToString()},
+            });
+
+            var response = await session.Post("generateTree.action", data);
+            response.EnsureSuccessStatusCode();
+
+            var content = await response.Content.ReadAsStringAsync();
+            return ParseHtmlToTimes(content);
         }
 
-        private static AgilefantTime HtmlToAgilefantTime(string htmlData)
+        /// <summary>
+        /// Attempts to parse some html to retrieve times
+        /// </summary>
+        /// <param name="htmlData">The html containing the times</param>
+        /// <returns>The time</returns>
+        private static AgilefantTime ParseHtmlToTimes(string htmlData)
         {
             var lines = htmlData.Split('\n');
             var storyList = new List<AgilefantElementTime>();
@@ -119,6 +122,9 @@ namespace AgilefantTimes.API
             return new AgilefantTime(storyList.ToArray(), taskList.ToArray());
         }
 
+        /// <summary>
+        /// A class representing a discrete piece of time logged
+        /// </summary>
         public class AgilefantElementTime
         {
             public AgilefantElementTime(double time, string description)
@@ -127,7 +133,14 @@ namespace AgilefantTimes.API
                 Time = time;
             }
 
+            /// <summary>
+            /// A description of the time
+            /// </summary>
             public string Description { get; protected set; }
+
+            /// <summary>
+            /// The amount of time spent
+            /// </summary>
             public double Time { get; protected set; }
         }
     }

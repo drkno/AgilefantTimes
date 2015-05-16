@@ -12,23 +12,29 @@ namespace AgilefantTimes
     [DataContract]
     public class Config
     {
-        [DataMember]
+        [DataMember(IsRequired = false)]
         public string Username { get; set; }
 
-        [DataMember]
+        [DataMember(IsRequired = false)]
         public string Password { get; set; }
 
-        [DataMember]
+        [DataMember(IsRequired = false)]
         public int TeamNumber { get; set; }
 
-        [DataMember]
-        public int SprintNumber { get; set; }
+        [DataMember(IsRequired = false)]
+        public int SprintNumber { get; set; } = -1;
 
         [DataMember(IsRequired = false)]
         public bool DisplayUsercode { get; set; }
 
         [DataMember(IsRequired = false)]
         public bool DebugMode { get; set; }
+
+        [DataMember(IsRequired = false)]
+        public string WebRoot { get; set; } = Path.Combine(Environment.CurrentDirectory, "www");
+
+        [DataMember(IsRequired = false)]
+        public int Port { get; set; } = 80;
 
         public static bool TryLoad(string location, out Config config)
         {

@@ -47,23 +47,36 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.6.0.8\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Net.Http" />
     <Reference Include="System.Runtime.Serialization" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="API\AgilefantSprint.cs" />
-    <Compile Include="API\AgilefantBacklog.cs" />
-    <Compile Include="API\AgilefantTime.cs" />
-    <Compile Include="API\AgilefantUser.cs" />
-    <Compile Include="API\AgilefantLogin.cs" />
+    <Compile Include="API\Agilefant\AgilefantBacklog.cs" />
+    <Compile Include="API\Agilefant\AgilefantBacklogProductSummary.cs" />
+    <Compile Include="API\Agilefant\AgilefantClient.cs" />
+    <Compile Include="API\Agilefant\AgilefantResponsible.cs" />
+    <Compile Include="API\Agilefant\AgilefantSession.cs" />
+    <Compile Include="API\Agilefant\AgilefantSprint.cs" />
+    <Compile Include="API\Agilefant\AgilefantSprintSummary.cs" />
+    <Compile Include="API\Agilefant\AgilefantTask.cs" />
+    <Compile Include="API\Agilefant\AgilefantTime.cs" />
+    <Compile Include="API\Agilefant\AgilefantUser.cs" />
+    <Compile Include="API\Agilefant\Common\AgilefantBase.cs" />
+    <Compile Include="API\Agilefant\Story\AgilefantStory.cs" />
+    <Compile Include="API\Agilefant\Story\AgilefantStoryMetrics.cs" />
+    <Compile Include="API\Restful\HttpRequestProcessor.cs" />
+    <Compile Include="API\Restful\RestApiClient.cs" />
+    <Compile Include="API\Restful\RestfulUrlHandler.cs" />
+    <Compile Include="API\Restful\RestServer.cs" />
     <Compile Include="Config.cs" />
-    <Compile Include="API\Common\Extensions.cs" />
     <Compile Include="Options.cs" />
     <Compile Include="Output\JsonOutput.cs" />
     <Compile Include="Output\JsonOutputTime.cs" />
@@ -73,6 +86,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="packages.config" />
     <None Include="Sample\sample.json" />
   </ItemGroup>
   <ItemGroup>

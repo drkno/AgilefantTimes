@@ -1,5 +1,5 @@
 ﻿using System.Runtime.Serialization;
-using AgilefantTimes.API;
+using AgilefantTimes.API.Agilefant;
 
 namespace AgilefantTimes.Output
 {

@@ -5,7 +5,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
-using AgilefantTimes.API;
+using AgilefantTimes.API.Agilefant;
+using AgilefantTimes.API.Restful;
 using AgilefantTimes.Output;
 
 #endregion
@@ -29,6 +30,15 @@ namespace AgilefantTimes
                     throw new Exception("Could not load configuration file.");
                 }
                 ParseOptions(args, ref _config);
+
+                var server = new RestApiClient(_config.Port, _config.WebRoot);
+                Console.Write("Starting server... ");
+                server.Start();
+                Console.WriteLine("complete.");
+
+                while (Console.Read() != -1) {}
+
+                server.Stop();
 
                 var session = AgilefantLogin.PerformLogin(_config.Username, _config.Password);
                 var users = AgilefantUser.GetAgilefantUsers(ref session);
@@ -122,8 +132,10 @@ namespace AgilefantTimes
                 {
                     { "username|u", "{Username} to login with", s => c.Username = s },
                     { "password|p", "{Password} to login with", s => c.Password = s },
-                    { "team|t", "Team {number} to retreive", s => c.TeamNumber = int.Parse(s) },
-                    { "sprint|s", "Sprint {number} to retrieve", s => c.SprintNumber = int.Parse(s) },
+                    { "team|t", "Default team {number} to retreive", s => c.TeamNumber = int.Parse(s) },
+                    { "sprint|s", "Default sprint {number} to retrieve", s => c.SprintNumber = int.Parse(s) },
+                    { "port|p", "{Port} number to host the server on. Defaults to 80.", s => c.Port = int.Parse(s) },
+                    { "web|w", "{Directory} that non-API served files are located. Defaults to ./www/", s => c.WebRoot = s },
                     { "usercode|c", "Use usercodes instead of names", s => c.DisplayUsercode = true },
                     { "debug|d", "Enable debugging mode", s => c.DebugMode = true },
                     { "help|h|?", "Displays help", s => displayHelp = true }
