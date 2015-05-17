@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.Serialization;
@@ -30,6 +29,8 @@ namespace AgilefantTimes.Output
         public double AverageStoryHours { get; private set; }
         [DataMember]
         public double AverageTaskHours { get; private set; }
+        [DataMember]
+        public double TotalHours { get; private set; }
 
         /// <summary>
         /// Creates a new JSON output object, used for outputing data as JSON.
@@ -51,6 +52,7 @@ namespace AgilefantTimes.Output
             AverageTaskHours = hours.Average(h => h.TaskHours);
             MedianUpperHours = hours.IndexOf(sorted.ElementAt(hours.Count / 2));
             MedianLowerHours = hours.IndexOf(sorted.ElementAt(hours.Count / 2 - 1));
+            TotalHours = hours.Sum(h => h.TotalHours);
         }
 
         /// <summary>
