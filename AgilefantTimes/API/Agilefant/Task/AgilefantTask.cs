@@ -1,7 +1,7 @@
 ﻿using AgilefantTimes.API.Agilefant.Common;
 using Newtonsoft.Json;
 
-namespace AgilefantTimes.API.Agilefant
+namespace AgilefantTimes.API.Agilefant.Task
 {
     public class AgilefantTask : AgilefantBase
     {

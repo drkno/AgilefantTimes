@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Drawing;
+using System.Net.Http;
 using System.Threading.Tasks;
 using AgilefantTimes.API.Agilefant.Common;
 using AgilefantTimes.API.Agilefant.Story;
@@ -24,6 +26,23 @@ namespace AgilefantTimes.API.Agilefant
             var json = await response.Content.ReadAsStringAsync();
             return JsonConvert.DeserializeObject<AgilefantSprint>(json);
         }
+
+        /// <summary>
+        /// Gets all sprints for a project.
+        /// </summary>
+        /// <param name="projectId">ID of the project to get sprint for.</param>
+        /// <param name="session">Session to use.</param>
+        /// <returns>All sprints.</returns>
+        public static async Task<AgilefantSprint[]> GetSprints(int projectId, AgilefantSession session)
+        {
+            var response = await session.Post("ajax/projectIterations.action", new FormUrlEncodedContent(new Dictionary<string, string>
+            {
+                {"projectId", projectId.ToString()}
+            }));
+            response.EnsureSuccessStatusCode();
+            var json = await response.Content.ReadAsStringAsync();
+            return JsonConvert.DeserializeObject<AgilefantSprint[]>(json);
+        } 
 
         /// <summary>
         /// Downloads the burndown image for a sprint.
@@ -53,7 +72,7 @@ namespace AgilefantTimes.API.Agilefant
         [JsonProperty("assignees")]
         public AgilefantResponsible[] Assignees { get; private set; }
         [JsonProperty("backlogSize")]
-        public int BacklogSize { get; private set; }
+        public int? BacklogSize { get; private set; }
         [JsonProperty("baselineLoad")]
         public object BaselineLoad { get; private set; }
         [JsonProperty("description")]
@@ -91,6 +110,6 @@ namespace AgilefantTimes.API.Agilefant
             }
         }
         [JsonProperty("tasks")]
-        public Task[] Tasks { get; private set; }
+        public System.Threading.Tasks.Task[] Tasks { get; private set; }
     }
 }
