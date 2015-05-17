@@ -8,13 +8,13 @@ namespace AgilefantTimes.API.Agilefant
         [JsonProperty("description")]
         public string Description { get; private set; }
         [JsonProperty("effortLeft")]
-        public int EffortLeft { get; private set; }
+        public int? EffortLeft { get; private set; }
         [JsonProperty("effortSpent")]
-        public int EffortSpent { get; private set; }
+        public int? EffortSpent { get; private set; }
         [JsonProperty("name")]
         public string Name { get; private set; }
         [JsonProperty("originalEstimate")]
-        public int OriginalEstimate { get; private set; }
+        public int? OriginalEstimate { get; private set; }
         [JsonProperty("rank")]
         public int Rank { get; private set; }
         [JsonProperty("responsibles")]

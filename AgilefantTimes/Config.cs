@@ -21,8 +21,8 @@ namespace AgilefantTimes
         [DataMember(IsRequired = false)]
         public int TeamNumber { get; set; }
 
-        [DataMember(IsRequired = false)]
-        public int SprintNumber { get; set; } = -1;
+        [DataMember(IsRequired = false, EmitDefaultValue = false)]
+        public int SprintNumber { get; set; }
 
         [DataMember(IsRequired = false)]
         public bool DisplayUsercode { get; set; }
@@ -30,11 +30,11 @@ namespace AgilefantTimes
         [DataMember(IsRequired = false)]
         public bool DebugMode { get; set; }
 
-        [DataMember(IsRequired = false)]
-        public string WebRoot { get; set; } = Path.Combine(Environment.CurrentDirectory, "www");
+        [DataMember(IsRequired = false, EmitDefaultValue = false)]
+        public string WebRoot { get; set; }
 
-        [DataMember(IsRequired = false)]
-        public int Port { get; set; } = 80;
+        [DataMember(IsRequired = false, EmitDefaultValue = false)]
+        public int Port { get; set; }
 
         public static bool TryLoad(string location, out Config config)
         {
@@ -63,6 +63,14 @@ namespace AgilefantTimes
 #if DEBUG
             config.DebugMode = true;
 #endif
+
+            if (string.IsNullOrWhiteSpace(config.WebRoot))
+                config.WebRoot = Path.Combine(Environment.CurrentDirectory, "www");
+            if (config.Port == 0)
+                config.Port = 80;
+            if (config.SprintNumber == 0)
+                config.SprintNumber = -1;
+
             return config;
         }
     }

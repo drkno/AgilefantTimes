@@ -14,7 +14,7 @@ namespace AgilefantTimes.API.Agilefant
     public class AgilefantSprintSummary : AgilefantBase
     {
         [JsonProperty("backlogSize")]
-        public int BacklogSize { get; private set; }
+        public int? BacklogSize { get; private set; }
 
         [JsonProperty("baselineLoad")]
         public object BaselineLoad { get; private set; }

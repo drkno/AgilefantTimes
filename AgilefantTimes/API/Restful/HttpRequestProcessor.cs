@@ -88,13 +88,17 @@ namespace AgilefantTimes.API.Restful
                 }
                 _requestHandler.Invoke(this);
             }
-            catch (Exception)
+            catch (Exception e)
             {
                 WriteServerFailure();
                 _outputStream.Flush();
                 _inputStream = null;
                 _outputStream = null;
                 _socket.Close();
+                
+                #if DEBUG
+                Console.Error.WriteLine(e.StackTrace);
+                #endif
                 return;  // 500 internal server error? probably happened here...
             }
             _outputStream.Flush();

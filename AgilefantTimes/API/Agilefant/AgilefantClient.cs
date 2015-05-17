@@ -1,10 +1,12 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace AgilefantTimes.API.Agilefant
 {
     public class AgilefantClient
     {
-        private readonly AgilefantSession _session;
+        public AgilefantSession Session { get; private set; }
 
         /// <summary>
         /// Creates a new Agilefant Client
@@ -12,7 +14,7 @@ namespace AgilefantTimes.API.Agilefant
         /// <param name="session"></param>
         public AgilefantClient(AgilefantSession session)
         {
-            _session = session;
+            Session = session;
         }
 
         /// <summary>
@@ -21,7 +23,7 @@ namespace AgilefantTimes.API.Agilefant
         /// <returns></returns>
         public Task<AgilefantSprintSummary[]> GetSprintSummaries(int backlogId)
         {
-            return AgilefantSprintSummary.GetSprints(backlogId, _session);
+            return AgilefantSprintSummary.GetSprints(backlogId, Session);
         }
 
         /// <summary>
@@ -31,7 +33,7 @@ namespace AgilefantTimes.API.Agilefant
         /// <returns>Sprint details.</returns>
         public Task<AgilefantSprint> GetSprint(int sprintId)
         {
-            return AgilefantSprint.GetSprint(sprintId, _session);
+            return AgilefantSprint.GetSprint(sprintId, Session);
         }
 
         /// <summary>
@@ -40,7 +42,7 @@ namespace AgilefantTimes.API.Agilefant
         /// <returns></returns>
         public Task<AgilefantUser[]> GetUsers()
         {
-            return AgilefantUser.GetAgilefantUsers(_session);
+            return AgilefantUser.GetAgilefantUsers(Session);
         }
 
         /// <summary>
@@ -50,7 +52,7 @@ namespace AgilefantTimes.API.Agilefant
         /// <returns></returns>
         public Task<AgilefantBacklog[]> GetBacklogs(int teamNumber)
         {
-            return AgilefantBacklog.GetAgilefantBacklogs(teamNumber, _session);
+            return AgilefantBacklog.GetAgilefantBacklogs(teamNumber, Session);
         }
 
         /// <summary>
@@ -63,7 +65,45 @@ namespace AgilefantTimes.API.Agilefant
         /// <returns>The times for the user</returns>
         public Task<AgilefantTime> GetTime(int teamNumber, int backlogId, int sprintId, int userId)
         {
-            return AgilefantTime.GetTimes(teamNumber, backlogId, sprintId, userId, _session);
+            return AgilefantTime.GetTimes(teamNumber, backlogId, sprintId, userId, Session);
+        }
+
+        /// <summary>
+        /// Gets a sprint based on current configuration.
+        /// </summary>
+        /// <param name="sprintNumber">Number of the sprint to get.</param>
+        /// <param name="sprintPool">Pool of sprints to select from.</param>
+        /// <returns>The requested sprint (or nearest guess).</returns>
+        public static AgilefantSprintSummary SelectSprint(int sprintNumber, AgilefantSprintSummary[] sprintPool)
+        {
+            Array.Sort(sprintPool, (a, b) => a.StartDate.CompareTo(b.StartDate));
+
+            if (sprintNumber >= 0)
+            {
+                foreach (var sprint in sprintPool.Where(sprint => sprint.Name.Contains(sprintNumber.ToString())))
+                {
+                    return sprint;
+                }
+                return sprintPool[sprintNumber];
+            }
+
+            var now = DateTime.Now.Date;
+            var closest = sprintPool[0];
+            foreach (var sprint in sprintPool)
+            {
+                if (sprint.StartDate <= now && sprint.EndDate >= now)
+                {
+                    closest = sprint;
+                    break;
+                }
+                var diff = now < sprint.StartDate ? sprint.StartDate - now : now - sprint.EndDate;
+                var currDiff = now < closest.StartDate ? closest.StartDate - now : now - closest.EndDate;
+                if (diff < currDiff)
+                {
+                    closest = sprint;
+                }
+            }
+            return closest;
         }
     }
 }

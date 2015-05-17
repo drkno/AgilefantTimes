@@ -33,7 +33,7 @@ namespace AgilefantTimes.API.Agilefant.Story
         [JsonProperty("storyValue")]
         public object StoryValue { get; private set; }
         [JsonProperty("tasks")]
-        public Task[] Tasks { get; private set; }
+        public AgilefantTask[] Tasks { get; private set; }
         [JsonProperty("treeRank")]
         public int TreeRank { get; private set; }
         [JsonProperty("workQueueRank")]
