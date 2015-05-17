@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
+using AgilefantTimes.API.Agilefant.Task;
 
 namespace AgilefantTimes.API.Agilefant
 {
@@ -37,6 +38,16 @@ namespace AgilefantTimes.API.Agilefant
         }
 
         /// <summary>
+        /// Gets detail about all avalible sprints.
+        /// </summary>
+        /// <param name="projectId">Id of the project to get sprints for.</param>
+        /// <returns>Sprint details.</returns>
+        public Task<AgilefantSprint[]> GetSprints(int projectId)
+        {
+            return AgilefantSprint.GetSprints(projectId, Session);
+        }
+
+        /// <summary>
         /// Gets a list of agilefant users
         /// </summary>
         /// <returns></returns>
@@ -66,6 +77,38 @@ namespace AgilefantTimes.API.Agilefant
         public Task<AgilefantTime> GetTime(int teamNumber, int backlogId, int sprintId, int userId)
         {
             return AgilefantTime.GetTimes(teamNumber, backlogId, sprintId, userId, Session);
+        }
+
+        /// <summary>
+        /// Gets logged entries on a day for a user.
+        /// </summary>
+        /// <param name="userId">User to get.</param>
+        /// <param name="day">Day to get.</param>
+        /// <returns>Logged entries.</returns>
+        public Task<AgilefantTaskHourEntry[]> GetLoggedTaskTime(int userId, DateTime day)
+        {
+            return AgilefantTaskHourEntry.GetEntriesForDay(userId, day, Session);
+        }
+
+        /// <summary>
+        /// Gets logged entries between two days for a user.
+        /// </summary>
+        /// <param name="userId">User to get.</param>
+        /// <param name="startDay">Start day to use.</param>
+        /// <param name="endDay">End day to use.</param>
+        /// <returns>Logged entries.</returns>
+        public Task<AgilefantTaskHourEntry[]> GetLoggedTaskTime(int userId, DateTime startDay, DateTime endDay)
+        {
+            return AgilefantTaskHourEntry.GetEntriesBetween(userId, startDay, endDay, Session);
+        }
+
+        /// <summary>
+        /// Gets all teams that are accessable.
+        /// </summary>
+        /// <returns>Avalible Agilefant teams.</returns>
+        public Task<AgilefantTeam[]> GetTeams()
+        {
+            return AgilefantTeam.GetTeams(Session);
         }
 
         /// <summary>
