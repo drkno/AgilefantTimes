@@ -14,6 +14,8 @@ namespace AgilefantTimes
 {
     public static class Program
     {
+        private static Config _config;
+
         /// <summary>
         /// Main entry point for the application.
         /// </summary>
@@ -22,21 +24,24 @@ namespace AgilefantTimes
         {
             try
             {
-                var config = Config.Load("aftimes.conf");
-                ParseOptions(args, ref config);
+                if (!Config.TryLoad("aftimes.conf", out _config) && args.Length == 0)
+                {
+                    throw new Exception("Could not load configuration file.");
+                }
+                ParseOptions(args, ref _config);
 
-                var session = AgilefantLogin.PerformLogin(config.Username, config.Password);
+                var session = AgilefantLogin.PerformLogin(_config.Username, _config.Password);
                 var users = AgilefantUser.GetAgilefantUsers(ref session);
-                var backlogs = AgilefantBacklog.GetAgilefantBacklogs(config.TeamNumber, ref session);
+                var backlogs = AgilefantBacklog.GetAgilefantBacklogs(_config.TeamNumber, ref session);
                 var sprints = AgilefantSprint.GetAgilefantSprints(backlogs[0].Id, ref session);
 
                 string sprintName;
                 int sprintId;
-                GetSprint(config, sprints, out sprintId, out sprintName);
+                GetSprint(_config, sprints, out sprintId, out sprintName);
 
                 var hours = (from user in users
-                             let tasks = AgilefantTime.GetAgilefantTime(config.TeamNumber, backlogs[0].Id, sprintId, user.Id, ref session)
-                             select new JsonOutputTime((config.DisplayUsercode ? user.UserCode : user.Name), tasks)).ToList();
+                             let tasks = AgilefantTime.GetAgilefantTime(_config.TeamNumber, backlogs[0].Id, sprintId, user.Id, ref session)
+                             select new JsonOutputTime((_config.DisplayUsercode ? user.UserCode : user.Name), tasks)).ToList();
                 var jsonOutput = new JsonOutput(backlogs[0].Name, sprintName, hours);
                 var jsonPrinter = new JsonPrinter();
                 jsonPrinter.WriteLine(jsonOutput.ToJson());
@@ -50,16 +55,19 @@ namespace AgilefantTimes
                 }
                 else
                 {
-                    Console.Error.WriteLine("An error occured at runtime:\n" + e.Message);
+                    Console.Error.WriteLine("An error occured at runtime: \r\n" + e.Message);
                 }
+
+                if (_config.DebugMode)
+                {
+                    Console.Error.WriteLine(e.StackTrace);
 #if DEBUG
-                 throw;
+                throw;
 #endif
             }
+            }
 
-#if DEBUG
-            Console.ReadKey();
-#endif
+            if (_config.DebugMode) Console.ReadKey();
         }
 
         /// <summary>
@@ -112,20 +120,13 @@ namespace AgilefantTimes
             var displayHelp = false;
             var options = new OptionSet
                 {
-                    {
-                        "sprint|s", "The sprint you want to use", s =>
-                        {
-                            int result;
-                            int.TryParse(s, out result);
-                            c.SprintNumber = result;
-                        }
-                    },
-                    {
-                        "help|h|?", "Displays help", s =>
-                        {
-                            displayHelp = true;
-                        }
-                    }
+                    { "username|u", "{Username} to login with", s => c.Username = s },
+                    { "password|p", "{Password} to login with", s => c.Password = s },
+                    { "team|t", "Team {number} to retreive", s => c.TeamNumber = int.Parse(s) },
+                    { "sprint|s", "Sprint {number} to retrieve", s => c.SprintNumber = int.Parse(s) },
+                    { "usercode|c", "Use usercodes instead of names", s => c.DisplayUsercode = true },
+                    { "debug|d", "Enable debugging mode", s => c.DebugMode = true },
+                    { "help|h|?", "Displays help", s => displayHelp = true }
                 };
             options.ParseExceptionally(args);
             if (displayHelp) ShowHelp(options);
@@ -141,7 +142,7 @@ namespace AgilefantTimes
             var fvi = FileVersionInfo.GetVersionInfo(assembly.Location);
 
             p.ShowHelp("Get Agilefant sprint times.", "{appName} [OPTION]...",
-                       "If no options are specified defaults will be used.",
+                       "If no options are specified defaults from your config file will be used.",
                        null,
                        "Written by Matthew Knox and contributors.",
                        "Version:\t" + fvi.ProductVersion + " " + ((Environment.Is64BitProcess) ? "x64" : "x32") +
@@ -155,9 +156,7 @@ namespace AgilefantTimes
                        + "There is NO WARRANTY, to the extent permitted by law.",
                        false
             );
-#if DEBUG
-            Console.ReadKey();
-#endif
+            if (_config.DebugMode) Console.ReadKey();
             Environment.Exit(0);
         }
     }

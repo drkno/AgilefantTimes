@@ -44,6 +44,10 @@
                 text-align: center;
             }
 
+            .first {
+                border-left: 0 none;
+            }
+
         </style>
 
         <core-signals on-core-signal-new-userdata="{{newData}}"></core-signals>
@@ -81,7 +85,7 @@
             </thead>
             <tbody>
                 <tr>
-                    <td id="mean" class="stats"></td>
+                    <td id="mean" class="stats first"></td>
                     <td id="min" class="stats"></td>
                     <td id="median" class="stats"></td>
                     <td id="max" class="stats"></td>

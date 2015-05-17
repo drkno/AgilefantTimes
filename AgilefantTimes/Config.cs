@@ -27,6 +27,23 @@ namespace AgilefantTimes
         [DataMember(IsRequired = false)]
         public bool DisplayUsercode { get; set; }
 
+        [DataMember(IsRequired = false)]
+        public bool DebugMode { get; set; }
+
+        public static bool TryLoad(string location, out Config config)
+        {
+            try
+            {
+                config = Load(location);
+                return true;
+            }
+            catch (Exception)
+            {
+                config = null;
+                return false;
+            }
+        }
+
         public static Config Load(string location)
         {
             if (!File.Exists(location))
@@ -35,9 +52,12 @@ namespace AgilefantTimes
             }
             var serializer = new DataContractJsonSerializer(typeof (Config));
             var fileSteam = new FileStream(location, FileMode.Open);
-            var config = serializer.ReadObject(fileSteam);
+            var config = (Config) serializer.ReadObject(fileSteam);
             fileSteam.Close();
-            return (Config) config;
+#if DEBUG
+            config.DebugMode = true;
+#endif
+            return config;
         }
     }
 }

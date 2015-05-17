@@ -27,7 +27,7 @@
             }
             data-charts {
                 margin: 0 auto;
-                margin-top: 100px;
+                margin-top: 1rem;
                 opacity: 0;
                 transition: opacity 600ms ease-in-out;
             }
@@ -63,20 +63,23 @@
                 var spinner = this.shadowRoot.querySelector('loading-spinner');
                 spinner.addEventListener('transitionend', function(event){
                     spinner.style.display = "none";
-                });
+                    this.showData();
+                }.bind(this));
                 var ajax = this.$.ajax;
                 ajax.addEventListener("core-response", function(event) {
                     this.data = event.detail.response;
                     this.fire('core-signal', {name: "new-userdata", data: this.data.Hours});
                     this.fire('core-signal', {name: "new-chartdata", data: this.data.Hours});
                     this.fire('change-toolbar', {sprintNum: this.sprintNum, sprintName: this.data.SprintName});
-                    this.showData()
+                    this.hideLoading()
                 }.bind(this));
                 ajax.go();
             },
-            showData: function() {
+            hideLoading: function() {
                 var spinner = this.shadowRoot.querySelector('loading-spinner');
                 spinner.style.opacity = 0;
+            },
+            showData: function() {
                 var userTableStyle = this.$.userTable.style;
                 userTableStyle.opacity = 1;
                 var charts = this.shadowRoot.querySelector('data-charts');

@@ -15,48 +15,24 @@
         </style>
 
         <core-signals on-core-signal-new-chartdata="{{newData}}"></core-signals>
-        <div  horizontal layout center-justified>
-            <chart-pie
-                    width="200"
-                    height="200"
-                    values="{{chartValues[0]}}">
-            </chart-pie>
-            <chart-doughnut
-                    width="200"
-                    height="200"
-                    values="{{chartValues[0]}}">
-            </chart-doughnut>
-            <chart-polar-area
-                    width="200"
-                    height="200"
-                    values="{{chartValues[0]}}">
-            </chart-polar-area>
-            <chart-radar
-                    width="300"
-                    height="300"
-                    labels="{{chartLabels}}"
-                    values="{{chartValues}}"
-                    colors="['3, 169, 244']">
-            </chart-radar>
-        </div>
         <div horizontal layout center-justified>
-            <chart-line
-                    width="600"
-                    height="250"
-                    labels="{{chartLabels}}"
-                    values="{{chartValues}}"
-                    colors="['3, 169, 244']">
-            </chart-line>
             <chart-bar
-                width="600"
-                height="250"
+                width="900"
+                height="300"
                 labels="{{chartLabels}}"
                 values="{{chartValues}}"
                 colors="['3, 169, 244']">
             </chart-bar>
         </div>
-
-
+        <div  horizontal layout center-justified>
+            <chart-radar
+                    width="450"
+                    height="450"
+                    labels="{{chartLabels}}"
+                    values="{{chartValues}}"
+                    colors="['3, 169, 244']">
+            </chart-radar>
+        </div>
     </template>
 
     <script>
