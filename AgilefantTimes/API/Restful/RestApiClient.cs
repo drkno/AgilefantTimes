@@ -38,7 +38,7 @@ namespace AgilefantTimes.API.Restful
                 var u = session.GetUsers().Result;
                 foreach (var user in users)
                 {
-                    var result = u.First(t => t.UserCode == user.Initials);
+                    var result = u.FirstOrDefault(t => t.UserCode == user.Initials);
                     user.Name = result == null ? "" : result.Name;
                 }
 
