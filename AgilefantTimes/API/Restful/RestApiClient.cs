@@ -33,14 +33,22 @@ namespace AgilefantTimes.API.Restful
                 if (!(s.Length >= 5 && int.TryParse(s[4], out sprintNumber)) && !(s.Length >= 4 && int.TryParse(s[3], out sprintNumber)))
                     sprintNumber = _config.SprintNumber;
 
-                var users = session.GetUsers().Result;
+                var teams = session.GetTeams().Result;
+                var users = teams[teamNumber - 1].Members;
+                var u = session.GetUsers().Result;
+                foreach (var user in users)
+                {
+                    var result = u.FirstOrDefault(t => t.UserCode == user.Initials);
+                    user.Name = result == null ? "" : result.Name;
+                }
+
                 var backlogs = session.GetBacklogs(teamNumber).Result;
                 var sprintSummaries = session.GetSprintSummaries(backlogs[0].Id).Result;
                 var sprintSummary = AgilefantClient.SelectSprint(sprintNumber, sprintSummaries);
 
                 var hours = (from user in users
                              let tasks = session.GetTime(teamNumber, backlogs[0].Id, sprintSummary.Id, user.Id).Result
-                             select new JsonOutputTime((_config.DisplayUsercode ? user.UserCode : user.Name), tasks)).ToList();
+                             select new JsonOutputTime((_config.DisplayUsercode ? user.Initials : user.Name), tasks)).ToList();
                 var jsonOutput = new JsonOutput(backlogs[0].Name, sprintSummary.Name, hours);
                 var json = JsonConvert.SerializeObject(jsonOutput);
                 p.WriteSuccess(json);

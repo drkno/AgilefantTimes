@@ -81,8 +81,9 @@ namespace AgilefantTimes.API.Restful
                 return;
             }
 
-
-            var path = Path.GetFullPath(_serverBaseDirectory + requestProcessor.HttpUrl);
+            var url = requestProcessor.HttpUrl;
+            if (string.IsNullOrWhiteSpace(url) || url == "/") url = "/index.html";
+            var path = Path.GetFullPath(_serverBaseDirectory + url);
             if (_serverBaseDirectory != null && File.Exists(path))
             {
                 var reader = new StreamReader(path);
@@ -91,7 +92,9 @@ namespace AgilefantTimes.API.Restful
             }
             else
             {
-                requestProcessor.WriteFailure();
+                requestProcessor.HttpResponseHeaders["Location"] = "https://thebest404pageever.com/";
+                requestProcessor.WriteResponse("301 Moved Permanently", "404, thou must find mordor before getting eagles.");
+                //requestProcessor.WriteFailure();
             }
         }
 
