@@ -36,7 +36,7 @@
             <loading-spinner startColor="#3FCADA" middleColor="#1074C5" endColor="#3FCADA"></loading-spinner>
             <core-ajax
                     id="ajax"
-                    url="../GetJson.php/sprint/{{url}}"
+                    url="rest/1/sprint/summary/{{url}}"
                     handleAs="json"
                     hidden></core-ajax>
             <div id="userTable">
@@ -68,7 +68,7 @@
                 var ajax = this.$.ajax;
                 ajax.addEventListener("core-response", function(event) {
                     this.data = event.detail.response;
-                    this.fire('core-signal', {name: "new-userdata", data: this.data.Hours});
+                    this.fire('core-signal', {name: "new-userdata", data: this.data});
                     this.fire('core-signal', {name: "new-chartdata", data: this.data.Hours});
                     this.fire('change-toolbar', {sprintNum: this.sprintNum, sprintName: this.data.SprintName});
                     this.hideLoading()

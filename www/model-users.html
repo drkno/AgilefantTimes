@@ -62,7 +62,7 @@
             </tr>
             </thead>
             <tbody>
-            <template repeat="{{user in userData}}">
+            <template repeat="{{user in userData.Hours}}">
                 <tr>
                     <td class="text">{{user.Name}}</td>
                     <td>{{roundup1dp(user.TaskHours)}}</td>
@@ -103,30 +103,14 @@
             },
             newData: function(e, detail, sender) {
                 this.userData = detail;
-                var i = 0,
-                        totalHoursArray = [],
-                        min,
-                        max,
-                        median,
-                        mean = 0,
-                        total = 0,
-                        minIndex,
-                        maxIndex,
-                        medianIndex;
-
-                for (i; i < this.userData.length; i++) {
-                    totalHoursArray[i] = this.userData[i].TotalHours;
-                    total += parseInt(totalHoursArray[i]);
-                }
-                mean = total / totalHoursArray.length;
-                maxIndex = totalHoursArray.indexOf(Math.max.apply(Math, totalHoursArray));
-                minIndex = totalHoursArray.indexOf(Math.min.apply(Math, totalHoursArray));
-                medianIndex = this.getMedian(totalHoursArray);
-                this.$.min.innerHTML = this.roundup1dp(totalHoursArray[minIndex]) + " (" + this.userData[minIndex].Name + ")";
-                this.$.max.innerHTML = this.roundup1dp(totalHoursArray[maxIndex]) + " (" + this.userData[maxIndex].Name + ")";
-                this.$.median.innerHTML = this.roundup1dp(totalHoursArray[medianIndex]) + " (" + this.userData[medianIndex].Name + ")";
-                this.$.mean.innerHTML = this.roundup1dp(mean);
-                this.$.total.innerHTML = this.roundup1dp(total);
+                maxPerson = detail.Hours[detail.MinHours];
+                minPerson = detail.Hours[detail.MinHours];
+                medianPerson = detail.Hours[detail.MedianUpperHours];
+                this.$.min.innerHTML = this.roundup1dp(minPerson.TotalHours) + " (" + minPerson.Name + ")";
+                this.$.max.innerHTML = this.roundup1dp(maxPerson.TotalHours) + " (" + maxPerson.Name + ")";
+                this.$.median.innerHTML = this.roundup1dp(medianPerson.TotalHours) + " (" + medianPerson.Name + ")";
+                this.$.mean.innerHTML = this.roundup1dp(detail.AverageHours);
+                this.$.total.innerHTML = this.roundup1dp(detail.TotalHours);
             },
 
             /**
@@ -137,7 +121,6 @@
             roundup1dp: function(number) {
                 return +(Math.round(number + "e+1") + "e-1");
             },
-
 
             /**
              * Gets the median index of an array of values.
