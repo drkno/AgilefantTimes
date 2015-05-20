@@ -50,7 +50,7 @@ namespace AgilefantTimes.API.Restful
                              let tasks = session.GetTime(teamNumber, backlogs[0].Id, sprintSummary.Id, user.Id).Result
                              select new JsonOutputTime((_config.DisplayUsercode ? user.Initials : user.Name), tasks)).ToList();
                 var jsonOutput = new JsonOutput(backlogs[0].Name, sprintSummary.Name, hours);
-                var json = JsonConvert.SerializeObject(jsonOutput);
+                var json = JsonConvert.SerializeObject(jsonOutput, Formatting.Indented);
                 p.WriteSuccess(json);
             });
 
@@ -69,7 +69,7 @@ namespace AgilefantTimes.API.Restful
                 var sprintSummaries = session.GetSprintSummaries(backlogs[0].Id).Result;
                 var sprintSummary = AgilefantClient.SelectSprint(sprintNumber, sprintSummaries);
                 var sprint = session.GetSprint(sprintSummary.Id).Result;
-                var json = JsonConvert.SerializeObject(sprint);
+                var json = JsonConvert.SerializeObject(sprint, Formatting.Indented);
                 p.WriteSuccess(json);
             });
 
@@ -97,7 +97,7 @@ namespace AgilefantTimes.API.Restful
 
                 var times = _client.GetLoggedTaskTime(userId, sprintSummary.StartDate, sprintSummary.EndDate).Result;
                 var stats = new UserPerformed(userId, name, times);
-                p.WriteSuccess(JsonConvert.SerializeObject(stats));
+                p.WriteSuccess(JsonConvert.SerializeObject(stats, Formatting.Indented));
             });
 
             _server += new RestfulUrlHandler("/rest/teams/?", (p, s) =>
@@ -106,7 +106,7 @@ namespace AgilefantTimes.API.Restful
                 if (session == null) return;
 
                 var teams = session.GetTeams().Result;
-                var json = JsonConvert.SerializeObject(teams);
+                var json = JsonConvert.SerializeObject(teams, Formatting.Indented);
                 p.WriteSuccess(json);
             });
         }
