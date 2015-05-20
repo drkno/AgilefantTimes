@@ -36,6 +36,15 @@ namespace AgilefantTimes.API.Restful
 
                 var teams = session.GetTeams().Result;
                 var users = teams[teamNumber - 1].Members;
+                Array.Sort(users, (a, b) =>
+                                  {
+                                      if (string.IsNullOrWhiteSpace(a.Name) || string.IsNullOrWhiteSpace(b.Name))
+                                      {
+                                          return string.Compare(a.Initials, b.Initials, StringComparison.Ordinal);
+                                      }
+                                      return string.Compare(a.Name, b.Name, StringComparison.Ordinal);
+                                  });
+
                 var u = session.GetUsers().Result;
                 foreach (var user in users)
                 {
