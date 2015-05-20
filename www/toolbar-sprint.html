@@ -34,25 +34,19 @@
                 text-align: center;
                 display: block;
             }
-            #sprintName {
-                margin: 0 auto;
-                color: white;
-                text-align: center;
-            }
         </style>
-
+        <core-ajax
+                id="ajax"
+                url="rest/teams"
+                handleAs="json"
+                hidden></core-ajax>
         <core-header-panel fit>
             <core-toolbar vertical layout>
                 <paper-tabs selected="{{selected}}" id="tabs" fit self-end>
-                    <!--Todo auto generate sprints from json request-->
-                    <paper-tab name="1">Sprint 1</paper-tab>
-                    <paper-tab name="2">Sprint 2</paper-tab>
-                    <paper-tab name="3">Sprint 3</paper-tab>
-                    <paper-tab name="4">Sprint 4</paper-tab>
-                    <paper-tab name="5">Sprint 5</paper-tab>
-                    <paper-tab name="6">Sprint 6</paper-tab>
+                    <template repeat="{{sprint, index in sprints}}">
+                        <paper-tab name={{index+1}}>{{sprint.Name}}</paper-tab>
+                    </template>
                 </paper-tabs>
-                <div id="sprintName" flex>{{sprintName}}</div>
             </core-toolbar>
         </core-header-panel>
     </template>
@@ -60,19 +54,37 @@
     <script>
         Polymer('toolbar-sprint', {
             selected: null,
-            sprintName: null,
+            sprints: [],
+            teamIndex: 0,
+            data: [],
 
             ready: function() {
                 var tabs = this.$.tabs;
                 tabs.addEventListener('core-select', function (event) {
+                    console.log(tabs.selected);
                     this.fire('change-sprint', {sprintNum: tabs.selected});
                 });
+                var ajax = this.$.ajax;
+                ajax.addEventListener("core-response", function(event) {
+                    this.data = event.detail.response;
+                    this.loadSprintTabs();
+
+                }.bind(this));
+                ajax.go();
             },
             setSprint: function(newVal) {
                 if (newVal.sprintNum !== this.selected) {
                     this.selected = newVal.sprintNum;
                 }
-                this.sprintName = newVal.sprintName;
+            },
+            changeTeam: function(teamNumber) {
+                // assuming that the backend always returns a list of sorted teams by there ID.
+                this.teamIndex = teamNumber - 1;
+                this.loadSprintTabs();
+            },
+            loadSprintTabs: function() {
+                this.sprints = this.data[this.teamIndex].Sprints;
+                console.log(this.sprints);
             }
         });
     </script>

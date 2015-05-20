@@ -70,7 +70,7 @@
                     this.data = event.detail.response;
                     this.fire('core-signal', {name: "new-userdata", data: this.data});
                     this.fire('core-signal', {name: "new-chartdata", data: this.data.Hours});
-                    this.fire('change-toolbar', {sprintNum: this.sprintNum, sprintName: this.data.SprintName});
+                    this.fire('change-toolbar', {sprintName: this.data.SprintName});
                     this.hideLoading()
                 }.bind(this));
                 ajax.go();
@@ -87,6 +87,7 @@
             },
             sprintNumChanged: function(oldVal, newVal) {
                 this.hideData();
+                console.log(newVal);
                 if (newVal == -1) {
                     this.url = '';
                 }

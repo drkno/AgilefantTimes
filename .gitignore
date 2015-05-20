@@ -187,3 +187,9 @@ FakesAssemblies/
 GeneratedArtifacts/
 _Pvt_Extensions/
 ModelManifest.xml
+/www/.idea
+/aftimes.conf
+/Newtonsoft.Json.xml
+/AgilefantTimes.exe.config
+/AgilefantTimes.vshost.exe.config
+/AgilefantTimes.vshost.exe.manifest
