@@ -56,7 +56,8 @@
             data: {
                 Hours: {},
                 SprintName: null,
-                TeamName: null
+                TeamName: null,
+                SprintNumber: null
             },
             url : '',
             ready: function() {
@@ -70,7 +71,7 @@
                     this.data = event.detail.response;
                     this.fire('core-signal', {name: "new-userdata", data: this.data});
                     this.fire('core-signal', {name: "new-chartdata", data: this.data.Hours});
-                    this.fire('change-toolbar', {sprintName: this.data.SprintName});
+                    this.fire('change-toolbar', {sprintName: this.data.SprintName, sprintNum: this.data.SprintNumber});
                     this.hideLoading()
                 }.bind(this));
                 ajax.go();
