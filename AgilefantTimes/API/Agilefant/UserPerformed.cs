@@ -35,7 +35,7 @@ namespace AgilefantTimes.API.Agilefant
             Name = name;
 
             HasUnitTested = tasks.Any(t => t.Description.Contains("#test"));
-            HasAcceptanceTested = tasks.Any(t => t.Description.Contains("#manualtest"));
+            HasAcceptanceTested = tasks.Any(t => t.Description.Contains("#testmanual"));
             HasImplemented = tasks.Any(t => t.Description.Contains("#implement"));
             HasRefactored = tasks.Any(t => t.Description.Contains("#refactor"));
             HasDocumented = tasks.Any(t => t.Description.Contains("#document"));
