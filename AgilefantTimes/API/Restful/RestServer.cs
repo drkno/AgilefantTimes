@@ -93,7 +93,7 @@ namespace AgilefantTimes.API.Restful
             else
             {
                 requestProcessor.HttpResponseHeaders["Location"] = "https://thebest404pageever.com/";
-                requestProcessor.WriteResponse("301 Moved Permanently", "404, thou must find mordor before getting eagles.");
+                requestProcessor.WriteResponse("302 Found", "404, thou must find mordor before getting eagles.");
                 //requestProcessor.WriteFailure();
             }
         }
