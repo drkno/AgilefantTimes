@@ -31,6 +31,8 @@ namespace AgilefantTimes.Output
         public double AverageTaskHours { get; private set; }
         [DataMember]
         public double TotalHours { get; private set; }
+        [DataMember]
+        public int SprintNumber { get; private set; }
 
         /// <summary>
         /// Creates a new JSON output object, used for outputing data as JSON.
@@ -38,11 +40,13 @@ namespace AgilefantTimes.Output
         /// <param name="name">TeamName to use.</param>
         /// <param name="sprintName">SprintName to use.</param>
         /// <param name="hours">Hours to use.</param>
-        public JsonOutput(string name, string sprintName, List<JsonOutputTime> hours)
+        /// <param name="sprintNumber">Sprint number.</param>
+        public JsonOutput(string name, string sprintName, List<JsonOutputTime> hours, int sprintNumber)
         {
             TeamName = name;
             SprintName = sprintName;
             Hours = hours;
+            SprintNumber = sprintNumber;
 
             var sorted = hours.OrderBy(h => h.TotalHours);
             MinHours = hours.IndexOf(sorted.First());
