@@ -26,7 +26,6 @@ namespace AgilefantTimes.API.Restful
             _server += new RestfulUrlHandler("/rest/([0-9]+/)?sprint/summary(/([0-9]+/?)?)?", (p, s) =>
             {
                 var session = GetClientSession(p);
-                if (session == null) return;
 
                 int teamNumber, sprintNumber;
                 if (!int.TryParse(s[1], out teamNumber))
@@ -69,7 +68,6 @@ namespace AgilefantTimes.API.Restful
             _server += new RestfulUrlHandler("/rest/([0-9]+/)?sprint(/([0-9]+/?)?)?", (p, s) =>
             {
                 var session = GetClientSession(p);
-                if (session == null) return;
 
                 int teamNumber, sprintNumber;
                 if (!int.TryParse(s[1], out teamNumber))
@@ -88,7 +86,7 @@ namespace AgilefantTimes.API.Restful
             _server += new RestfulUrlHandler("/rest/[a-z]{3}[0-9]{2}/sprint/[0-9]+/?", (p, s) =>
             {
                 var session = GetClientSession(p);
-                if (session == null) return;
+
                 var userCode = s[1];
                 var sprintNumber = int.Parse(s[3]);
 
@@ -115,7 +113,6 @@ namespace AgilefantTimes.API.Restful
             _server += new RestfulUrlHandler("/rest/teams/?", (p, s) =>
             {
                 var session = GetClientSession(p);
-                if (session == null) return;
 
                 var teams = session.GetTeams().Result;
                 var json = JsonConvert.SerializeObject(teams, Formatting.Indented);
@@ -138,7 +135,14 @@ namespace AgilefantTimes.API.Restful
         {
             try
             {
-                if (_client != null) return _client;
+                if (_client != null)
+                {
+                    var response = _client.Session.Get("loginContext.action").Result;
+                    if (response.Headers.Location == null || !response.Headers.Location.ToString().Contains("login.jsp")) return _client;
+                    _client.Session.Logout();
+                    _client.Session.ReLogin();
+                    return _client;
+                }
 
                 var session = AgilefantSession.Login(_config.Username, _config.Password).Result;
                 _client = new AgilefantClient(session);

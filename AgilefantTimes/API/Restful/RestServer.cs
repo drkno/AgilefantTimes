@@ -87,7 +87,7 @@ namespace AgilefantTimes.API.Restful
             if (_serverBaseDirectory != null && File.Exists(path))
             {
                 var reader = new StreamReader(path);
-                requestProcessor.WriteSuccess(reader.ReadToEnd());
+                requestProcessor.WriteSuccess(reader.ReadToEnd(), "text/html");
                 reader.Close();
             }
             else

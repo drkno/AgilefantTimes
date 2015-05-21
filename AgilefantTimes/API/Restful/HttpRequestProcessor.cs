@@ -198,7 +198,7 @@ namespace AgilefantTimes.API.Restful
             reader.Close();
         }
 
-        public void WriteSuccess(string response = null, string contentType = null)
+        public void WriteSuccess(string response = null, string contentType = "application/json")
         {
             WriteResponse("200 OK", response, contentType);
         }
