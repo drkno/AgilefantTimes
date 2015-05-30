@@ -21,11 +21,15 @@ namespace AgilefantTimes.API.Agilefant
 
         private HttpClient _httpClient;
         private bool _loggedIn;
+        private string _username;
+        private string _password;
 
-        private AgilefantSession(HttpClientHandler handler)
+        private AgilefantSession(HttpClientHandler handler, string username, string password)
         {
             _httpClient = new HttpClient(handler);
             _loggedIn = true;
+            _username = username;
+            _password = password;
         }
 
         /// <summary>
@@ -75,7 +79,7 @@ namespace AgilefantTimes.API.Agilefant
         public static async Task<AgilefantSession> Login(string username, string password)
         {
             var handler = await InternalLogin(username, password);
-            return new AgilefantSession(handler);
+            return new AgilefantSession(handler, username, password);
         }
 
         /// <summary>
@@ -92,6 +96,19 @@ namespace AgilefantTimes.API.Agilefant
             var handler = await InternalLogin(username, password);
             _httpClient = new HttpClient(handler);
             _loggedIn = true;
+            _username = username;
+            _password = password;
+        }
+
+        /// <summary>
+        /// Logs in to Agilefant using the same credentials as the last login.
+        /// </summary>
+        /// <exception cref="SecurityException">If credentials are incorrect.</exception>
+        /// <exception cref="WebException">If there was an error connecting to Agilefant.</exception>
+        /// <exception cref="InvalidOperationException">If currently logged in.</exception>
+        public void ReLogin()
+        {
+            ReLogin(_username, _password);
         }
 
         /// <summary>

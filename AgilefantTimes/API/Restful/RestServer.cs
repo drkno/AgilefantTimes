@@ -87,13 +87,13 @@ namespace AgilefantTimes.API.Restful
             if (_serverBaseDirectory != null && File.Exists(path))
             {
                 var reader = new StreamReader(path);
-                requestProcessor.WriteSuccess(reader.ReadToEnd());
+                requestProcessor.WriteSuccess(reader.ReadToEnd(), "text/html");
                 reader.Close();
             }
             else
             {
                 requestProcessor.HttpResponseHeaders["Location"] = "https://thebest404pageever.com/";
-                requestProcessor.WriteResponse("301 Moved Permanently", "404, thou must find mordor before getting eagles.");
+                requestProcessor.WriteResponse("302 Found", "404, thou must find mordor before getting eagles.");
                 //requestProcessor.WriteFailure();
             }
         }

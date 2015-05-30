@@ -36,9 +36,9 @@ namespace AgilefantTimes
                 server.Start();
                 Console.WriteLine("complete.");
 
-                Console.ReadKey();
+                //Console.ReadKey();
 
-                server.Stop();
+                //server.Stop();
             }
             catch (Exception e)
             {
