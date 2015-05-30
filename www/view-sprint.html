@@ -59,6 +59,7 @@
                 TeamName: null,
                 SprintNumber: null
             },
+            load: true,
             url : '',
             ready: function() {
                 var spinner = this.shadowRoot.querySelector('loading-spinner');
@@ -71,7 +72,10 @@
                     this.data = event.detail.response;
                     this.fire('core-signal', {name: "new-userdata", data: this.data});
                     this.fire('core-signal', {name: "new-chartdata", data: this.data.Hours});
-                    this.fire('change-toolbar', {sprintName: this.data.SprintName, sprintNum: this.data.SprintNumber});
+                    if (!this.load) {
+                        this.fire('change-toolbar', {sprintName: this.data.SprintName, sprintNum: this.data.SprintNumber});
+                    }
+                    this.load = false;
                     this.hideLoading()
                 }.bind(this));
                 ajax.go();

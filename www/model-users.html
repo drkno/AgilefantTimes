@@ -103,9 +103,9 @@
             },
             newData: function(e, detail, sender) {
                 this.userData = detail;
-                maxPerson = detail.Hours[detail.MinHours];
-                minPerson = detail.Hours[detail.MinHours];
-                medianPerson = detail.Hours[detail.MedianUpperHours];
+                var maxPerson = detail.Hours[detail.MaxHours];
+                var minPerson = detail.Hours[detail.MinHours];
+                var medianPerson = detail.Hours[detail.MedianUpperHours];
                 this.$.min.innerHTML = this.roundup1dp(minPerson.TotalHours) + " (" + minPerson.Name + ")";
                 this.$.max.innerHTML = this.roundup1dp(maxPerson.TotalHours) + " (" + maxPerson.Name + ")";
                 this.$.median.innerHTML = this.roundup1dp(medianPerson.TotalHours) + " (" + medianPerson.Name + ")";

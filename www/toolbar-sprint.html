@@ -13,14 +13,6 @@
                 height: 100%;
                 box-sizing: border-box;
             }
-            core-header-panel {
-                overflow: auto;
-                -webkit-overflow-scrolling: touch;
-            }
-            core-toolbar {
-                background: #03A9F4;
-                color: white;
-            }
             paper-tabs {
                 margin: 0;
                 -webkit-user-select: none;
@@ -40,15 +32,11 @@
                 url="rest/teams"
                 handleAs="json"
                 hidden></core-ajax>
-        <core-header-panel fit>
-            <core-toolbar vertical layout>
-                <paper-tabs selected="{{selected}}" id="tabs" fit self-end>
-                    <template repeat="{{sprint, index in sprints}}">
-                        <paper-tab name={{index+1}}>{{sprint.Name}}</paper-tab>
-                    </template>
-                </paper-tabs>
-            </core-toolbar>
-        </core-header-panel>
+        <paper-tabs selected="{{selected}}" id="tabs" fit self-end>
+            <template repeat="{{sprint, index in sprints}}">
+                <paper-tab name={{index+1}}>{{sprint.Name}}</paper-tab>
+            </template>
+        </paper-tabs>
     </template>
 
     <script>
@@ -57,6 +45,7 @@
             sprints: [],
             teamIndex: 0,
             data: [],
+            load: true,
 
             ready: function() {
                 var tabs = this.$.tabs;
@@ -73,7 +62,7 @@
                 ajax.go();
             },
             setSprint: function(newVal) {
-                if (newVal.sprintNum !== this.selected) {
+                if (newVal.sprintNum != this.selected) {
                     this.selected = newVal.sprintNum;
                 }
             },
