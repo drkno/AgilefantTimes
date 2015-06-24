@@ -36,7 +36,7 @@
             <loading-spinner startColor="#3FCADA" middleColor="#1074C5" endColor="#3FCADA"></loading-spinner>
             <core-ajax
                     id="ajax"
-                    url="rest/1/sprint/summary/{{url}}"
+                    url="http://localhost:80/polls/index.php/services/polls"
                     handleAs="json"
                     hidden></core-ajax>
             <div id="userTable">
@@ -69,6 +69,7 @@
                 }.bind(this));
                 var ajax = this.$.ajax;
                 ajax.addEventListener("core-response", function(event) {
+                    console.log(event);
                     this.data = event.detail.response;
                     this.fire('core-signal', {name: "new-userdata", data: this.data});
                     this.fire('core-signal', {name: "new-chartdata", data: this.data.Hours});
