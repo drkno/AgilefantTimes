@@ -90,7 +90,7 @@ namespace AgilefantTimes.API.Restful
                     {
                         GetPostData();
                     }
-                    Debug.WriteLine(HttpMethod + " " + HttpUrl);
+                    Debug.WriteLine("[" + Thread.CurrentThread.ManagedThreadId + "] " + HttpMethod + " " + HttpUrl);
                     _requestHandler.Invoke(this);
                 }
                 catch (Exception e)
@@ -230,7 +230,7 @@ namespace AgilefantTimes.API.Restful
         {
             if (ResponseWritten) throw new Exception("Cannot send new response after response has been sent.");
             ResponseWritten = true;
-            _outputStream.WriteLine("HTTP/1.0 " + status);
+            _outputStream.WriteLine("HTTP/1.1 " + status);
             var connection = (string) HttpHeaders["Connection"];
             if (string.IsNullOrWhiteSpace(connection))
             {
