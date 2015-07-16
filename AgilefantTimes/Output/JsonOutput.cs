@@ -33,6 +33,8 @@ namespace AgilefantTimes.Output
         public double TotalHours { get; private set; }
         [DataMember]
         public int SprintNumber { get; private set; }
+        [DataMember]
+        public bool Error { get; private set; }
 
         /// <summary>
         /// Creates a new JSON output object, used for outputing data as JSON.
@@ -48,15 +50,22 @@ namespace AgilefantTimes.Output
             Hours = hours;
             SprintNumber = sprintNumber;
 
-            var sorted = hours.OrderBy(h => h.TotalHours);
-            MinHours = hours.IndexOf(sorted.First());
-            MaxHours = hours.IndexOf(sorted.Last());
-            AverageHours = hours.Average(h => h.TotalHours);
-            AverageStoryHours = hours.Average(h => h.StoryHours);
-            AverageTaskHours = hours.Average(h => h.TaskHours);
-            MedianUpperHours = hours.IndexOf(sorted.ElementAt(hours.Count / 2));
-            MedianLowerHours = hours.IndexOf(sorted.ElementAt(hours.Count / 2 - 1));
-            TotalHours = hours.Sum(h => h.TotalHours);
+            if (hours.Count == 0)
+            {
+                Error = true;
+            }
+            else
+            {
+                var sorted = hours.OrderBy(h => h.TotalHours);
+                MinHours = hours.IndexOf(sorted.First());
+                MaxHours = hours.IndexOf(sorted.Last());
+                AverageHours = hours.Average(h => h.TotalHours);
+                AverageStoryHours = hours.Average(h => h.StoryHours);
+                AverageTaskHours = hours.Average(h => h.TaskHours);
+                MedianUpperHours = hours.IndexOf(sorted.ElementAt(hours.Count / 2));
+                MedianLowerHours = hours.IndexOf(sorted.ElementAt(hours.Count / 2 - 1));
+                TotalHours = hours.Sum(h => h.TotalHours);
+            }
         }
 
         /// <summary>

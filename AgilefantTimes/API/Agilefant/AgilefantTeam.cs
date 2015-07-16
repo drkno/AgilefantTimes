@@ -55,7 +55,13 @@ namespace AgilefantTimes.API.Agilefant
                 var sprint0 = Regex.Match(sprints.First().Name, "[0-9]+");
                 if (sprint0.Success && int.Parse(sprint0.Value) == 0) sprints.RemoveAt(0);
 
-                teams.Add(new AgilefantTeam(summary.Name.Substring(2), summary.Description, summary.Id, sprintData[0].Assignees, sprints.ToArray()));
+                var assignees = sprintData[0].Assignees;
+                for (var i = 1; i < sprintData.Length && assignees.Length == 0; i++)
+                {
+                    assignees = sprintData[i].Assignees;    // sprint 0 sometimes does not have assignees
+                }
+
+                teams.Add(new AgilefantTeam(summary.Name.Substring(2), summary.Description, summary.Id, assignees, sprints.ToArray()));
             }
             return teams.ToArray();
         }
