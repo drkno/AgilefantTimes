@@ -4,12 +4,14 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
+using System.Runtime.Caching;
 using System.Threading;
 
 namespace AgilefantTimes.API.Restful
 {
     public class RestServer
     {
+        private readonly MemoryCache _requestCache;
         private readonly int _port;
         private readonly string _serverBaseDirectory;
         private TcpListener _listener;
@@ -22,6 +24,7 @@ namespace AgilefantTimes.API.Restful
             _port = port;
             _serverBaseDirectory = serverBaseDirectory;
             _handlers = new List<RestfulUrlHandler>();
+            _requestCache = new MemoryCache("RestServerCache");
         }
 
         public void AddHandler(RestfulUrlHandler handler)
@@ -51,7 +54,7 @@ namespace AgilefantTimes.API.Restful
             return e;
         }
 
-        private void Listen()
+        private bool Listen()
         {
             try
             {
@@ -60,7 +63,7 @@ namespace AgilefantTimes.API.Restful
                 while (_isActive)
                 {
                     var s = _listener.AcceptTcpClient();
-                    var processor = new HttpRequestProcessor(s, HandleRequest);
+                    var processor = new HttpRequestProcessor(s, HandleRequest, _requestCache);
                     var thread = new Thread(processor.ProcessInput);
                     thread.Start();
                     Thread.Sleep(1);
@@ -68,9 +71,16 @@ namespace AgilefantTimes.API.Restful
             }
             catch (SocketException e)
             {
-                if (e.SocketErrorCode == SocketError.Interrupted) return;
+                // fuck you mono
+                if (e.Message.Contains("The socket has been shut down"))
+                {
+                    Console.Error.WriteLine("Mono just committed suicide AND killed the server. Thanks a lot mono.");
+                    return false;
+                }
+                if (e.SocketErrorCode == SocketError.Interrupted) return true;
                 throw;
             }
+            return true;
         }
 
         private void HandleRequest(HttpRequestProcessor requestProcessor)
@@ -105,7 +115,15 @@ namespace AgilefantTimes.API.Restful
                 throw new InvalidOperationException("Cannot start the server while it is already running.");
             }
             _isActive = true;
-            _listenThread = new Thread(Listen);
+            while (_isActive)
+            {
+                if (Listen()) break;
+            }
+        }
+
+        public void StartAsync()
+        {
+            _listenThread = new Thread(Start);
             _listenThread.Start();
         }
 

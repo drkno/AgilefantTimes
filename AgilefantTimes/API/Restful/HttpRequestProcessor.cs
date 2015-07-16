@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Sockets;
+using System.Runtime.Caching;
 using System.Text;
 using System.Threading;
 
@@ -16,7 +17,7 @@ namespace AgilefantTimes.API.Restful
         private readonly Action<HttpRequestProcessor> _requestHandler;
         private Stream _inputStream;
         private StreamWriter _outputStream;
-
+        private MemoryCache _requestCache;
         public HttpMethod HttpMethod { get; private set; }
         public string HttpUrl { get; private set; }
         public string HttpVersion { get; private set; }
@@ -30,10 +31,11 @@ namespace AgilefantTimes.API.Restful
         private const int MaxPostSize = 10485760;
         private const int BufSize = 4096;
 
-        public HttpRequestProcessor(TcpClient tcpClient, Action<HttpRequestProcessor> handleRequest)
+        public HttpRequestProcessor(TcpClient tcpClient, Action<HttpRequestProcessor> handleRequest, MemoryCache requestCache)
         {
             _requestHandler = handleRequest;
             _socket = tcpClient;
+            _requestCache = requestCache;
         }
 
         public string DecodeAuthenticationHeader()
@@ -90,8 +92,24 @@ namespace AgilefantTimes.API.Restful
                     {
                         GetPostData();
                     }
+
                     Debug.WriteLine("[" + Thread.CurrentThread.ManagedThreadId + "] " + HttpMethod + " " + HttpUrl);
+
+                    /*var cachedResponse = _requestCache[HttpMethod + " " + HttpUrl];
+                    if ()
+                    {
+                        
+                    }*/
                     _requestHandler.Invoke(this);
+                }
+                catch (SocketException e)
+                {
+                    // fuck you mono
+                    if (e.Message.Contains("The socket has been shut down"))
+                    {
+                        Console.Error.WriteLine("Mono just committed suicide. Thanks a lot mono.");
+                        break;
+                    }
                 }
                 catch (Exception e)
                 {

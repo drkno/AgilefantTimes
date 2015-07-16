@@ -122,7 +122,7 @@ namespace AgilefantTimes.API.Restful
 
         public void Start()
         {
-            _server.Start();
+            _server.StartAsync();
         }
 
         public void Stop()
