@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
@@ -33,10 +34,6 @@ namespace AgilefantTimes.API.Restful
         {
             _requestHandler = handleRequest;
             _socket = tcpClient;
-            HttpHeaders = new Hashtable();
-            HttpResponseHeaders = new Hashtable();
-            HttpCookies = new Hashtable();
-            HttpResponseSetCookies = new Hashtable();
         }
 
         public string DecodeAuthenticationHeader()
@@ -75,33 +72,42 @@ namespace AgilefantTimes.API.Restful
             _inputStream = new BufferedStream(_socket.GetStream());
             _outputStream = new StreamWriter(new BufferedStream(_socket.GetStream()));
 
-            try
+            while (true)
             {
-                ParseRequest();
-                ReadHeaders();
-                ReadCookies();
-
-                string postData = null;
-                if (HttpMethod != HttpMethod.Post)
+                ResponseWritten = false;
+                HttpHeaders = new Hashtable();
+                HttpResponseHeaders = new Hashtable();
+                HttpCookies = new Hashtable();
+                HttpResponseSetCookies = new Hashtable();
+                try
                 {
-                    GetPostData();
+                    ParseRequest();
+                    ReadHeaders();
+                    ReadCookies();
+
+                    string postData = null;
+                    if (HttpMethod != HttpMethod.Post)
+                    {
+                        GetPostData();
+                    }
+                    Debug.WriteLine(HttpMethod + " " + HttpUrl);
+                    _requestHandler.Invoke(this);
                 }
-                _requestHandler.Invoke(this);
-            }
-            catch (Exception e)
-            {
-                WriteServerFailure();
+                catch (Exception e)
+                {
+                    WriteServerFailure();
+                    _outputStream.Flush();
+#if DEBUG
+                    Console.Error.WriteLine(e.StackTrace);
+#endif
+                    break;  // 500 internal server error? probably happened here...
+                }
                 _outputStream.Flush();
-                _inputStream = null;
-                _outputStream = null;
-                _socket.Close();
-                
-                #if DEBUG
-                Console.Error.WriteLine(e.StackTrace);
-                #endif
-                return;  // 500 internal server error? probably happened here...
+                _inputStream.Flush();
+
+                if ((string)HttpHeaders["Connection"] == "close") break;
             }
-            _outputStream.Flush();
+
             _inputStream = null;
             _outputStream = null;
             _socket.Close();
@@ -216,6 +222,7 @@ namespace AgilefantTimes.API.Restful
 
         private void WriteServerFailure(string errorMessage = "<b>500, Oh fiddlesticks! That's an error and it is all YOUR fault.</b>")
         {
+            HttpHeaders["Connection"] = "close";
             WriteResponse("500 Internal Server Error", errorMessage);
         }
 
@@ -224,7 +231,13 @@ namespace AgilefantTimes.API.Restful
             if (ResponseWritten) throw new Exception("Cannot send new response after response has been sent.");
             ResponseWritten = true;
             _outputStream.WriteLine("HTTP/1.0 " + status);
-            _outputStream.WriteLine("Connection: close");
+            var connection = (string) HttpHeaders["Connection"];
+            if (string.IsNullOrWhiteSpace(connection))
+            {
+                connection = "close";
+                HttpHeaders["Connection"] = connection;
+            }
+            _outputStream.WriteLine("Connection: " + connection);
             if (!string.IsNullOrWhiteSpace(response))
             {
                 contentType = string.IsNullOrWhiteSpace(contentType) ? "text/html" : contentType;
