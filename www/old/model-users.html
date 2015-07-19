@@ -1,0 +1,140 @@
+<link rel="import" href="bower_components/core-signals/core-signals.html">
+
+<polymer-element name="model-users">
+
+    <template>
+        <style>
+            :host {
+                width: 100%;
+                height: 100%;
+                box-sizing: border-box;
+            }
+            table {
+                border: none;
+                outline: none;
+                text-align: center;
+                display: block;
+                border-collapse: collapse;
+            }
+
+            thead {
+                font-weight: lighter;
+                background-color: #03A9F4;
+                color: white;
+            }
+
+            th {
+                width: 200px;
+                padding: 5px;
+            }
+
+            td {
+                text-align: right;
+                padding: 5px;
+                width: 200px;
+                border-left: 1px solid #9c9c9c;
+            }
+
+            .text {
+                text-align: left;
+                border-left: 0 none;
+            }
+
+            .stats {
+                text-align: center;
+            }
+
+            .first {
+                border-left: 0 none;
+            }
+
+        </style>
+
+        <core-signals on-core-signal-new-userdata="{{newData}}"></core-signals>
+
+        <table vertical layout center>
+            <thead>
+            <tr>
+                <th>Person</th>
+                <th>Task Hours</th>
+                <th>Story Hours</th>
+                <th>Total Hours</th>
+            </tr>
+            </thead>
+            <tbody>
+            <template repeat="{{user in userData.Hours}}">
+                <tr>
+                    <td class="text">{{user.Name}}</td>
+                    <td>{{roundup1dp(user.TaskHours)}}</td>
+                    <td>{{roundup1dp(user.StoryHours)}}</td>
+                    <td>{{roundup1dp(user.TotalHours)}}</td>
+                </tr>
+            </template>
+            </tbody>
+        </table>
+        <br>
+        <table  vertical layout center id="statsTable">
+            <thead>
+            <tr>
+                <th>Average</th>
+                <th>Minimum</th>
+                <th>Median</th>
+                <th>Maximum</th>
+                <th>Total</th>
+            </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td id="mean" class="stats first"></td>
+                    <td id="min" class="stats"></td>
+                    <td id="median" class="stats"></td>
+                    <td id="max" class="stats"></td>
+                    <td id="total" class="stats"></td>
+                </tr>
+            </tbody>
+        </table>
+
+    </template>
+
+    <script>
+        Polymer('model-users', {
+            userData: [],
+            ready: function() {
+            },
+            newData: function(e, detail, sender) {
+                this.userData = detail;
+                var maxPerson = detail.Hours[detail.MaxHours];
+                var minPerson = detail.Hours[detail.MinHours];
+                var medianPerson = detail.Hours[detail.MedianUpperHours];
+                this.$.min.innerHTML = this.roundup1dp(minPerson.TotalHours) + " (" + minPerson.Name + ")";
+                this.$.max.innerHTML = this.roundup1dp(maxPerson.TotalHours) + " (" + maxPerson.Name + ")";
+                this.$.median.innerHTML = this.roundup1dp(medianPerson.TotalHours) + " (" + medianPerson.Name + ")";
+                this.$.mean.innerHTML = this.roundup1dp(detail.AverageHours);
+                this.$.total.innerHTML = this.roundup1dp(detail.TotalHours);
+            },
+
+            /**
+             * Rounds a number to 1dp or less.
+             * @param number number to round.
+             * @returns number rounded to 1dp or less.
+             */
+            roundup1dp: function(number) {
+                return +(Math.round(number + "e+1") + "e-1");
+            },
+
+            /**
+             * Gets the median index of an array of values.
+             * @param values array to get median of.
+             * @returns index of median.
+             */
+            getMedian: function(values) {
+            var vals = values.slice();
+            vals.sort(function(a, b) {
+                return a - b;
+            });
+            var half = Math.floor(values.length / 2);
+            return values.indexOf(vals[half]);
+        }
+        });
+    </script>
+</polymer-element>

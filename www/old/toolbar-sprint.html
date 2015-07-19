@@ -1,0 +1,80 @@
+<link rel="import" href="bower_components/font-roboto/roboto.html">
+<link rel="import" href="bower_components/core-toolbar/core-toolbar.html">
+<link rel="import" href="bower_components/core-header-panel/core-header-panel.html">
+<link rel="import" href="bower_components/paper-tabs/paper-tabs.html">
+
+
+<polymer-element name="toolbar-sprint">
+
+    <template>
+        <style>
+            :host {
+                width: 100%;
+                height: 100%;
+                box-sizing: border-box;
+            }
+            paper-tabs {
+                margin: 0;
+                -webkit-user-select: none;
+                -moz-user-select: none;
+                -ms-user-select: none;
+                user-select: none;
+                text-transform: uppercase;
+            }
+            paper-tab {
+                position: relative;
+                text-align: center;
+                display: block;
+            }
+        </style>
+        <core-ajax
+                id="ajax"
+                url="rest/teams"
+                handleAs="json"
+                hidden></core-ajax>
+        <paper-tabs selected="{{selected}}" id="tabs" fit self-end>
+            <template repeat="{{sprint, index in sprints}}">
+                <paper-tab name={{index+1}}>{{sprint.Name}}</paper-tab>
+            </template>
+        </paper-tabs>
+    </template>
+
+    <script>
+        Polymer('toolbar-sprint', {
+            selected: null,
+            sprints: [],
+            teamIndex: 0,
+            data: [],
+            load: true,
+
+            ready: function() {
+                var tabs = this.$.tabs;
+                tabs.addEventListener('core-select', function (event) {
+                    console.log(tabs.selected);
+                    this.fire('change-sprint', {sprintNum: tabs.selected});
+                });
+                var ajax = this.$.ajax;
+                ajax.addEventListener("core-response", function(event) {
+                    this.data = event.detail.response;
+                    this.loadSprintTabs();
+
+                }.bind(this));
+                ajax.go();
+            },
+            setSprint: function(newVal) {
+                if (newVal.sprintNum != this.selected) {
+                    this.selected = newVal.sprintNum;
+                }
+            },
+            changeTeam: function(teamNumber) {
+                // assuming that the backend always returns a list of sorted teams by there ID.
+                this.teamIndex = teamNumber - 1;
+                this.loadSprintTabs();
+            },
+            loadSprintTabs: function() {
+                this.sprints = this.data[this.teamIndex].Sprints;
+                console.log(this.sprints);
+            }
+        });
+    </script>
+</polymer-element>

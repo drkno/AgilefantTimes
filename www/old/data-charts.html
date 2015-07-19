@@ -1,0 +1,69 @@
+<link rel="import" href="bower_components/core-signals/core-signals.html">
+<link rel="import" href="bower_components/chart-elements/chart-elements.html">
+
+<polymer-element name="data-charts" attributes="labels data">
+
+    <template>
+        <style>
+            :host {
+                width: 100%;
+                height: 100%;
+                box-sizing: border-box;
+            }
+
+
+        </style>
+
+        <core-signals on-core-signal-new-chartdata="{{newData}}"></core-signals>
+        <div horizontal layout center-justified>
+            <chart-bar
+                width="900"
+                height="300"
+                labels="{{chartLabels}}"
+                values="{{chartValues}}"
+                colors="['3, 169, 244']">
+            </chart-bar>
+        </div>
+        <div  horizontal layout center-justified>
+            <chart-radar
+                    width="450"
+                    height="450"
+                    labels="{{chartLabels}}"
+                    values="{{chartValues}}"
+                    colors="['3, 169, 244']">
+            </chart-radar>
+        </div>
+    </template>
+
+    <script>
+        Polymer('data-charts', {
+            userData: [],
+            chartLabels: [],
+            chartValues: [[]],
+            ready: function() {
+            },
+
+            /**
+             * Rounds a number to 1dp or less.
+             * @param number number to round.
+             * @returns number rounded to 1dp or less.
+             */
+            roundup1dp: function(number) {
+                return +(Math.round(number + "e+1") + "e-1");
+            },
+
+            newData: function(e, detail, sender) {
+                var newChartLabels = [],
+                        newChartValues = [[]],
+                        i = 0;
+                this.userData = detail;
+                for (i; i < detail.length; i++) {
+                    newChartLabels[i] = detail[i].Name;
+                    newChartValues[0][i] = this.roundup1dp(detail[i].TotalHours);
+                }
+                this.chartLabels = newChartLabels;
+                this.chartValues = newChartValues;
+            }
+        });
+    </script>
+</polymer-element>
