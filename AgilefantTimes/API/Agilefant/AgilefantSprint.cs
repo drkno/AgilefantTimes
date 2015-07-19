@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Net.Http;
 using System.Threading.Tasks;
 using AgilefantTimes.API.Agilefant.Common;
 using AgilefantTimes.API.Agilefant.Story;

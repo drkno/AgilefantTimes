@@ -2,9 +2,10 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Net;
-using System.Net.Http;
 using System.Security;
+using System.Text;
 using System.Threading.Tasks;
 
 #endregion
@@ -39,7 +40,9 @@ namespace AgilefantTimes.API.Agilefant
         /// <returns>The response</returns>
         public Task<HttpResponseMessage> Get(string query)
         {
+            Console.WriteLine("1");
             EnsureLoggedIn();
+            Console.WriteLine("2");
             return _httpClient.GetAsync(AgilefantUrl + query);
         }
 
@@ -78,8 +81,16 @@ namespace AgilefantTimes.API.Agilefant
         /// <returns>A new Agilefant session.</returns>
         public static async Task<AgilefantSession> Login(string username, string password)
         {
-            var handler = await InternalLogin(username, password);
-            return new AgilefantSession(handler, username, password);
+            try
+            {
+                var handler = await InternalLogin(username, password);
+                return new AgilefantSession(handler, username, password);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Login Exception:\n" + e.StackTrace);
+                return null;
+            }
         }
 
         /// <summary>
@@ -119,28 +130,45 @@ namespace AgilefantTimes.API.Agilefant
         /// <returns>Handle to the login session.</returns>
         private static async Task<HttpClientHandler> InternalLogin(string username, string password)
         {
-            var handler = new HttpClientHandler
+            try
             {
-                AllowAutoRedirect = true,
-                UseCookies = true
-            };
-            var client = new HttpClient(handler);
-            var data = new FormUrlEncodedContent(new Dictionary<string, string>
-            {
-                {"j_username", username},
-                {"j_password", password}
-            });
+                var handler = new HttpClientHandler
+                {
+                    AllowAutoRedirect = true,
+                    UseCookies = true
+                };
+                var client = new HttpClient(handler);
+                var data = new FormUrlEncodedContent(new Dictionary<string, string>
+                {
+                    {"j_username", username},
+                    {"j_password", password}
+                });
 
-            var response = await client.PostAsync(new Uri(LoginUrl), data);
-            //Will throw an exception if the request failed
-            response.EnsureSuccessStatusCode();
+                Console.WriteLine("Got here");
+                var response = client.PostAsync(LoginUrl, data).Result;
+                
+                //Will throw an exception if the request failed
+                Console.WriteLine("Got here");
+                Console.WriteLine(response.StatusCode);
+                Console.WriteLine(response.Content.ReadAsStringAsync().Result);
 
-            var content = await response.Content.ReadAsStringAsync();
-            if (content.Contains("Invalid username or password, please try again."))
-            {
-                throw new SecurityException("Invalid username or password, please try again.");
+                response.EnsureSuccessStatusCode();
+
+                var content = await response.Content.ReadAsStringAsync();
+                if (content.Contains("Invalid username or password, please try again."))
+                {
+                    throw new SecurityException("Invalid username or password, please try again.");
+                }
+                return handler;
             }
-            return handler;
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+                Console.WriteLine("InternalLogin Exception:\n" + e.StackTrace);
+                return null;
+            }
+
+            
         }
 
         /// <summary>
@@ -163,4 +191,6 @@ namespace AgilefantTimes.API.Agilefant
 
         #endregion
     }
+
+    
 }

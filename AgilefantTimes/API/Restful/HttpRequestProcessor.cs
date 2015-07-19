@@ -3,11 +3,11 @@ using System.Collections;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Net.Http;
 using System.Net.Sockets;
 using System.Runtime.Caching;
 using System.Text;
 using System.Threading;
+using AgilefantTimes.API.Agilefant;
 
 namespace AgilefantTimes.API.Restful
 {
@@ -93,7 +93,9 @@ namespace AgilefantTimes.API.Restful
                         GetPostData();
                     }
 
-                    Debug.WriteLine("[" + Thread.CurrentThread.ManagedThreadId + "] " + HttpMethod + " " + HttpUrl);
+#if DEBUG
+                    Console.WriteLine("[" + Thread.CurrentThread.ManagedThreadId + "] " + HttpMethod + " " + HttpUrl);
+#endif
 
                     /*var cachedResponse = _requestCache[HttpMethod + " " + HttpUrl];
                     if ()
@@ -102,17 +104,19 @@ namespace AgilefantTimes.API.Restful
                     }*/
                     _requestHandler.Invoke(this);
                 }
-                catch (SocketException e)
-                {
-                    // fuck you mono
-                    if (e.Message.Contains("The socket has been shut down"))
-                    {
-                        Console.Error.WriteLine("Mono just committed suicide. Thanks a lot mono.");
-                        break;
-                    }
-                }
                 catch (Exception e)
                 {
+                    if (e is SocketException || e is IOException)
+                    {
+                        
+                        // fuck you mono
+                        if (e.Message.Contains("The socket has been shut down") || e.Message.Contains("Write failure")
+                            || (e.InnerException != null && (e.InnerException.Message.Contains("The socket has been shut down") || e.InnerException.Message.Contains("Write failure"))))
+                        {
+                            Console.Error.WriteLine("Mono just committed suicide. Thanks a lot mono.");
+                            return;
+                        }
+                    }
                     WriteServerFailure();
                     _outputStream.Flush();
 #if DEBUG
@@ -120,6 +124,7 @@ namespace AgilefantTimes.API.Restful
 #endif
                     break;  // 500 internal server error? probably happened here...
                 }
+
                 _outputStream.Flush();
                 _inputStream.Flush();
 
@@ -248,6 +253,11 @@ namespace AgilefantTimes.API.Restful
         {
             if (ResponseWritten) throw new Exception("Cannot send new response after response has been sent.");
             ResponseWritten = true;
+            
+#if DEBUG
+            Console.WriteLine("[" + Thread.CurrentThread.ManagedThreadId + "] Response: " + status);
+#endif
+
             _outputStream.WriteLine("HTTP/1.1 " + status);
             var connection = (string) HttpHeaders["Connection"];
             if (string.IsNullOrWhiteSpace(connection))

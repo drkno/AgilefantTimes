@@ -26,6 +26,7 @@ namespace AgilefantTimes.API.Restful
             _server += new RestfulUrlHandler("/rest/([0-9]+/)?sprint/summary(/([0-9]+/?)?)?", (p, s) =>
             {
                 var session = GetClientSession(p);
+                if (session == null) return;
 
                 int teamNumber, sprintNumber;
                 if (!int.TryParse(s[1], out teamNumber))
@@ -68,6 +69,7 @@ namespace AgilefantTimes.API.Restful
             _server += new RestfulUrlHandler("/rest/([0-9]+/)?sprint(/([0-9]+/?)?)?", (p, s) =>
             {
                 var session = GetClientSession(p);
+                if (session == null) return;
 
                 int teamNumber, sprintNumber;
                 if (!int.TryParse(s[1], out teamNumber))
@@ -83,9 +85,10 @@ namespace AgilefantTimes.API.Restful
                 p.WriteSuccess(json);
             });
 
-            _server += new RestfulUrlHandler("/rest/[a-z]{3}[0-9]{2}/sprint/[0-9]+/?", (p, s) =>
+            _server += new RestfulUrlHandler("/rest/[a-z]{3}[0-9]{2,3}/sprint/[0-9]+/?", (p, s) =>
             {
                 var session = GetClientSession(p);
+                if (session == null) return;
 
                 var userCode = s[1];
                 var sprintNumber = int.Parse(s[3]);
@@ -113,6 +116,7 @@ namespace AgilefantTimes.API.Restful
             _server += new RestfulUrlHandler("/rest/teams/?", (p, s) =>
             {
                 var session = GetClientSession(p);
+                if (session == null) return;
 
                 var teams = session.GetTeams().Result;
                 var json = JsonConvert.SerializeObject(teams, Formatting.Indented);
@@ -135,10 +139,13 @@ namespace AgilefantTimes.API.Restful
         {
             try
             {
+                Console.WriteLine(_client);
                 if (_client != null)
                 {
+                    Console.WriteLine(_client.Session);
                     var response = _client.Session.Get("loginContext.action").Result;
-                    if (response.Headers.Location == null || !response.Headers.Location.ToString().Contains("login.jsp")) return _client;
+                    Console.WriteLine("Location: " + response.Headers.Location);
+                    if (response.Headers.Location == null || !response.Headers.Location.Contains("login.jsp")) return _client;
                     _client.Session.Logout();
                     _client.Session.ReLogin();
                     return _client;
@@ -164,8 +171,9 @@ namespace AgilefantTimes.API.Restful
                 _session++;
                 return client;*/
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                Console.WriteLine(e);
                 processor.WriteAuthRequired();
                 return null;
             }
