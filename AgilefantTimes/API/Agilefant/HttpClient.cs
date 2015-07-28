@@ -25,6 +25,7 @@ namespace AgilefantTimes.API.Agilefant
                 webRequest.CookieContainer = _clientHandler.CookieContainer;
             }
             webRequest.UserAgent = "Testing Agent";
+            webRequest.AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip;
             var message = new HttpResponseMessage();
             message.Content = new HttpResponseContent();
             message.Headers = new HttpHeaders();
@@ -72,6 +73,7 @@ namespace AgilefantTimes.API.Agilefant
                 webRequest.CookieContainer = _clientHandler.CookieContainer;
             }
             webRequest.UserAgent = "Testing Agent";
+            webRequest.AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip;
             webRequest.Method = "POST";
             using (var stream = webRequest.GetRequestStream())
             {

@@ -145,7 +145,7 @@ namespace AgilefantTimes.API.Restful
                     Console.WriteLine(_client.Session);
                     var response = _client.Session.Get("loginContext.action").Result;
                     Console.WriteLine("Location: " + response.Headers.Location);
-                    if (response.Headers.Location == null || !response.Headers.Location.Contains("login.jsp")) return _client;
+                    if (response.Headers.Location == null || !(response.Headers.Location.Contains("login.jsp") || response.Headers.Location.Contains("error.json"))) return _client;
                     _client.Session.Logout();
                     _client.Session.ReLogin();
                     return _client;
@@ -173,9 +173,18 @@ namespace AgilefantTimes.API.Restful
             }
             catch (Exception e)
             {
-                Console.WriteLine(e);
-                processor.WriteAuthRequired();
-                return null;
+                try
+                {
+                    _client.Session.Logout();
+                    _client.Session.ReLogin();
+                    return _client;
+                }
+                catch (Exception)
+                {
+                    Console.WriteLine(e);
+                    processor.WriteAuthRequired();
+                    return null;
+                }
             }
         }
     }

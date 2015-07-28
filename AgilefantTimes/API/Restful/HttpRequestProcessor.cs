@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Diagnostics;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Net.Sockets;
 using System.Runtime.Caching;
@@ -96,26 +97,15 @@ namespace AgilefantTimes.API.Restful
 #if DEBUG
                     Console.WriteLine("[" + Thread.CurrentThread.ManagedThreadId + "] " + HttpMethod + " " + HttpUrl);
 #endif
-
-                    /*var cachedResponse = _requestCache[HttpMethod + " " + HttpUrl];
-                    if ()
-                    {
-                        
-                    }*/
                     _requestHandler.Invoke(this);
                 }
                 catch (Exception e)
                 {
                     if (e is SocketException || e is IOException)
                     {
-                        
                         // fuck you mono
-                        if (e.Message.Contains("The socket has been shut down") || e.Message.Contains("Write failure")
-                            || (e.InnerException != null && (e.InnerException.Message.Contains("The socket has been shut down") || e.InnerException.Message.Contains("Write failure"))))
-                        {
-                            Console.Error.WriteLine("Mono just committed suicide. Thanks a lot mono.");
-                            return;
-                        }
+                        Console.Error.WriteLine("Mono just committed suicide. Thanks a lot mono.");
+                        return;
                     }
                     WriteServerFailure();
                     _outputStream.Flush();
@@ -249,6 +239,25 @@ namespace AgilefantTimes.API.Restful
             WriteResponse("500 Internal Server Error", errorMessage);
         }
 
+        private static string GzipCompressString(string str)
+        {
+            Stream stream = new MemoryStream(Encoding.UTF8.GetBytes(str));
+            var compressedMemoryStream = new MemoryStream();
+
+            using (var gzipStream = new Ionic.Zlib.GZipStream(compressedMemoryStream, Ionic.Zlib.CompressionMode.Compress, true))
+            {
+                stream.CopyTo(gzipStream);
+                gzipStream.Flush();
+                gzipStream.Close();
+            }
+            stream.Close();
+            compressedMemoryStream.Position = 0;
+            var reader = new StreamReader(compressedMemoryStream);
+            var compressed = reader.ReadToEnd();
+            reader.Close();
+            return compressed;
+        }
+
         public void WriteResponse(string status, string response = null, string contentType = null)
         {
             if (ResponseWritten) throw new Exception("Cannot send new response after response has been sent.");
@@ -257,6 +266,16 @@ namespace AgilefantTimes.API.Restful
 #if DEBUG
             Console.WriteLine("[" + Thread.CurrentThread.ManagedThreadId + "] Response: " + status);
 #endif
+            var length = string.IsNullOrWhiteSpace(response) ? 0 : Encoding.UTF8.GetByteCount(response);
+            /*if (HttpHeaders.ContainsKey("Accept-Encoding") && ((string)HttpHeaders["Accept-Encoding"]).Contains("gzip") && response != null)
+            {
+                HttpResponseHeaders["Content-Encoding"] = "gzip";
+                response = GzipCompressString(response);
+                contentType += "; charset=utf-8";
+                length = Encoding.UTF8.GetByteCount(response);
+            }*/
+
+            HttpResponseHeaders["X-Powered-By"] = "Knoxius Servius";
 
             _outputStream.WriteLine("HTTP/1.1 " + status);
             var connection = (string) HttpHeaders["Connection"];
@@ -270,7 +289,7 @@ namespace AgilefantTimes.API.Restful
             {
                 contentType = string.IsNullOrWhiteSpace(contentType) ? "text/html" : contentType;
                 _outputStream.WriteLine("Content-Type: " + contentType);
-                _outputStream.WriteLine("Content-Length: " + response.Length);
+                _outputStream.WriteLine("Content-Length: " + length);
             }
             foreach (var header in HttpResponseHeaders.Keys)
             {
@@ -283,8 +302,9 @@ namespace AgilefantTimes.API.Restful
             _outputStream.WriteLine("");
             if (!string.IsNullOrWhiteSpace(response))
             {
-                _outputStream.WriteLine(response);
+                _outputStream.Write(response);
             }
+            Console.WriteLine("complete");
         }
     }
 }

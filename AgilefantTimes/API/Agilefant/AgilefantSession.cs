@@ -101,10 +101,10 @@ namespace AgilefantTimes.API.Agilefant
         /// <exception cref="SecurityException">If credentials are incorrect.</exception>
         /// <exception cref="WebException">If there was an error connecting to Agilefant.</exception>
         /// <exception cref="InvalidOperationException">If currently logged in.</exception>
-        public async void ReLogin(string username, string password)
+        public void ReLogin(string username, string password)
         {
             if (_loggedIn) throw new InvalidOperationException("Cannot login while not logged out.");
-            var handler = await InternalLogin(username, password);
+            var handler = InternalLogin(username, password).Result;
             _httpClient = new HttpClient(handler);
             _loggedIn = true;
             _username = username;
@@ -174,9 +174,9 @@ namespace AgilefantTimes.API.Agilefant
         /// <summary>
         /// Logs the current session out.
         /// </summary>
-        public async void Logout()
+        public void Logout()
         {
-            var response = await Get("j_spring_security_logout?exit=Logout");
+            var response = Get("j_spring_security_logout?exit=Logout").Result;
             response.EnsureSuccessStatusCode();
             _loggedIn = false;
         }
