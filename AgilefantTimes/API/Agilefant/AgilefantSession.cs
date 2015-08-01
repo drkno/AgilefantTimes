@@ -186,6 +186,7 @@ namespace AgilefantTimes.API.Agilefant
         /// </summary>
         private void EnsureLoggedIn()
         {
+            return; // todo
             if (!_loggedIn) throw new SecurityException("User is not logged in.");
         }
 

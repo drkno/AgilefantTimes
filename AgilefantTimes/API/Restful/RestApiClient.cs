@@ -139,13 +139,12 @@ namespace AgilefantTimes.API.Restful
         {
             try
             {
-                Console.WriteLine(_client);
                 if (_client != null)
                 {
-                    Console.WriteLine(_client.Session);
                     var response = _client.Session.Get("loginContext.action").Result;
-                    Console.WriteLine("Location: " + response.Headers.Location);
-                    if (response.Headers.Location == null || !(response.Headers.Location.Contains("login.jsp") || response.Headers.Location.Contains("error.json"))) return _client;
+                    if (string.IsNullOrWhiteSpace(response.Headers.Location) && !response.Content.Content.Contains("Agilefant login") ||
+                        !string.IsNullOrWhiteSpace(response.Headers.Location) && (!response.Headers.Location.Contains("login.jsp") && !response.Headers.Location.Contains("error.json")))
+                        return _client;
                     _client.Session.Logout();
                     _client.Session.ReLogin();
                     return _client;
