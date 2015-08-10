@@ -113,6 +113,44 @@ namespace AgilefantTimes.API.Restful
                 p.WriteSuccess(JsonConvert.SerializeObject(stats, Formatting.Indented));
             });
 
+            _server += new RestfulUrlHandler("/rest/([0-9]+/)?sprint/([0-9]+)/hours/?", (p, s) =>
+            {
+                var session = GetClientSession(p);
+                if (session == null) return;
+
+
+                int teamNumber, sprintNumber;
+                if (!int.TryParse(s[1], out teamNumber))
+                {
+                    teamNumber = config.TeamNumber;
+                    sprintNumber = int.Parse(s[2]);
+                }
+                else sprintNumber = int.Parse(s[3]);
+
+                var team = session.GetTeams().Result.FirstOrDefault(t => t.Id == teamNumber);
+                if (team == null) throw new Exception("Invalid team number!!!");
+
+                var backlogs = session.GetBacklogs(teamNumber).Result;
+                var sprintSummaries = session.GetSprintSummaries(backlogs[0].Id).Result;
+                var sprintSummary = AgilefantClient.SelectSprint(sprintNumber, sprintSummaries);
+
+                var users = team.Members;
+                var teamStats = new List<UserPerformed>();
+
+                foreach (var user in users)
+                {
+                    var userId = user.Id;
+                    var name = user.Name;
+
+                    var times = _client.GetLoggedTaskTime(userId, sprintSummary.StartDate, sprintSummary.EndDate).Result;
+                    var stats = new UserPerformed(userId, user.Initials, name, times);
+                    stats.Tasks = null;
+                    teamStats.Add(stats);
+                }
+
+                p.WriteSuccess(JsonConvert.SerializeObject(teamStats, Formatting.Indented));
+            });
+
             _server += new RestfulUrlHandler("/rest/teams/?", (p, s) =>
             {
                 var session = GetClientSession(p);

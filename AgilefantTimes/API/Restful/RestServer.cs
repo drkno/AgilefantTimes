@@ -92,7 +92,7 @@ namespace AgilefantTimes.API.Restful
             }
 
             var url = requestProcessor.HttpUrl;
-            if (string.IsNullOrWhiteSpace(url) || url == "/") url = "/index.html";
+            if (string.IsNullOrWhiteSpace(url) || url.Substring(url.LastIndexOf('/')) == "/") url = "/index.html";
             var path = Path.GetFullPath(_serverBaseDirectory + url);
             Console.WriteLine(path);
             if (_serverBaseDirectory != null && File.Exists(path))

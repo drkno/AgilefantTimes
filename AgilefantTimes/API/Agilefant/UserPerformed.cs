@@ -9,7 +9,7 @@ namespace AgilefantTimes.API.Agilefant
 {
     public class UserPerformed
     {
-        public AgilefantTaskHourEntry[] Tasks { get; private set; }
+        public AgilefantTaskHourEntry[] Tasks { get; internal set; }
         public int Id { get; private set; }
         public string Name { get; private set; }
         public bool HasUnitTested { get; private set; }
