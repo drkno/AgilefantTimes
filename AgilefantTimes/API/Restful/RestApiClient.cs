@@ -109,7 +109,7 @@ namespace AgilefantTimes.API.Restful
                 var sprintSummary = AgilefantClient.SelectSprint(sprintNumber, sprintSummaries);
 
                 var times = _client.GetLoggedTaskTime(userId, sprintSummary.StartDate, sprintSummary.EndDate).Result;
-                var stats = new UserPerformed(userId, name, times);
+                var stats = new UserPerformed(userId, userCode, name, times);
                 p.WriteSuccess(JsonConvert.SerializeObject(stats, Formatting.Indented));
             });
 
