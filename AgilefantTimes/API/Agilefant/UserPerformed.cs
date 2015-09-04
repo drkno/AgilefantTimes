@@ -25,7 +25,8 @@ namespace AgilefantTimes.API.Agilefant
         public double[] DailyHours { get; private set; }
         public double LongestDay { get; private set; }
         public double ShortestDay { get; private set; }
-        public Dictionary<string, double> ProgrammedWithHours { get; private set; } 
+        public Dictionary<string, double> ProgrammedWithHours { get; private set; }
+        public Dictionary<string, double> PerformedTasks { get; private set; } 
         public string UserCode { get; private set; }
 
         public UserPerformed(int userId, string userCode, string name, AgilefantTaskHourEntry[] tasks)
@@ -37,13 +38,21 @@ namespace AgilefantTimes.API.Agilefant
             Name = name;
             UserCode = userCode;
 
-            HasUnitTested = tasks.Any(t => t.Description.Contains("#test "));
-            HasAcceptanceTested = tasks.Any(t => t.Description.Contains("#testmanual"));
-            HasImplemented = tasks.Any(t => t.Description.Contains("#implement"));
-            HasRefactored = tasks.Any(t => t.Description.Contains("#refactor"));
-            HasDocumented = tasks.Any(t => t.Description.Contains("#document"));
-            HasPeerProgrammed = tasks.Any(t => t.Description.Contains("#pair"));
-            HasDoneTeamChores = tasks.Any(t => t.Description.Contains("#chore"));
+            PerformedTasks = new Dictionary<string, double>();
+            PerformedTasks["test"] = tasks.Where(t => t.Description.Contains("#test ")).Sum(t => t.MinutesSpent / 60);
+            HasUnitTested = Math.Abs(PerformedTasks["test"]) > 0.25;
+            PerformedTasks["testmanual"] = tasks.Where(t => t.Description.Contains("#testmanual")).Sum(t => t.MinutesSpent / 60);
+            HasAcceptanceTested = Math.Abs(PerformedTasks["testmanual"]) > 0.25;
+            PerformedTasks["implement"] = tasks.Where(t => t.Description.Contains("#implement")).Sum(t => t.MinutesSpent / 60);
+            HasImplemented = Math.Abs(PerformedTasks["implement"]) > 0.25;
+            PerformedTasks["refactor"] = tasks.Where(t => t.Description.Contains("#refactor")).Sum(t => t.MinutesSpent / 60);
+            HasRefactored = Math.Abs(PerformedTasks["refactor"]) > 0.25;
+            PerformedTasks["document"] = tasks.Where(t => t.Description.Contains("#document")).Sum(t => t.MinutesSpent / 60);
+            HasDocumented = Math.Abs(PerformedTasks["document"]) > 0.25;
+            PerformedTasks["pair"] = tasks.Where(t => t.Description.Contains("#pair")).Sum(t => t.MinutesSpent / 60);
+            HasPeerProgrammed = Math.Abs(PerformedTasks["pair"]) > 0.25;
+            PerformedTasks["chore"] = tasks.Where(t => t.Description.Contains("#chore")).Sum(t => t.MinutesSpent / 60);
+            HasDoneTeamChores = Math.Abs(PerformedTasks["chore"]) > 0.25;
 
             ProgrammedWithHours = new Dictionary<string, double>();
 
