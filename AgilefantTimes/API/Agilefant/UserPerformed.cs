@@ -57,50 +57,62 @@ namespace AgilefantTimes.API.Agilefant
             ProgrammedWithHours = new Dictionary<string, double>();
 
             var dailyHours = new List<double>();
-            var maxDay = tasks.Max(t => t.Date.DayOfYear);
-            var minDay = tasks.Min(t => t.Date.DayOfYear);
-            var daysIntoSprint = maxDay - minDay;
-            for (var i = 0; i <= daysIntoSprint; i++)
+            if (tasks.Length > 0)
             {
-                dailyHours.Add(0);
-            }
-
-            foreach (var task in tasks)
-            {
-                var index = task.Date.DayOfYear - minDay;
-                dailyHours[index] += task.MinutesSpent/60.0;
-
-                var ind = task.Description.IndexOf("#pair[", StringComparison.Ordinal);
-                if (ind >= 0)
+                var maxDay = tasks.Max(t => t.Date.DayOfYear);
+                var minDay = tasks.Min(t => t.Date.DayOfYear);
+                var daysIntoSprint = maxDay - minDay;
+                for (var i = 0; i <= daysIntoSprint; i++)
                 {
-                    ind += 6;
-                    var end = task.Description.IndexOf("]", ind, StringComparison.Ordinal);
-                    var pairs = task.Description.Substring(ind, end - ind).Split(',');
-                    foreach (var pair in pairs)
-                    {
-                        var p = pair.Trim();
-                        if (p == userCode)
-                        {
-                            continue;
-                        }
+                    dailyHours.Add(0);
+                }
 
-                        if (ProgrammedWithHours.ContainsKey(p))
+                foreach (var task in tasks)
+                {
+                    var index = task.Date.DayOfYear - minDay;
+                    dailyHours[index] += task.MinutesSpent/60.0;
+
+                    var ind = task.Description.IndexOf("#pair[", StringComparison.Ordinal);
+                    if (ind >= 0)
+                    {
+                        ind += 6;
+                        var end = task.Description.IndexOf("]", ind, StringComparison.Ordinal);
+                        var pairs = task.Description.Substring(ind, end - ind).Split(',');
+                        foreach (var pair in pairs)
                         {
-                            ProgrammedWithHours[p] += task.MinutesSpent / 60.0;
-                        }
-                        else
-                        {
-                            ProgrammedWithHours[p] = task.MinutesSpent / 60.0;
+                            var p = pair.Trim();
+                            if (p == userCode)
+                            {
+                                continue;
+                            }
+
+                            if (ProgrammedWithHours.ContainsKey(p))
+                            {
+                                ProgrammedWithHours[p] += task.MinutesSpent/60.0;
+                            }
+                            else
+                            {
+                                ProgrammedWithHours[p] = task.MinutesSpent/60.0;
+                            }
                         }
                     }
                 }
+                TotalHours = dailyHours.Sum();
+                AverageHours = dailyHours.Average();
+                LongestDay = dailyHours.Max();
+                ShortestDay = dailyHours.Min();
+                Days = dailyHours.Count;
+                DailyHours = dailyHours.ToArray();
             }
-            TotalHours = dailyHours.Sum();
-            AverageHours = dailyHours.Average();
-            LongestDay = dailyHours.Max();
-            ShortestDay = dailyHours.Min();
-            Days = dailyHours.Count;
-            DailyHours = dailyHours.ToArray();
+            else
+            {
+                TotalHours = 0;
+                AverageHours = 0;
+                LongestDay = 0;
+                ShortestDay = 0;
+                Days = 0;
+                DailyHours = new double[0];
+            }
         }
     }
 }
