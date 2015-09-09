@@ -276,6 +276,7 @@ namespace AgilefantTimes.API.Restful
             }*/
 
             HttpResponseHeaders["X-Powered-By"] = "Knoxius Servius";
+            HttpResponseHeaders["Access-Control-Allow-Origin"] = "*";
 
             _outputStream.WriteLine("HTTP/1.1 " + status);
             var connection = (string) HttpHeaders["Connection"];

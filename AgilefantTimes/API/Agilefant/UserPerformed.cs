@@ -41,19 +41,19 @@ namespace AgilefantTimes.API.Agilefant
             PerformedTasks = new Dictionary<string, double>();
 
             PerformedTasks["test"] = tasks.Where(t => t.Description.Contains("#test ")).Sum(t => t.MinutesSpent / 60.0);
-            HasUnitTested = Math.Abs(PerformedTasks["test"]) > 0.01;
+            HasUnitTested = Math.Abs(PerformedTasks["test"]) > 0.0;
             PerformedTasks["testmanual"] = tasks.Where(t => t.Description.Contains("#testmanual")).Sum(t => t.MinutesSpent / 60.0);
-            HasAcceptanceTested = Math.Abs(PerformedTasks["testmanual"]) > 0.01;
+            HasAcceptanceTested = Math.Abs(PerformedTasks["testmanual"]) > 0.0;
             PerformedTasks["implement"] = tasks.Where(t => t.Description.Contains("#implement")).Sum(t => t.MinutesSpent / 60.0);
-            HasImplemented = Math.Abs(PerformedTasks["implement"]) > 0.01;
+            HasImplemented = Math.Abs(PerformedTasks["implement"]) > 0.0;
             PerformedTasks["refactor"] = tasks.Where(t => t.Description.Contains("#refactor")).Sum(t => t.MinutesSpent / 60.0);
-            HasRefactored = Math.Abs(PerformedTasks["refactor"]) > 0.01;
+            HasRefactored = Math.Abs(PerformedTasks["refactor"]) > 0.0;
             PerformedTasks["document"] = tasks.Where(t => t.Description.Contains("#document")).Sum(t => t.MinutesSpent / 60.0);
-            HasDocumented = Math.Abs(PerformedTasks["document"]) > 0.01;
+            HasDocumented = Math.Abs(PerformedTasks["document"]) > 0.0;
             PerformedTasks["pair"] = tasks.Where(t => t.Description.Contains("#pair")).Sum(t => t.MinutesSpent / 60.0);
-            HasPeerProgrammed = Math.Abs(PerformedTasks["pair"]) > 0.01;
+            HasPeerProgrammed = Math.Abs(PerformedTasks["pair"]) > 0.0;
             PerformedTasks["chore"] = tasks.Where(t => t.Description.Contains("#chore")).Sum(t => t.MinutesSpent / 60.0);
-            HasDoneTeamChores = Math.Abs(PerformedTasks["chore"]) > 0.01;
+            HasDoneTeamChores = Math.Abs(PerformedTasks["chore"]) > 0.0;
 
             ProgrammedWithHours = new Dictionary<string, double>();
 
