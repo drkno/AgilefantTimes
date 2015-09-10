@@ -18,7 +18,6 @@ namespace AgilefantTimes.API.Restful
         private readonly Action<HttpRequestProcessor> _requestHandler;
         private Stream _inputStream;
         private StreamWriter _outputStream;
-        private MemoryCache _requestCache;
         public HttpMethod HttpMethod { get; private set; }
         public string HttpUrl { get; private set; }
         public string HttpVersion { get; private set; }
@@ -32,11 +31,10 @@ namespace AgilefantTimes.API.Restful
         private const int MaxPostSize = 10485760;
         private const int BufSize = 4096;
 
-        public HttpRequestProcessor(TcpClient tcpClient, Action<HttpRequestProcessor> handleRequest, MemoryCache requestCache)
+        public HttpRequestProcessor(TcpClient tcpClient, Action<HttpRequestProcessor> handleRequest)
         {
             _requestHandler = handleRequest;
             _socket = tcpClient;
-            _requestCache = requestCache;
         }
 
         public string DecodeAuthenticationHeader()
