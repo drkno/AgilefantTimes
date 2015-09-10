@@ -119,8 +119,87 @@ namespace AgilefantTimes.API.Restful
                 if (session == null) return;
 
                 var teams = session.GetTeams().Result;
+                var u = session.GetUsers().Result.ToDictionary(user => user.Initials, user => user.Name);
+                foreach (var member in teams.SelectMany(team => team.Members))
+                {
+                    string name;
+                    if (u.TryGetValue(member.Initials, out name))
+                    {
+                        member.Name = name;
+                    }
+                }
+
                 var json = JsonConvert.SerializeObject(teams, Formatting.Indented);
                 p.WriteSuccess(json);
+            });
+
+            _server += new RestfulUrlHandler("/rest/team/[0-9]/?", (p, s) =>
+            {
+                var session = GetClientSession(p);
+                if (session == null) return;
+
+                var teams = session.GetTeams().Result;
+
+                int teamNumber;
+                if (!int.TryParse(s[2], out teamNumber) || teamNumber < 0 || teamNumber >= teams.Length)
+                {
+                    return;
+                }
+
+                var u = session.GetUsers().Result.ToDictionary(user => user.Initials, user => user.Name);
+                foreach (var member in teams[teamNumber + 1].Members)
+                {
+                    string name;
+                    if (u.TryGetValue(member.Initials, out name))
+                    {
+                        member.Name = name;
+                    }
+                }
+
+                var json = JsonConvert.SerializeObject(teams[teamNumber + 1], Formatting.Indented);
+                p.WriteSuccess(json);
+            });
+
+            _server += new RestfulUrlHandler("/rest/?", (p, s) =>
+            {
+                var methods = new List<object>();
+                methods.Add(new
+                {
+                    url = "/rest/{{teamNumber?}}/sprint/summary/{{sprintNumber?}}",
+                    fields = new [] { "teamNumber, optional, the team number", "sprintNumber, optional, the sprint number" },
+                    description = "Gets summary details about a sprint for a team."
+                });
+                methods.Add(new
+                {
+                    url = "/rest/{{teamNumber?}}/sprint/{{sprintNumber?}}",
+                    fields = new[] { "teamNumber, optional, the team number", "sprintNumber, optional, the sprint number" },
+                    description = "Gets full, uninterpreted details about a sprint for a team."
+                });
+                methods.Add(new
+                {
+                    url = "/rest/{{userCode}}/sprint/{{sprintNumber}}",
+                    fields = new[] { "userCode, required, the username of the user", "sprintNumber, required, the sprint number" },
+                    description = "Gets all activity of a user for a sprint."
+                });
+                methods.Add(new
+                {
+                    url = "/rest/teams",
+                    fields = new string[0],
+                    description = "Gets the details about all teams, their sprints and members (where the current authentication allows)."
+                });
+                methods.Add(new
+                {
+                    url = "/rest/team/{{teamNumber}}",
+                    fields = new[] { "teamNumber, required, the number of the team" },
+                    description = "Gets the details about a team, its sprints and members (where the current authentication allows)."
+                });
+                methods.Add(new
+                {
+                    url = "/rest",
+                    fields = new string[0],
+                    description = "Gets this help text about the avalible URLs."
+                });
+                p.WriteSuccess(JsonConvert.SerializeObject(methods, Formatting.Indented));
             });
         }
 
