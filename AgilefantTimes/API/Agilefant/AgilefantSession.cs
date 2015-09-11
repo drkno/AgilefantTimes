@@ -7,6 +7,7 @@ using System.Net;
 using System.Security;
 using System.Text;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 
 #endregion
 
@@ -20,10 +21,21 @@ namespace AgilefantTimes.API.Agilefant
         private const string LoginUrl = "http://agilefant.cosc.canterbury.ac.nz:8080/agilefant302/j_spring_security_check";
         private const string AgilefantUrl = "http://agilefant.cosc.canterbury.ac.nz:8080/agilefant302/";
 
+        [JsonProperty("client")]
         private HttpClient _httpClient;
+
+        [JsonProperty("isLoggedIn")]
         private bool _loggedIn;
+
+        [JsonProperty("username")]
         private string _username;
+
+        [JsonProperty("password")]
         private string _password;
+
+        private AgilefantSession()
+        {
+        }
 
         private AgilefantSession(HttpClientHandler handler, string username, string password)
         {
@@ -84,6 +96,10 @@ namespace AgilefantTimes.API.Agilefant
             try
             {
                 var handler = await InternalLogin(username, password);
+                if (handler == null)
+                {
+                    throw new SecurityException("Not logged in.");
+                }
                 return new AgilefantSession(handler, username, password);
             }
             catch (Exception e)

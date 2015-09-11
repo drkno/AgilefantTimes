@@ -40,7 +40,7 @@ namespace AgilefantTimes.API.Agilefant
                 var sprints = new List<Sprint>();
                 foreach (var sprint in sprintData)
                 {
-                    var s = new Sprint(sprint.Name, sprint.Description, sprint.Id, sprint.EndTime, sprint.StartDate);
+                    var s = new Sprint(sprint.Name, sprint.Description, sprint.Id, sprint.StartDate, sprint.EndTime);
                     sprints.Add(s);
                 }
 

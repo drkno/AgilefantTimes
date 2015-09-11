@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Security;
+using System.Text;
 using System.Text.RegularExpressions;
 using AgilefantTimes.API.Agilefant;
 using AgilefantTimes.Output;
@@ -160,6 +161,55 @@ namespace AgilefantTimes.API.Restful
                 p.WriteSuccess(json);
             });
 
+            _server += new RestfulUrlHandler("/rest/login/?", (p, s) =>
+            {
+                if (p.HttpHeaders.ContainsKey("Authorization") || p.HttpPostData.Length != 0)
+                {
+                    string username, password;
+                    if (p.HttpHeaders.ContainsKey("Authorization"))
+                    {
+                        var result = p.DecodeAuthenticationHeader();
+                        var ind = result.IndexOf(':');
+                        username = result.Substring(0, ind);
+                        password = result.Substring(ind + 1);
+                    }
+                    else
+                    {
+                        var keys = p.HttpPostData.Split('&').Select(key => key.Split('=')).ToDictionary(values => values[0], values => values[1]);
+                        username = keys["username"];
+                        password = keys["password"];
+                    }
+
+                    try
+                    {
+                        var session = AgilefantSession.Login(username, password).Result;
+                        if (session == null)
+                        {
+                            throw new SecurityException("Not logged in.");
+                        }
+                        var client = new AgilefantClient(session);
+                        
+                        var data = Convert.ToBase64String(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(client, Formatting.Indented)));
+                        data = data.Replace("=", "%3D");
+                        data = data.Replace("&", "%26");
+                        p.HttpResponseSetCookies.Add("aft-session", data);
+                        p.WriteSuccess("{\"success\":true}");
+                    }
+                    catch (Exception)
+                    {
+                        p.WriteAuthRequired(false, "{\"success\":false}");
+                    }
+                }
+                else if (p.HttpCookies.ContainsKey("aft-session"))
+                {
+                    p.WriteSuccess("{\"success\":true}");
+                }
+                else
+                {
+                    p.WriteAuthRequired(true, "{\"success\":false}");
+                }
+            });
+
             _server += new RestfulUrlHandler("/rest/?", (p, s) =>
             {
                 var methods = new List<object>();
@@ -195,6 +245,13 @@ namespace AgilefantTimes.API.Restful
                 });
                 methods.Add(new
                 {
+                    url = "/rest/login",
+                    fields = new string[0],
+                    description = "Logs the user in. Accepts optional post parameters username and password. A logged in user " +
+                                  "will use their own account instead of the global account."
+                });
+                methods.Add(new
+                {
                     url = "/rest",
                     fields = new string[0],
                     description = "Gets this help text about the avalible URLs."
@@ -216,17 +273,29 @@ namespace AgilefantTimes.API.Restful
 
         private AgilefantClient GetClientSession(HttpRequestProcessor processor)
         {
+            AgilefantClient client = _client;
+            
             try
             {
-                if (_client != null)
+                if (processor.HttpCookies.ContainsKey("aft-session"))
                 {
-                    var response = _client.Session.Get("loginContext.action").Result;
+                    var b64 = (string)processor.HttpCookies["aft-session"];
+                    b64 = b64.Replace("%3D", "=");
+                    b64 = b64.Replace("%26", "&");
+                    var data = Convert.FromBase64String(b64);
+                    var decodedString = Encoding.UTF8.GetString(data);
+                    client = JsonConvert.DeserializeObject<AgilefantClient>(decodedString);
+                }
+
+                if (client != null)
+                {
+                    var response = client.Session.Get("loginContext.action").Result;
                     if (string.IsNullOrWhiteSpace(response.Headers.Location) && !response.Content.Content.Contains("Agilefant login") ||
                         !string.IsNullOrWhiteSpace(response.Headers.Location) && (!response.Headers.Location.Contains("login.jsp") && !response.Headers.Location.Contains("error.json")))
-                        return _client;
-                    _client.Session.Logout();
-                    _client.Session.ReLogin();
-                    return _client;
+                        return client;
+                    client.Session.Logout();
+                    client.Session.ReLogin();
+                    return client;
                 }
 
                 var session = AgilefantSession.Login(_config.Username, _config.Password).Result;
@@ -260,7 +329,8 @@ namespace AgilefantTimes.API.Restful
                 catch (Exception)
                 {
                     Console.WriteLine(e);
-                    processor.WriteAuthRequired();
+                    processor.HttpResponseHeaders["Location"] = "/rest/login";
+                    processor.WriteResponse("302 Found");
                     return null;
                 }
             }

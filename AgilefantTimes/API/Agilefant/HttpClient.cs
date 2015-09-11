@@ -5,11 +5,13 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 
 namespace AgilefantTimes.API.Agilefant
 {
     public class HttpClient
     {
+        [JsonProperty("clienthandler")]
         private readonly HttpClientHandler _clientHandler;
         public HttpClient(HttpClientHandler handler)
         {
@@ -164,14 +166,16 @@ namespace AgilefantTimes.API.Agilefant
 
     public class HttpClientHandler
     {
+        [JsonProperty("autoRedirect")]
         public bool AllowAutoRedirect { get; set; }
-
+        
         public bool UseCookies
         {
             get { return CookieContainer != null; }
             set { CookieContainer = value ? new CookieContainer() : null; }
         }
 
+        [JsonProperty("cookies")]
         public CookieContainer CookieContainer { get; set; }
     }
 

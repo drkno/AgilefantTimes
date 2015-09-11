@@ -2,11 +2,13 @@
 using System.Linq;
 using System.Threading.Tasks;
 using AgilefantTimes.API.Agilefant.Task;
+using Newtonsoft.Json;
 
 namespace AgilefantTimes.API.Agilefant
 {
     public class AgilefantClient
     {
+        [JsonProperty("session")]
         public AgilefantSession Session { get; private set; }
 
         /// <summary>
@@ -16,6 +18,13 @@ namespace AgilefantTimes.API.Agilefant
         public AgilefantClient(AgilefantSession session)
         {
             Session = session;
+        }
+
+        /// <summary>
+        /// Private constructor for deserialization.
+        /// </summary>
+        private AgilefantClient()
+        {
         }
 
         /// <summary>
