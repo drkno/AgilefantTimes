@@ -8,7 +8,7 @@ Release versions can be found [here](https://github.com/mrkno/AgilefantTimes/rel
 For up to date snapshots, please clone the source and compile yourself.<br>
 If you are installing this on the University of Canterbury Jenkins servers, the following commands will automate the process:<br>
 ```
-wget https://github.com/mrkno/AgilefantTimes/releases/download/v0.6/RedHatInstall.sh
+wget https://raw.githubusercontent.com/mrkno/AgilefantTimes/master/RedHatInstall.sh
 sed -i 's/\r//' RedHatInstall.sh
 chmod +x RedHatInstall.sh
 ./RedHatInstall.sh
