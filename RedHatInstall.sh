@@ -6,12 +6,12 @@ wget http://download.opensuse.org/repositories/home:tpokorra:mono/CentOS_CentOS-
 yum -y install mono-opt || true
 
 # Install Files
-cd /var/www/html
-wget https://raw.githubusercontent.com/mrkno/AgilefantTimes/master/Web/index.html
-wget https://raw.githubusercontent.com/mrkno/AgilefantTimes/master/Web/GetJson.php
-wget https://raw.githubusercontent.com/mrkno/AgilefantTimes/master/Web/Chart.min.js
-cd ..
-wget https://github.com/mrkno/AgilefantTimes/releases/download/v0.6/AgilefantTimes.exe
+mkdir /var/aftimes
+cd /var/aftimes
+url=(curl -s https://api.github.com/repos/mrkno/AgilefantTimes/releases | grep browser_download_url | head -n 1 | cut -d '"' -f 4)
+wget $url -O aftimes.zip
+unzip aftimes.zip
+rm aftimes.zip
 
 # Setup Configuration
 read -p "Enter your Agilefant username: " username </dev/tty
@@ -28,5 +28,9 @@ case "$userCodeString" in
      userCode="false"
     ;;
 esac
-echo "{\"Username\":\"$username\",\"Password\":\"$password\",\"TeamNumber\":$teamNumber,\"SprintNumber\":$sprintNumber,\"DisplayUsercode\":$userCode}" > /var/www/aftimes.conf
-chmod 0777 /var/www/aftimes.conf
+echo "{\"Username\":\"$username\",\"Password\":\"$password\",\"TeamNumber\":$teamNumber,\"SprintNumber\":$sprintNumber,\"DisplayUsercode\":$userCode}" > /var/aftimes/aftimes.conf
+chmod 0777 /var/aftimes/aftimes.conf
+
+# Start
+service httpd stop
+nohup mono AgilefantTimes.exe & disown

@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.31101.0
+# Visual Studio 14
+VisualStudioVersion = 14.0.23107.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AgilefantTimes", "AgilefantTimes\AgilefantTimes.csproj", "{E4736FF3-D065-4B51-B8D2-D9893EB37310}"
 EndProject
@@ -12,11 +12,16 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		RedHatInstall.sh = RedHatInstall.sh
 	EndProjectSection
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Web", "Web", "{11F4ADCE-3650-406D-879E-AC49672A7A2C}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "www", "www", "{8EA5098E-FE19-4CFB-99DC-0A4BF440EDB6}"
 	ProjectSection(SolutionItems) = preProject
-		Web\Chart.min.js = Web\Chart.min.js
-		Web\GetJson.php = Web\GetJson.php
-		Web\index.html = Web\index.html
+		www\old\bower.json = www\old\bower.json
+		www\old\chart-elements.html = www\old\chart-elements.html
+		www\old\controller-main.html = www\old\controller-main.html
+		www\old\data-charts.html = www\old\data-charts.html
+		www\old\index.html = www\old\index.html
+		www\old\model-users.html = www\old\model-users.html
+		www\old\toolbar-sprint.html = www\old\toolbar-sprint.html
+		www\old\view-sprint.html = www\old\view-sprint.html
 	EndProjectSection
 EndProject
 Global
@@ -34,6 +39,6 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{11F4ADCE-3650-406D-879E-AC49672A7A2C} = {80656A14-71E9-4F44-8111-7000AFA541D4}
+		{8EA5098E-FE19-4CFB-99DC-0A4BF440EDB6} = {80656A14-71E9-4F44-8111-7000AFA541D4}
 	EndGlobalSection
 EndGlobal

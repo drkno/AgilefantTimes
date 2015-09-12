@@ -1,7 +1,7 @@
 # AgilefantTimes
 
 Getting the hours spent for all members in Agilefant is a time consuming process and difficult, expecially when you just want an overview. This project is to create a simple web-based dashboard that can display times for users and some simple statistics regarding their hours.
-[A demo can be seen here](http://csse-s302g1.canterbury.ac.nz/).
+[A demo can be seen here](http://times.sws.nz/).
 
 ## Download
 Release versions can be found [here](https://github.com/mrkno/AgilefantTimes/releases).<br>
@@ -38,14 +38,19 @@ On platforms other than Windows the executable **should** be able to be run usin
 <br>Alternatively provided Wine is setup correctly it could be run using:<br>
 ```wine AgilefantTimes.exe```
 
-### GetJson.php and index.html
-`GetJson.php` can be used to extract the output of the .exe into a php or html webpage. To use set the variables inside the variables section of the file. It also supports a restful API. This can be used by calling `GetJson.php/sprints/{sprintNum}` where `{sprintNum}` is the sprint number.<br>
-`index.html` is a quick and dirty example of how the data could be displayed on a webpage.<br>
-A working example of these files can be seen [here](http://csse-s302g1.canterbury.ac.nz/).
-
 ## Known Working Minimum Requirements
 .NET 4.5 or Mono 3.12.1 (see above).
 This application is currently targeted at the .NET 4.5 runtime so you either need that installed or a compatible version of .NET/Mono.
 
 ## License and Contributions
 This program is licensed under the MIT license. Pull requests and contributions welcome.
+
+<b>Note to contributors and source code criticizers:</b>
+
+This program is essentially 4 layers of hacks and bad code layered to create an imperfect solution to a problem.
+These include:
+
+1. Mono workarounds. There are so many of these because of defficiencies in the Mono framework that it is unbeleiveable that anyone uses Mono for anything.
+2. Agilefant scraping. Agilefant does not provide a nice API to free users so in some places the only way to extract data is by scraping webpages.
+3. Login workarounds. Supporting login in a webserver that has to already work around 1 and 2 means that login itself has many workarounds.
+4. Polymer workarounds. Polymer and its associated libraries are sometimes 'not quite finished'.

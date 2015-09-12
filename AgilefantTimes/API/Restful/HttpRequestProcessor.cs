@@ -71,8 +71,15 @@ namespace AgilefantTimes.API.Restful
 
         public void ProcessInput()
         {
-            _inputStream = new BufferedStream(_socket.GetStream());
-            _outputStream = new StreamWriter(new BufferedStream(_socket.GetStream()));
+            try
+            {
+                _inputStream = new BufferedStream(_socket.GetStream());
+                _outputStream = new StreamWriter(new BufferedStream(_socket.GetStream()));
+            }
+            catch (Exception)
+            {
+                return; // nothing to process
+            }
 
             while (true)
             {
@@ -87,7 +94,6 @@ namespace AgilefantTimes.API.Restful
                     ReadHeaders();
                     ReadCookies();
 
-                    string postData = null;
                     if (HttpMethod == HttpMethod.Post)
                     {
                         GetPostData();
@@ -97,6 +103,11 @@ namespace AgilefantTimes.API.Restful
                     Console.WriteLine("[" + Thread.CurrentThread.ManagedThreadId + "] " + HttpMethod + " " + HttpUrl);
 #endif
                     _requestHandler.Invoke(this);
+
+                    _outputStream.Flush();
+                    _inputStream.Flush();
+
+                    if ((string)HttpHeaders["Connection"] == "close") break;
                 }
                 catch (Exception e)
                 {
@@ -106,23 +117,34 @@ namespace AgilefantTimes.API.Restful
                         Console.Error.WriteLine("Mono just committed suicide. Thanks a lot mono.");
                         return;
                     }
-                    WriteServerFailure();
-                    _outputStream.Flush();
+
+                    try
+                    {
+                        WriteServerFailure();
+                        _outputStream.Flush();
+                    }
+                    catch (Exception)
+                    {
+                        // well shit
+                    }
+                    
 #if DEBUG
                     Console.Error.WriteLine(e.StackTrace);
 #endif
                     break;  // 500 internal server error? probably happened here...
                 }
-
-                _outputStream.Flush();
-                _inputStream.Flush();
-
-                if ((string)HttpHeaders["Connection"] == "close") break;
             }
 
             _inputStream = null;
             _outputStream = null;
-            _socket.Close();
+            try
+            {
+                _socket.Close();
+            }
+            catch (Exception)
+            {
+                return; // dont really care, just kill the thread
+            }
         }
 
         private void ParseRequest()
