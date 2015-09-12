@@ -35,6 +35,7 @@ namespace AgilefantTimes.API.Restful
         {
             _requestHandler = handleRequest;
             _socket = tcpClient;
+            HttpPostData = "";
         }
 
         public string DecodeAuthenticationHeader()
@@ -87,7 +88,7 @@ namespace AgilefantTimes.API.Restful
                     ReadCookies();
 
                     string postData = null;
-                    if (HttpMethod != HttpMethod.Post)
+                    if (HttpMethod == HttpMethod.Post)
                     {
                         GetPostData();
                     }
@@ -220,10 +221,14 @@ namespace AgilefantTimes.API.Restful
             WriteResponse("200 OK", response, contentType);
         }
 
-        public void WriteAuthRequired(bool basicAuthentication = true, string errorMessage = "<b>401, Thou must login before slaying dragons.</b>")
+        public void WriteAuthRequired(bool basicAuthentication = true, string loginMessage = "Login Required",
+            string errorMessage = "<b>401, Thou must login before slaying dragons.</b>", string contentType = null)
         {
-            HttpResponseHeaders["WWW-Authenticate"] = "Basic realm=\"Login Required\"";
-            WriteResponse("401 Not Authorized", errorMessage);
+            if (basicAuthentication)
+            {
+                HttpResponseHeaders["WWW-Authenticate"] = "Basic realm=\"" + loginMessage + "\"";
+            }
+            WriteResponse("401 Not Authorized", errorMessage, contentType);
         }
 
         public void WriteFailure(string errorMessage = "<b>404, I think it was over there somewhere...</b>")

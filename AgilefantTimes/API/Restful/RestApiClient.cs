@@ -103,7 +103,19 @@ namespace AgilefantTimes.API.Restful
                     name = user.Name;
                     break;
                 }
-                if (userId < 0) throw new Exception("User not found.");
+                if (userId < 0)
+                {
+                    var teamUsers = (from team in session.GetTeams().Result from member in team.Members select member.Initials).ToList();
+                    if (teamUsers.Contains(userCode))
+                    {
+                        p.WriteResponse("503 Forbidden", "{\"success\":false,\"reason\":\"Login Required\"}", "application/json");
+                    }
+                    else
+                    {
+                        p.WriteResponse("404 Not Found", "{\"success\":false,\"reason\":\"No Such User\"}", "application/json");
+                    }
+                    return;
+                }
 
                 var backlogs = session.GetBacklogs(_config.TeamNumber).Result;
                 var sprintSummaries = session.GetSprintSummaries(backlogs[0].Id).Result;
@@ -197,7 +209,7 @@ namespace AgilefantTimes.API.Restful
                     }
                     catch (Exception)
                     {
-                        p.WriteAuthRequired(false, "{\"success\":false}");
+                        p.WriteAuthRequired(false, "Thou must login before slaying dragons.", "{\"success\":false}", "application/json");
                     }
                 }
                 else if (p.HttpCookies.ContainsKey("aft-session"))
@@ -206,7 +218,7 @@ namespace AgilefantTimes.API.Restful
                 }
                 else
                 {
-                    p.WriteAuthRequired(true, "{\"success\":false}");
+                    p.WriteAuthRequired(p.HttpPostData.Length == 0, "Thou must login before slaying dragons.", "{\"success\":false}", "application/json");
                 }
             });
 
