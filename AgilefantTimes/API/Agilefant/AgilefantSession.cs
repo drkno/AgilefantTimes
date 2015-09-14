@@ -45,6 +45,12 @@ namespace AgilefantTimes.API.Agilefant
             _password = password;
         }
 
+        private AgilefantSession(HttpClientHandler handler)
+        {
+            _httpClient = new HttpClient(handler);
+            _loggedIn = true;
+        }
+
         /// <summary>
         /// Gets a response from agilefant
         /// </summary>
@@ -101,6 +107,33 @@ namespace AgilefantTimes.API.Agilefant
                     throw new SecurityException("Not logged in.");
                 }
                 return new AgilefantSession(handler, username, password);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Login Exception:\n" + e.StackTrace);
+                return null;
+            }
+        }
+
+
+        /// <summary>
+        /// Logs in and creates a new Agilefant session.
+        /// </summary>
+        /// <param name="username">The username to log in with.</param>
+        /// <param name="password">The password to log in with.</param>
+        /// <exception cref="SecurityException">If credentials are incorrect.</exception>
+        /// <exception cref="WebException">If there was an error connecting to Agilefant.</exception>
+        /// <returns>A new Agilefant session.</returns>
+        public static async Task<AgilefantSession> LoginTemporary(string username, string password)
+        {
+            try
+            {
+                var handler = await InternalLogin(username, password);
+                if (handler == null)
+                {
+                    throw new SecurityException("Not logged in.");
+                }
+                return new AgilefantSession(handler);
             }
             catch (Exception e)
             {

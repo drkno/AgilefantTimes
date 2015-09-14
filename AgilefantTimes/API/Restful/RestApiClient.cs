@@ -17,12 +17,14 @@ namespace AgilefantTimes.API.Restful
         //private readonly Dictionary<int, AgilefantClient> _sessions;
         private AgilefantClient _client;
         private readonly Config _config;
+        private readonly List<AgilefantClient> _logins;
 
         public RestApiClient(Config config, int port = 8080, string serverDirectory = null)
         {
             _config = config;
             _server = new RestServer(port, serverDirectory);
             //_sessions = new Dictionary<int, AgilefantClient>();
+            _logins = new List<AgilefantClient>();
 
             _server += new RestfulUrlHandler("/rest/([0-9]+/)?sprint/summary(/([0-9]+/?)?)?", (p, s) =>
             {
@@ -94,7 +96,7 @@ namespace AgilefantTimes.API.Restful
                 var userCode = s[1];
                 var sprintNumber = int.Parse(s[3]);
 
-                var users = _client.GetUsers().Result;
+                var users = session.GetUsers().Result;
                 var userId = -1;
                 var name = "";
                 foreach (var user in users.Where(user => user.UserCode == userCode))
@@ -121,7 +123,7 @@ namespace AgilefantTimes.API.Restful
                 var sprintSummaries = session.GetSprintSummaries(backlogs[0].Id).Result;
                 var sprintSummary = AgilefantClient.SelectSprint(sprintNumber, sprintSummaries);
 
-                var times = _client.GetLoggedTaskTime(userId, sprintSummary.StartDate, sprintSummary.EndDate).Result;
+                var times = session.GetLoggedTaskTime(userId, sprintSummary.StartDate, sprintSummary.EndDate).Result;
                 var stats = new UserPerformed(userId, userCode, name, times);
                 p.WriteSuccess(JsonConvert.SerializeObject(stats, Formatting.Indented));
             });
@@ -194,16 +196,15 @@ namespace AgilefantTimes.API.Restful
 
                     try
                     {
-                        var session = AgilefantSession.Login(username, password).Result;
+                        var session = AgilefantSession.LoginTemporary(username, password).Result;
                         if (session == null)
                         {
                             throw new SecurityException("Not logged in.");
                         }
                         var client = new AgilefantClient(session);
-                        
-                        var data = Convert.ToBase64String(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(client, Formatting.Indented)));
-                        data = data.Replace("=", "%3D");
-                        data = data.Replace("&", "%26");
+
+                        _logins.Add(client);
+                        var data = _logins.Count - 1;
                         p.HttpResponseSetCookies.Add("aft-session", data);
                         p.WriteSuccess("{\"success\":true}");
                     }
@@ -286,17 +287,19 @@ namespace AgilefantTimes.API.Restful
         private AgilefantClient GetClientSession(HttpRequestProcessor processor)
         {
             AgilefantClient client = _client;
-            
+            int index = -1;
             try
             {
                 if (processor.HttpCookies.ContainsKey("aft-session"))
                 {
                     var b64 = (string)processor.HttpCookies["aft-session"];
-                    b64 = b64.Replace("%3D", "=");
-                    b64 = b64.Replace("%26", "&");
-                    var data = Convert.FromBase64String(b64);
-                    var decodedString = Encoding.UTF8.GetString(data);
-                    client = JsonConvert.DeserializeObject<AgilefantClient>(decodedString);
+                   
+                    if (!int.TryParse(b64, out index))
+                    {
+                        index = -1;
+                        throw new SecurityException("You are not logged in");
+                    }
+                    client = _logins[index];
                 }
 
                 if (client != null)
@@ -334,12 +337,20 @@ namespace AgilefantTimes.API.Restful
             {
                 try
                 {
+                    if(index != -1)
+                    {
+                        throw new Exception("Can't relogin");
+                    }
                     _client.Session.Logout();
                     _client.Session.ReLogin();
                     return _client;
                 }
                 catch (Exception)
                 {
+                    if (index  != -1)
+                    {
+                        _logins.RemoveAt(index);
+                    }
                     Console.WriteLine(e);
                     processor.HttpResponseHeaders["Location"] = "/rest/login";
                     processor.WriteResponse("302 Found");
