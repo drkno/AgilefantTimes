@@ -54,10 +54,11 @@ namespace AgilefantTimes.API.Agilefant
             HasRefactored = Math.Abs(PerformedTasks["refactor"]) > 0.0;
             PerformedTasks["document"] = tasks.Where(t => t.Description.ToLower().Contains("#document")).Sum(t => t.MinutesSpent / 60.0);
             HasDocumented = Math.Abs(PerformedTasks["document"]) > 0.0;
+            PerformedTasks["pair"] = 0.0;
             foreach (var pairTask in tasks.Where(t => t.Description.ToLower().Contains("#pair")))
             {
                 var time = pairTask.MinutesSpent/60.0;
-                PerformedTasks["pair"] = time + (PerformedTasks.ContainsKey("pair") ? PerformedTasks["pair"] : 0);
+                PerformedTasks["pair"] = time + PerformedTasks["pair"];
                 var desc = pairTask.Description.ToLower();
                 var ind = desc.IndexOf("#pair[", StringComparison.Ordinal);
                 if (ind < 0) continue;
@@ -79,14 +80,20 @@ namespace AgilefantTimes.API.Agilefant
             PerformedTasks["chore"] = tasks.Where(t => t.Description.ToLower().Contains("#chore")).Sum(t => t.MinutesSpent / 60.0);
             HasDoneTeamChores = Math.Abs(PerformedTasks["chore"]) > 0.0;
 
-            var dailyHours = new double[numDays];
-            if (tasks.Length > 0)
+            
+            if (tasks.Length > 0 && numDays > 0)
             {
+                var dailyHours = new double[numDays];
                 var minDay = tasks.Min(t => t.Date.DayOfYear);
 
                 foreach (var task in tasks)
                 {
                     var index = task.Date.DayOfYear - minDay;
+                    if (index >= numDays)
+                    {
+                        // some work was logged after the sprint completed. assume it was on last day
+                        index = numDays - 1;
+                    }
                     dailyHours[index] += task.MinutesSpent/60.0;
                 }
                 TotalHours = dailyHours.Sum();
