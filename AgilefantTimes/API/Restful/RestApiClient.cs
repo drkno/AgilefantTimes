@@ -356,7 +356,6 @@ namespace AgilefantTimes.API.Restful
                     {
                         _logins.RemoveAt(index);
                     }
-                    Console.WriteLine(e);
                     processor.HttpResponseHeaders["Location"] = "/rest/login";
                     processor.WriteResponse("302 Found");
                     return null;

@@ -58,9 +58,7 @@ namespace AgilefantTimes.API.Agilefant
         /// <returns>The response</returns>
         public Task<HttpResponseMessage> Get(string query)
         {
-            Console.WriteLine("1");
             EnsureLoggedIn();
-            Console.WriteLine("2");
             return _httpClient.GetAsync(AgilefantUrl + query);
         }
 
@@ -193,14 +191,9 @@ namespace AgilefantTimes.API.Agilefant
                     {"j_password", password}
                 });
 
-                Console.WriteLine("Got here");
                 var response = client.PostAsync(LoginUrl, data).Result;
                 
                 //Will throw an exception if the request failed
-                Console.WriteLine("Got here");
-                Console.WriteLine(response.StatusCode);
-                Console.WriteLine(response.Content.ReadAsStringAsync().Result);
-
                 response.EnsureSuccessStatusCode();
 
                 var content = await response.Content.ReadAsStringAsync();

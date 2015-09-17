@@ -71,7 +71,6 @@ namespace AgilefantTimes
             if (config.SprintNumber == 0)
                 config.SprintNumber = -1;
 
-            Console.WriteLine(config.WebRoot);
             return config;
         }
     }

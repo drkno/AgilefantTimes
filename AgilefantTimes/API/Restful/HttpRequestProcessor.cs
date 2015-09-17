@@ -364,7 +364,6 @@ namespace AgilefantTimes.API.Restful
                     _outputStream.Write(response);
                 }
             }
-            Console.WriteLine("complete");
         }
     }
 }

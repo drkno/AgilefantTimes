@@ -46,7 +46,6 @@ namespace AgilefantTimes.API.Restful
         {
             string removed;
             _filesCache.TryRemove(fileSystemEventArgs.FullPath, out removed);
-            Console.WriteLine("Removed " + fileSystemEventArgs.FullPath + " from the cache.");
         }
 
         public void AddHandler(RestfulUrlHandler handler)
@@ -126,7 +125,6 @@ namespace AgilefantTimes.API.Restful
                 return;
             }
 
-            Console.WriteLine(path);
             if (_serverBaseDirectory != null && File.Exists(path))
             {
                 var ext = Path.GetExtension(path);
