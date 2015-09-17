@@ -1,6 +1,8 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Drawing.Design;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
@@ -9,6 +11,10 @@ using System.Runtime.Caching;
 using System.Text;
 using System.Threading;
 using AgilefantTimes.API.Agilefant;
+using Ionic.Crc;
+using Ionic.Zlib;
+using CompressionLevel = Ionic.Zlib.CompressionLevel;
+using CompressionMode = Ionic.Zlib.CompressionMode;
 
 namespace AgilefantTimes.API.Restful
 {
@@ -264,23 +270,42 @@ namespace AgilefantTimes.API.Restful
             WriteResponse("500 Internal Server Error", errorMessage);
         }
 
-        private static string GzipCompressString(string str)
+        private static byte[] GzipCompressString(string str)
         {
-            Stream stream = new MemoryStream(Encoding.UTF8.GetBytes(str));
-            var compressedMemoryStream = new MemoryStream();
+            // https://tools.ietf.org/html/rfc1952
+            var dataBytes = Encoding.Default.GetBytes(str);
+            var prefixBytes = new byte[] {0x1f, 0x8b, 0x08, 0x20, 0x0, 0x0, 0x0, 0x0, 0x20, 0xFF};
+            var suffixBytes = new byte[8];
 
-            using (var gzipStream = new Ionic.Zlib.GZipStream(compressedMemoryStream, Ionic.Zlib.CompressionMode.Compress, true))
+            using (var ms = new MemoryStream())
             {
-                stream.CopyTo(gzipStream);
-                gzipStream.Flush();
-                gzipStream.Close();
+                ms.Write(dataBytes, 0, dataBytes.Length);
+                ms.Position = 0;
+                var crc32 = new CRC32();
+                var crc = crc32.GetCrc32(ms);
+                var crcb = BitConverter.GetBytes(crc);
+                var isize = str.Length%0x100000000;
+                var isizeb = BitConverter.GetBytes(isize);
+                crcb.CopyTo(suffixBytes, 0);
+                Array.Copy(isizeb, 0, suffixBytes, 4, 4);
             }
-            stream.Close();
-            compressedMemoryStream.Position = 0;
-            var reader = new StreamReader(compressedMemoryStream);
-            var compressed = reader.ReadToEnd();
-            reader.Close();
-            return compressed;
+
+            var outStream = new MemoryStream();
+            using (var orig = new MemoryStream(Encoding.Default.GetBytes(str)))
+            {
+                orig.Position = 0;
+                outStream.Write(prefixBytes, 0, prefixBytes.Length);
+                using (var compStream = new Ionic.Zlib.GZipStream(outStream, CompressionMode.Compress, CompressionLevel.BestCompression, true))
+                {
+                    orig.CopyTo(compStream);
+                }
+                outStream.Write(suffixBytes, 0, suffixBytes.Length);
+            }
+            outStream.Position = 0;
+            var res = new byte[outStream.Length];
+            outStream.Read(res, 0, res.Length);
+            outStream.Close();
+            return res;
         }
 
         public void WriteResponse(string status, string response = null, string contentType = null)
@@ -291,13 +316,14 @@ namespace AgilefantTimes.API.Restful
 #if DEBUG
             Console.WriteLine("[" + Thread.CurrentThread.ManagedThreadId + "] Response: " + status);
 #endif
+            byte[] encodedBytes = null;
             var length = string.IsNullOrWhiteSpace(response) ? 0 : Encoding.UTF8.GetByteCount(response);
             /*if (HttpHeaders.ContainsKey("Accept-Encoding") && ((string)HttpHeaders["Accept-Encoding"]).Contains("gzip") && response != null)
             {
                 HttpResponseHeaders["Content-Encoding"] = "gzip";
-                response = GzipCompressString(response);
+                encodedBytes = GzipCompressString(response);
                 contentType += "; charset=utf-8";
-                length = Encoding.UTF8.GetByteCount(response);
+                length = encodedBytes.Length;
             }*/
 
             HttpResponseHeaders["X-Powered-By"] = "Knoxius Servius";
@@ -328,7 +354,15 @@ namespace AgilefantTimes.API.Restful
             _outputStream.WriteLine("");
             if (!string.IsNullOrWhiteSpace(response))
             {
-                _outputStream.Write(response);
+                if (encodedBytes != null)
+                {
+                    _outputStream.Flush();
+                    _outputStream.BaseStream.Write(encodedBytes, 0, encodedBytes.Length);
+                }
+                else
+                {
+                    _outputStream.Write(response);
+                }
             }
             Console.WriteLine("complete");
         }

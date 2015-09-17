@@ -11,7 +11,7 @@ namespace AgilefantTimes.API.Agilefant.Task
         public static async Task<AgilefantTaskHourEntry[]> GetEntriesBetween(int userId, DateTime start, DateTime end, AgilefantSession session)
         {
             var startDay = start.DayOfYear;
-            var endDay = end.DayOfYear;
+            var endDay = end.DayOfYear <= DateTime.Now.DayOfYear ? end.DayOfYear : DateTime.Now.DayOfYear;
             var entries = new List<AgilefantTaskHourEntry>();
             for (var i = startDay; i <= endDay; i++)
             {
@@ -44,7 +44,7 @@ namespace AgilefantTimes.API.Agilefant.Task
         public DateTime Date { get; private set; }
 
         [JsonProperty("description")]
-        public string Description { get; private set; }
+        public string Description { get; set; }
         [JsonProperty("minutesSpent")]
         public int MinutesSpent { get; private set; }
         [JsonProperty("task")]

@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Security;
 using System.Text;
 using System.Text.RegularExpressions;
 using AgilefantTimes.API.Agilefant;
 using AgilefantTimes.Output;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 
 namespace AgilefantTimes.API.Restful
 {
@@ -122,7 +124,10 @@ namespace AgilefantTimes.API.Restful
                 var sprintSummary = AgilefantClient.SelectSprint(sprintNumber, sprintSummaries);
 
                 var times = _client.GetLoggedTaskTime(userId, sprintSummary.StartDate, sprintSummary.EndDate).Result;
-                var stats = new UserPerformed(userId, userCode, name, times);
+                var days = (sprintSummary.EndDate.DayOfYear <= DateTime.Now.DayOfYear ? sprintSummary.EndDate.DayOfYear : DateTime.Now.DayOfYear)
+                            - sprintSummary.StartDate.DayOfYear;
+                if (days < 0) days = 0;
+                var stats = new UserPerformed(userId, userCode, name, times, days);
                 p.WriteSuccess(JsonConvert.SerializeObject(stats, Formatting.Indented));
             });
 
@@ -200,8 +205,16 @@ namespace AgilefantTimes.API.Restful
                             throw new SecurityException("Not logged in.");
                         }
                         var client = new AgilefantClient(session);
-                        
-                        var data = Convert.ToBase64String(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(client, Formatting.Indented)));
+
+                        DefaultContractResolver d = new DefaultContractResolver();
+                        d.DefaultMembersSearchFlags |= BindingFlags.NonPublic;
+                        JsonSerializerSettings j = new JsonSerializerSettings
+                        {
+                            Formatting = Formatting.Indented,
+                            ContractResolver = d
+                        };
+
+                        var data = Convert.ToBase64String(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(client, j)));
                         data = data.Replace("=", "%3D");
                         data = data.Replace("&", "%26");
                         p.HttpResponseSetCookies.Add("aft-session", data);
@@ -289,6 +302,7 @@ namespace AgilefantTimes.API.Restful
             
             try
             {
+                var updateCookie = false;
                 if (processor.HttpCookies.ContainsKey("aft-session"))
                 {
                     var b64 = (string)processor.HttpCookies["aft-session"];
@@ -297,6 +311,7 @@ namespace AgilefantTimes.API.Restful
                     var data = Convert.FromBase64String(b64);
                     var decodedString = Encoding.UTF8.GetString(data);
                     client = JsonConvert.DeserializeObject<AgilefantClient>(decodedString);
+                    updateCookie = true;
                 }
 
                 if (client != null)
@@ -307,6 +322,23 @@ namespace AgilefantTimes.API.Restful
                         return client;
                     client.Session.Logout();
                     client.Session.ReLogin();
+
+                    if (updateCookie)
+                    {
+                        DefaultContractResolver d = new DefaultContractResolver();
+                        d.DefaultMembersSearchFlags |= BindingFlags.NonPublic;
+                        JsonSerializerSettings j = new JsonSerializerSettings
+                        {
+                            Formatting = Formatting.Indented,
+                            ContractResolver = d
+                        };
+
+                        var data = Convert.ToBase64String(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(client, j)));
+                        data = data.Replace("=", "%3D");
+                        data = data.Replace("&", "%26");
+                        processor.HttpResponseSetCookies.Add("aft-session", data);
+                    }
+
                     return client;
                 }
 
@@ -336,6 +368,23 @@ namespace AgilefantTimes.API.Restful
                 {
                     _client.Session.Logout();
                     _client.Session.ReLogin();
+
+                    if (processor.HttpCookies.ContainsKey("aft-session"))
+                    {
+                        DefaultContractResolver d = new DefaultContractResolver();
+                        d.DefaultMembersSearchFlags |= BindingFlags.NonPublic;
+                        JsonSerializerSettings j = new JsonSerializerSettings
+                        {
+                            Formatting = Formatting.Indented,
+                            ContractResolver = d
+                        };
+
+                        var data = Convert.ToBase64String(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(client, j)));
+                        data = data.Replace("=", "%3D");
+                        data = data.Replace("&", "%26");
+                        processor.HttpResponseSetCookies.Add("aft-session", data);
+                    }
+
                     return _client;
                 }
                 catch (Exception)
