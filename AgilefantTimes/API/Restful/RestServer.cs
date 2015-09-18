@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -92,10 +93,10 @@ namespace AgilefantTimes.API.Restful
             }
             catch (SocketException e)
             {
-                // fuck you mono
+                // The server died due to a bug in mono
                 if (e.Message.Contains("The socket has been shut down"))
                 {
-                    Console.Error.WriteLine("Mono just committed suicide AND killed the server. Thanks a lot mono.");
+                    Debug.WriteLine("Mono shutdown the server. Please use .NET Core whenever it starts supporting your platform to avoid this.");
                     return false;
                 }
                 if (e.SocketErrorCode == SocketError.Interrupted) return true;

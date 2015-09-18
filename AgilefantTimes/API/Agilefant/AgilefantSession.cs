@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Security;
@@ -108,7 +109,7 @@ namespace AgilefantTimes.API.Agilefant
             }
             catch (Exception e)
             {
-                Console.WriteLine("Login Exception:\n" + e.StackTrace);
+                Debug.WriteLine("Login Exception:\n" + e.StackTrace);
                 return null;
             }
         }
@@ -135,7 +136,7 @@ namespace AgilefantTimes.API.Agilefant
             }
             catch (Exception e)
             {
-                Console.WriteLine("Login Exception:\n" + e.StackTrace);
+                Debug.WriteLine("Login Exception:\n" + e.StackTrace);
                 return null;
             }
         }
@@ -205,8 +206,8 @@ namespace AgilefantTimes.API.Agilefant
             }
             catch (Exception e)
             {
-                Console.WriteLine(e.Message);
-                Console.WriteLine("InternalLogin Exception:\n" + e.StackTrace);
+                Debug.WriteLine(e.Message);
+                Debug.WriteLine("InternalLogin Exception:\n" + e.StackTrace);
                 return null;
             }
 

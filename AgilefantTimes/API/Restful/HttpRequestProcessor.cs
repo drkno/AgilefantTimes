@@ -1,20 +1,13 @@
 using System;
 using System.Collections;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Drawing.Design;
 using System.IO;
-using System.IO.Compression;
 using System.Linq;
 using System.Net.Sockets;
-using System.Runtime.Caching;
 using System.Text;
 using System.Threading;
 using AgilefantTimes.API.Agilefant;
-using Ionic.Crc;
 using Ionic.Zlib;
-using CompressionLevel = Ionic.Zlib.CompressionLevel;
-using CompressionMode = Ionic.Zlib.CompressionMode;
 
 namespace AgilefantTimes.API.Restful
 {
@@ -100,15 +93,27 @@ namespace AgilefantTimes.API.Restful
                     ReadHeaders();
                     ReadCookies();
 
-                    if (HttpMethod == HttpMethod.Post)
+                    Debug.WriteLine("[" + Thread.CurrentThread.ManagedThreadId + "] " + HttpMethod + " " + HttpUrl);
+                    switch (HttpMethod)
                     {
-                        GetPostData();
+                        case HttpMethod.Put:
+                        case HttpMethod.Post:
+                            GetPostData();
+                            _requestHandler.Invoke(this);
+                            break;
+                        case HttpMethod.Head:
+                        case HttpMethod.Delete:
+                        case HttpMethod.Get:
+                            _requestHandler.Invoke(this);
+                            break;
+                        case HttpMethod.Options:
+                            HttpResponseHeaders["Allow"] = "HEAD,GET,POST,PUT,DELETE,OPTIONS";
+                            WriteSuccess();
+                            break;
+                        default:
+                            WriteResponse("405 Method Not Allowed");
+                            break;
                     }
-
-#if DEBUG
-                    Console.WriteLine("[" + Thread.CurrentThread.ManagedThreadId + "] " + HttpMethod + " " + HttpUrl);
-#endif
-                    _requestHandler.Invoke(this);
 
                     _outputStream.Flush();
                     _inputStream.Flush();
@@ -119,24 +124,23 @@ namespace AgilefantTimes.API.Restful
                 {
                     if (e is SocketException || e is IOException)
                     {
-                        // fuck you mono
-                        Console.Error.WriteLine("Mono just committed suicide. Thanks a lot mono.");
+                        // Either Mono died (likely) or someone is using IE/Edge
+                        Debug.WriteLine("Connection to client terminated without proper shutdown.");
                         return;
                     }
 
                     try
                     {
+                        // Attempt to tell the user some kind of failure occured.
                         WriteServerFailure();
                         _outputStream.Flush();
                     }
                     catch (Exception)
                     {
-                        // well shit
+                        // Could not tell the user. Ignore the exception because there is not much we can do with it.
                     }
                     
-#if DEBUG
-                    Console.Error.WriteLine(e.StackTrace);
-#endif
+                    Debug.WriteLine(e.StackTrace);
                     break;  // 500 internal server error? probably happened here...
                 }
             }
@@ -147,9 +151,9 @@ namespace AgilefantTimes.API.Restful
             {
                 _socket.Close();
             }
-            catch (Exception)
+            catch (Exception e)
             {
-                return; // dont really care, just kill the thread
+                Debug.WriteLine(e.Message);
             }
         }
 
@@ -272,40 +276,19 @@ namespace AgilefantTimes.API.Restful
 
         private static byte[] GzipCompressString(string str)
         {
-            // https://tools.ietf.org/html/rfc1952
-            var dataBytes = Encoding.Default.GetBytes(str);
-            var prefixBytes = new byte[] {0x1f, 0x8b, 0x08, 0x20, 0x0, 0x0, 0x0, 0x0, 0x20, 0xFF};
-            var suffixBytes = new byte[8];
-
-            using (var ms = new MemoryStream())
+            byte[] result;
+            var bytes = Encoding.UTF8.GetBytes(str);
+            using (var st = new MemoryStream())
             {
-                ms.Write(dataBytes, 0, dataBytes.Length);
-                ms.Position = 0;
-                var crc32 = new CRC32();
-                var crc = crc32.GetCrc32(ms);
-                var crcb = BitConverter.GetBytes(crc);
-                var isize = str.Length%0x100000000;
-                var isizeb = BitConverter.GetBytes(isize);
-                crcb.CopyTo(suffixBytes, 0);
-                Array.Copy(isizeb, 0, suffixBytes, 4, 4);
-            }
-
-            var outStream = new MemoryStream();
-            using (var orig = new MemoryStream(Encoding.Default.GetBytes(str)))
-            {
-                orig.Position = 0;
-                outStream.Write(prefixBytes, 0, prefixBytes.Length);
-                using (var compStream = new Ionic.Zlib.GZipStream(outStream, CompressionMode.Compress, CompressionLevel.BestCompression, true))
+                using (var gzs = new GZipStream(st, CompressionMode.Compress, true))
                 {
-                    orig.CopyTo(compStream);
+                    gzs.Write(bytes, 0, bytes.Length);
                 }
-                outStream.Write(suffixBytes, 0, suffixBytes.Length);
+                st.Position = 0;
+                result = new byte[st.Length];
+                st.Read(result, 0, result.Length);
             }
-            outStream.Position = 0;
-            var res = new byte[outStream.Length];
-            outStream.Read(res, 0, res.Length);
-            outStream.Close();
-            return res;
+            return result;
         }
 
         public void WriteResponse(string status, string response = null, string contentType = null)
@@ -313,18 +296,16 @@ namespace AgilefantTimes.API.Restful
             if (ResponseWritten) throw new Exception("Cannot send new response after response has been sent.");
             ResponseWritten = true;
             
-#if DEBUG
-            Console.WriteLine("[" + Thread.CurrentThread.ManagedThreadId + "] Response: " + status);
-#endif
+            Debug.WriteLine("[" + Thread.CurrentThread.ManagedThreadId + "] Response: " + status);
             byte[] encodedBytes = null;
             var length = string.IsNullOrWhiteSpace(response) ? 0 : Encoding.UTF8.GetByteCount(response);
-            /*if (HttpHeaders.ContainsKey("Accept-Encoding") && ((string)HttpHeaders["Accept-Encoding"]).Contains("gzip") && response != null)
+            if (HttpHeaders.ContainsKey("Accept-Encoding") && ((string)HttpHeaders["Accept-Encoding"]).Contains("gzip") && response != null)
             {
                 HttpResponseHeaders["Content-Encoding"] = "gzip";
                 encodedBytes = GzipCompressString(response);
                 contentType += "; charset=utf-8";
                 length = encodedBytes.Length;
-            }*/
+            }
 
             HttpResponseHeaders["X-Powered-By"] = "Knoxius Servius";
             HttpResponseHeaders["Access-Control-Allow-Origin"] = "*";
@@ -352,17 +333,15 @@ namespace AgilefantTimes.API.Restful
                 _outputStream.WriteLine("Set-Cookie: " + cookie + "=" + HttpResponseSetCookies[cookie]);
             }
             _outputStream.WriteLine("");
-            if (!string.IsNullOrWhiteSpace(response))
+            if (string.IsNullOrWhiteSpace(response) || HttpMethod == HttpMethod.Head) return;
+            if (encodedBytes != null)
             {
-                if (encodedBytes != null)
-                {
-                    _outputStream.Flush();
-                    _outputStream.BaseStream.Write(encodedBytes, 0, encodedBytes.Length);
-                }
-                else
-                {
-                    _outputStream.Write(response);
-                }
+                _outputStream.Flush();
+                _outputStream.BaseStream.Write(encodedBytes, 0, encodedBytes.Length);
+            }
+            else
+            {
+                _outputStream.Write(response);
             }
         }
     }

@@ -35,10 +35,6 @@ namespace AgilefantTimes
                 Console.Write("Starting server... ");
                 server.Start();
                 Console.WriteLine("complete.");
-
-                //Console.ReadKey();
-
-                //server.Stop();
             }
             catch (Exception e)
             {
