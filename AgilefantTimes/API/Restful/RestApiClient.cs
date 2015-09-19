@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Security;
@@ -8,15 +9,12 @@ using System.Text.RegularExpressions;
 using AgilefantTimes.API.Agilefant;
 using AgilefantTimes.Output;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
 
 namespace AgilefantTimes.API.Restful
 {
     public class RestApiClient
     {
-        //private int _session;
         private readonly RestServer _server;
-        //private readonly Dictionary<int, AgilefantClient> _sessions;
         private AgilefantClient _client;
         private readonly Config _config;
         private readonly List<AgilefantClient> _logins;
@@ -25,7 +23,6 @@ namespace AgilefantTimes.API.Restful
         {
             _config = config;
             _server = new RestServer(port, serverDirectory);
-            //_sessions = new Dictionary<int, AgilefantClient>();
             _logins = new List<AgilefantClient>();
 
             _server += new RestfulUrlHandler("/rest/([0-9]+/)?sprint/summary(/([0-9]+/?)?)?", (p, s) =>
@@ -39,7 +36,11 @@ namespace AgilefantTimes.API.Restful
                 if (!(s.Length >= 5 && int.TryParse(s[4], out sprintNumber)) && !(s.Length >= 4 && int.TryParse(s[3], out sprintNumber)))
                     sprintNumber = _config.SprintNumber;
 
-                var teams = session.GetTeams().Result;
+                var teamsTask = session.GetTeams();
+                var usersTask = session.GetUsers();
+                var backlogsTask = session.GetBacklogs(teamNumber);
+                
+                var teams = teamsTask.Result;
                 var users = teams[teamNumber - 1].Members;
                 Array.Sort(users, (a, b) =>
                                   {
@@ -50,14 +51,15 @@ namespace AgilefantTimes.API.Restful
                                       return string.Compare(a.Name, b.Name, StringComparison.Ordinal);
                                   });
 
-                var u = session.GetUsers().Result;
+
+                var u = usersTask.Result;
                 foreach (var user in users)
                 {
                     var result = u.FirstOrDefault(t => t.UserCode == user.Initials);
                     user.Name = result == null ? "" : result.Name;
                 }
 
-                var backlogs = session.GetBacklogs(teamNumber).Result;
+                var backlogs = backlogsTask.Result;
                 var sprintSummaries = session.GetSprintSummaries(backlogs[0].Id).Result;
                 var sprintSummary = AgilefantClient.SelectSprint(sprintNumber, sprintSummaries);
 
@@ -90,7 +92,7 @@ namespace AgilefantTimes.API.Restful
                 p.WriteSuccess(json);
             });
 
-            _server += new RestfulUrlHandler("/rest/[a-z]{3}[0-9]{2,3}/sprint/[0-9]+/?", (p, s) =>
+            _server += new RestfulUrlHandler("/rest/[a-z]{3}[0-9]{2,3}/(team/[0-9]+/)?sprint/[0-9]+/?", (p, s) =>
             {
                 var session = GetClientSession(p);
                 if (session == null) return;
@@ -98,6 +100,14 @@ namespace AgilefantTimes.API.Restful
                 var userCode = s[1];
                 var sprintNumber = int.Parse(s[3]);
 
+                var teamNumber = _config.TeamNumber;
+                if (s.Length > 4)
+                {
+                    teamNumber = sprintNumber;
+                    sprintNumber = int.Parse(s[5]);
+                }
+
+                var backlogs = session.GetBacklogs(teamNumber);
                 var users = session.GetUsers().Result;
                 var userId = -1;
                 var name = "";
@@ -109,27 +119,31 @@ namespace AgilefantTimes.API.Restful
                 }
                 if (userId < 0)
                 {
-                    var teamUsers = (from team in session.GetTeams().Result from member in team.Members select member.Initials).ToList();
-                    if (teamUsers.Contains(userCode))
-                    {
+                    userId = (from team in session.GetTeams().Result
+                        from member in team.Members
+                        where member.Initials == userCode.ToLower(CultureInfo.InvariantCulture)
+                        select member.Id).FirstOrDefault();
+                    name = userCode;
+
+                    if (userId <= 0)
+                    /*{
                         p.WriteResponse("503 Forbidden", "{\"success\":false,\"reason\":\"Login Required\"}", "application/json");
                     }
-                    else
+                    else*/
                     {
                         p.WriteResponse("404 Not Found", "{\"success\":false,\"reason\":\"No Such User\"}", "application/json");
+                        return;
                     }
-                    return;
+                    //return;
                 }
-
-                var backlogs = session.GetBacklogs(_config.TeamNumber).Result;
-                var sprintSummaries = session.GetSprintSummaries(backlogs[0].Id).Result;
+                
+                var sprintSummaries = session.GetSprintSummaries(backlogs.Result[0].Id).Result;
                 var sprintSummary = AgilefantClient.SelectSprint(sprintNumber, sprintSummaries);
-
-                var times = session.GetLoggedTaskTime(userId, sprintSummary.StartDate, sprintSummary.EndDate).Result;
+                var times = session.GetLoggedTaskTime(userId, sprintSummary.StartDate, sprintSummary.EndDate);
                 var days = (sprintSummary.EndDate.DayOfYear <= DateTime.Now.DayOfYear ? sprintSummary.EndDate.DayOfYear : DateTime.Now.DayOfYear)
                             - sprintSummary.StartDate.DayOfYear;
                 if (days < 0) days = 0;
-                var stats = new UserPerformed(userId, userCode, name, times, days);
+                var stats = new UserPerformed(userId, userCode, name, times.Result, days);
                 p.WriteSuccess(JsonConvert.SerializeObject(stats, Formatting.Indented));
             });
 
@@ -158,6 +172,7 @@ namespace AgilefantTimes.API.Restful
                 var session = GetClientSession(p);
                 if (session == null) return;
 
+                var usersTask = session.GetUsers();
                 var teams = session.GetTeams().Result;
 
                 int teamNumber;
@@ -166,7 +181,7 @@ namespace AgilefantTimes.API.Restful
                     return;
                 }
 
-                var u = session.GetUsers().Result.ToDictionary(user => user.Initials, user => user.Name);
+                var u = usersTask.Result.ToDictionary(user => user.Initials, user => user.Name);
                 foreach (var member in teams[teamNumber + 1].Members)
                 {
                     string name;

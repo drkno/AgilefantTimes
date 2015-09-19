@@ -55,7 +55,7 @@ namespace AgilefantTimes.API.Agilefant
             PerformedTasks["fix"] = 0.0;
             foreach (var task in tasks)
             {
-                var desc = task.Description.ToLower();
+                var desc = task.Description?.ToLower() ?? "";
                 var time = task.MinutesSpent/60.0;
 
                 if (desc.Contains("#test "))
