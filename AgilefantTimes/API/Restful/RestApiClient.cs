@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
-using System.Reflection;
 using System.Security;
-using System.Text;
 using System.Text.RegularExpressions;
 using AgilefantTimes.API.Agilefant;
 using AgilefantTimes.Output;
@@ -92,7 +91,7 @@ namespace AgilefantTimes.API.Restful
                 p.WriteSuccess(json);
             });
 
-            _server += new RestfulUrlHandler("/rest/[a-z]{3}[0-9]{2,3}/(team/[0-9]+/)?sprint/[0-9]+/?", (p, s) =>
+            _server += new RestfulUrlHandler("/rest/[a-z]{3}[0-9]{2,3}/sprint/[0-9]+/?", (p, s) =>
             {
                 var session = GetClientSession(p);
                 if (session == null) return;
@@ -100,14 +99,7 @@ namespace AgilefantTimes.API.Restful
                 var userCode = s[1];
                 var sprintNumber = int.Parse(s[3]);
 
-                var teamNumber = _config.TeamNumber;
-                if (s.Length > 4)
-                {
-                    teamNumber = sprintNumber;
-                    sprintNumber = int.Parse(s[5]);
-                }
-
-                var backlogs = session.GetBacklogs(teamNumber);
+                var backlogs = session.GetBacklogs(_config.TeamNumber);
                 var users = session.GetUsers().Result;
                 var userId = -1;
                 var name = "";
@@ -119,22 +111,23 @@ namespace AgilefantTimes.API.Restful
                 }
                 if (userId < 0)
                 {
-                    userId = (from team in session.GetTeams().Result
+                    var userTeam = (from team in session.GetTeams().Result
                         from member in team.Members
                         where member.Initials == userCode.ToLower(CultureInfo.InvariantCulture)
-                        select member.Id).FirstOrDefault();
-                    name = userCode;
+                        select team).FirstOrDefault();
 
-                    if (userId <= 0)
-                    /*{
-                        p.WriteResponse("503 Forbidden", "{\"success\":false,\"reason\":\"Login Required\"}", "application/json");
-                    }
-                    else*/
+                    if (userTeam == null)
                     {
                         p.WriteResponse("404 Not Found", "{\"success\":false,\"reason\":\"No Such User\"}", "application/json");
                         return;
                     }
-                    //return;
+
+                    backlogs = session.GetBacklogs(userTeam.Id);
+                    userId =
+                        (from member in userTeam.Members
+                            where member.Initials == userCode.ToLower(CultureInfo.InvariantCulture)
+                            select member.Id).First();
+                    name = userCode;
                 }
                 
                 var sprintSummaries = session.GetSprintSummaries(backlogs.Result[0].Id).Result;
@@ -336,25 +329,10 @@ namespace AgilefantTimes.API.Restful
                 var session = AgilefantSession.Login(_config.Username, _config.Password).Result;
                 _client = new AgilefantClient(session);
                 return _client;
-                /*var sessionNumber = processor.HttpCookies["MurcySession"];
-                var authorisation = processor.DecodeAuthenticationHeader();
-                if (sessionNumber == null && authorisation == null)
-                {
-                    throw new SecurityException("User is not logged in.");
-                }
-
-                if (sessionNumber != null) return _sessions[int.Parse((string) sessionNumber)];
-
-                var login = authorisation.Split(':');
-                var session = AgilefantSession.Login(login[0], login[1]);
-                var client = new AgilefantClient(session.Result);
-                _sessions[_session] = client;
-                processor.HttpResponseSetCookies["MurcySession"] = _session;
-                _session++;
-                return client;*/
             }
             catch (Exception e)
             {
+                Debug.WriteLine(e);
                 try
                 {
                     if(index != -1)
