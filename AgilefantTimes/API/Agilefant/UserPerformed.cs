@@ -53,53 +53,83 @@ namespace AgilefantTimes.API.Agilefant
             PerformedTasks["pair"] = 0.0;
             PerformedTasks["chore"] = 0.0;
             PerformedTasks["fix"] = 0.0;
+            PerformedTasks["unspecified"] = 0.0;
             foreach (var task in tasks)
             {
                 var desc = task.Description?.ToLower() ?? "";
                 var time = task.MinutesSpent/60.0;
 
+                var tagged = false;
+
                 if (desc.Contains("#test "))
+                {
                     PerformedTasks["test"] = time + PerformedTasks["test"];
+                    tagged = true;
+                }
 
                 if (desc.Contains("#testmanual"))
+                {
                     PerformedTasks["testmanual"] = time + PerformedTasks["testmanual"];
+                    tagged = true;
+                }
 
                 if (desc.Contains("#testmanual"))
+                {
                     PerformedTasks["testmanual"] = time + PerformedTasks["testmanual"];
+                    tagged = true;
+                }
 
                 if (desc.Contains("#implement"))
+                {
                     PerformedTasks["implement"] = time + PerformedTasks["implement"];
+                    tagged = true;
+                }
 
                 if (desc.Contains("#refactor"))
+                {
                     PerformedTasks["refactor"] = time + PerformedTasks["refactor"];
+                    tagged = true;
+                }
 
                 if (desc.Contains("#document"))
+                {
                     PerformedTasks["document"] = time + PerformedTasks["document"];
+                    tagged = true;
+                }
 
                 if (desc.Contains("#chore"))
+                {
                     PerformedTasks["chore"] = time + PerformedTasks["chore"];
+                    tagged = true;
+                }
 
                 if (desc.Contains("#fix"))
-                    PerformedTasks["fix"] = time + PerformedTasks["fix"];
-
-                if (desc.Contains("#pair"))
                 {
-                    PerformedTasks["pair"] = time + PerformedTasks["pair"];
-                    var ind = desc.IndexOf("#pair[", StringComparison.Ordinal);
-                    if (ind < 0) continue;
-                    ind += 6;
-                    var end = desc.IndexOf("]", ind, StringComparison.Ordinal);
-                    var pairs = desc.Substring(ind, end - ind).Split(',');
-                    foreach (var pair in pairs)
+                    PerformedTasks["fix"] = time + PerformedTasks["fix"];
+                    tagged = true;
+                }
+
+                if (!tagged)
+                {
+                    PerformedTasks["unspecified"] = time + PerformedTasks["unspecified"];
+                }
+
+                if (!desc.Contains("#pair")) continue;
+                PerformedTasks["pair"] = time + PerformedTasks["pair"];
+                var ind = desc.IndexOf("#pair[", StringComparison.Ordinal);
+                if (ind < 0) continue;
+                ind += 6;
+                var end = desc.IndexOf("]", ind, StringComparison.Ordinal);
+                var pairs = desc.Substring(ind, end - ind).Split(',');
+                foreach (var pair in pairs)
+                {
+                    var p = pair.Trim();
+                    if (p == userCode)
                     {
-                        var p = pair.Trim();
-                        if (p == userCode)
-                        {
-                            continue;
-                        }
-                        var curr = time + (ProgrammedWithHours.ContainsKey(p) ? ProgrammedWithHours[p] : 0);
-                        ProgrammedWithHours[p] = curr;
+                        continue;
                     }
+                    var curr = time + (ProgrammedWithHours.ContainsKey(p) ? ProgrammedWithHours[p] : 0);
+                    ProgrammedWithHours[p] = curr;
                 }
             }
             
