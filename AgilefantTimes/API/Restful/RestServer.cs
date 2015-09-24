@@ -25,7 +25,7 @@ namespace AgilefantTimes.API.Restful
         public RestServer(int port, string serverBaseDirectory = null)
         {
             _port = port;
-            _serverBaseDirectory = serverBaseDirectory;
+            _serverBaseDirectory = serverBaseDirectory == null ? null : Path.GetFullPath(serverBaseDirectory);
             _handlers = new List<RestfulUrlHandler>();
             _filesCache = new ConcurrentDictionary<string, string>();
             if (serverBaseDirectory == null) return;
@@ -116,6 +116,12 @@ namespace AgilefantTimes.API.Restful
             var url = requestProcessor.HttpUrl;
             if (string.IsNullOrWhiteSpace(url) || url == "/") url = "/index.html";
             var path = Path.GetFullPath(_serverBaseDirectory + url);
+
+            if (!path.StartsWith(_serverBaseDirectory))
+            {
+                requestProcessor.WriteResponse("403 Forbidden", "Thou shall not pass!");
+                return;
+            }
 
             string data;
             if (_filesCache.TryGetValue(path, out data))
