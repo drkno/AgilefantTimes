@@ -49,6 +49,10 @@ git clone https://github.com/mrkno/AgilefantTimes.git AgilefantTimes
 cd AgilefantTimes
 git submodule init
 git submodule update
+cd www
+bower install
+mklink /D ./bower_components ./app/bower_components
+cd ..
 ```
 then create an `aftimes.conf` configuration file in the same directory.
 
