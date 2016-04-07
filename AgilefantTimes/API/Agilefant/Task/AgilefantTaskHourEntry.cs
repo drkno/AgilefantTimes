@@ -24,8 +24,7 @@ namespace AgilefantTimes.API.Agilefant.Task
         public static async Task<AgilefantTaskHourEntry[]> GetEntriesForDay(int userId, DateTime day,
             AgilefantSession session)
         {
-            var url = string.Format("ajax/hourEntriesByUserAndDay.action?userId={0}&day={1}&year={2}", userId,
-                day.DayOfYear, day.Year);
+            var url = $"ajax/hourEntriesByUserAndDay.action?userId={userId}&day={day.DayOfYear}&year={day.Year}";
             var response = await session.Get(url);
             response.EnsureSuccessStatusCode();
             var json = await response.Content.ReadAsStringAsync();

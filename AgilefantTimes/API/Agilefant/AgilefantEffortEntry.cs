@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using AgilefantTimes.API.Agilefant;
 using AgilefantTimes.API.Agilefant.Common;
 using Newtonsoft.Json;
 
@@ -31,7 +29,6 @@ namespace AgilefantTimes.API.Agilefant
 
         public AgilefantEffortEntry()
         {
-            
         }
 
         internal AgilefantEffortEntry(int id, DateTime entryDate, int minutesSpent, string description, int userId)
@@ -63,7 +60,7 @@ namespace AgilefantTimes.API.Agilefant
         /// <returns>The effort entries</returns>
         internal static async Task<IEnumerable<AgilefantEffortEntry>> GetEffortEntries(int from, AgilefantSession session)
         {
-            var query = string.Format("ajax/retrieveTaskHourEntries.action?parentObjectId={0}&limited=false", from);
+            var query = $"ajax/retrieveTaskHourEntries.action?parentObjectId={@from}&limited=false";
             var response = await session.Get(query);
             
             var json = await response.Content.ReadAsStringAsync();

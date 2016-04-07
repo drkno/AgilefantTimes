@@ -70,7 +70,7 @@ namespace AgilefantTimes.API.Agilefant
 
         public override string ToString()
         {
-            return string.Format("{0}: {1}", LoginName, Name);
+            return $"{LoginName}: {Name}";
         }
 
         protected class AgilefantUserWrapper

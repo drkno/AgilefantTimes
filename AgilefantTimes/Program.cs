@@ -3,11 +3,8 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Reflection;
-using AgilefantTimes.API.Agilefant;
 using AgilefantTimes.API.Restful;
-using AgilefantTimes.Output;
 
 #endregion
 
@@ -16,6 +13,7 @@ namespace AgilefantTimes
     public static class Program
     {
         private static Config _config;
+        private static RestApiClient _server;
 
         /// <summary>
         /// Main entry point for the application.
@@ -35,10 +33,12 @@ namespace AgilefantTimes
                 {
                     Debug.Listeners.Add(new TextWriterTraceListener(Console.Out));
                 }
+                
+                Console.CancelKeyPress += Console_CancelKeyPress;
 
-                var server = new RestApiClient(_config, _config.Port, _config.WebRoot);
+                _server = new RestApiClient(_config, _config.Port, _config.WebRoot);
                 Console.Write("Starting server... ");
-                server.Start();
+                _server.Start();
                 Console.WriteLine("complete.");
             }
             catch (Exception e)
@@ -66,6 +66,34 @@ namespace AgilefantTimes
         }
 
         /// <summary>
+        /// Attempt to safely shutdown the _server when CTRL-C is received.
+        /// </summary>
+        /// <param name="sender">Caller object.</param>
+        /// <param name="e1">Caller event arguments.</param>
+        private static void Console_CancelKeyPress(object sender, ConsoleCancelEventArgs e1)
+        {
+            try
+            {
+                Console.Write("Shutting down... ");
+                _server.Stop();
+                Console.WriteLine("complete.");
+                if (_config.DebugMode)
+                {
+                    Console.ReadKey();
+                }
+            }
+            catch (Exception e)
+            {
+                Console.Error.WriteLine("\n" + (_config.DebugMode ? e.StackTrace : "Clean shutdown failed. Aborting..."));
+                if (_config.DebugMode)
+                {
+                    Console.ReadKey();
+                }
+                Environment.Exit(-1);
+            }
+        }
+
+        /// <summary>
         /// Parses command line options.
         /// </summary>
         /// <param name="args">CLI arguments to use.</param>
@@ -81,7 +109,7 @@ namespace AgilefantTimes
                     { "password|p", "{Password} to login with", s => c.Password = s },
                     { "team|t", "Default team {number} to retreive", s => c.TeamNumber = int.Parse(s) },
                     { "sprint|s", "Default sprint {number} to retrieve", s => c.SprintNumber = int.Parse(s) },
-                    { "port|p", "{Port} number to host the server on. Defaults to 80.", s => c.Port = int.Parse(s) },
+                    { "port|p", "{Port} number to host the _server on. Defaults to 80.", s => c.Port = int.Parse(s) },
                     { "web|w", "{Directory} that non-API served files are located. Defaults to ./www/", s => c.WebRoot = s },
                     { "usercode|c", "Use usercodes instead of names", s => c.DisplayUsercode = true },
                     { "debug|d", "Enable debugging mode", s => c.DebugMode = true },

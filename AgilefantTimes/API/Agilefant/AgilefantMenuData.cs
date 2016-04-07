@@ -1,13 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Newtonsoft.Json;
 
 namespace AgilefantTimes.API.Agilefant
 {
-    public class AgilefantMenuData
+    internal class AgilefantMenuData
     {
         [JsonProperty("addClass")]
         public string AddClass { get; protected set; }
@@ -24,6 +20,11 @@ namespace AgilefantTimes.API.Agilefant
         [JsonProperty("title")]
         public string Title { get; protected set; }
 
+        /// <summary>
+        /// Gets the data that would normally be in the left-hand menu of Agilefant.
+        /// </summary>
+        /// <param name="session">The current login session for Agilefant.</param>
+        /// <returns>An array of the items in the menu.</returns>
         internal static async Task<AgilefantMenuData[]> GetMenuData(AgilefantSession session)
         {
             var response = await session.Get("ajax/menuData.action");

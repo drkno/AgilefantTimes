@@ -18,7 +18,7 @@ namespace AgilefantTimes.API.Agilefant
         /// <returns>Details of the specified sprint.</returns>
         public static async Task<AgilefantSprint> GetSprint(int sprintId, AgilefantSession session)
         {
-            var url = string.Format("ajax/iterationData.action?iterationId={0}", sprintId);
+            var url = $"ajax/iterationData.action?iterationId={sprintId}";
             var response = await session.Get(url);
             response.EnsureSuccessStatusCode();
 
@@ -51,7 +51,7 @@ namespace AgilefantTimes.API.Agilefant
         /// <returns>The burndown image.</returns>
         public static async Task<Image> GenerateBurndownImage(int sprintId, AgilefantSession session)
         {
-            var url = string.Format("drawIterationBurndown.action?backlogId={0}&timeZoneOffset=720", sprintId);
+            var url = $"drawIterationBurndown.action?backlogId={sprintId}&timeZoneOffset=720";
             var response = await session.Get(url);
             response.EnsureSuccessStatusCode();
             var stream = await response.Content.ReadAsStreamAsync();

@@ -235,7 +235,7 @@ namespace AgilefantTimes.API.Restful
                 var contentLen = Convert.ToInt32(HttpHeaders["Content-Length"]);
                 if (contentLen > MaxPostSize)
                 {
-                    throw new Exception(string.Format("POST Content-Length({0}) too big!", contentLen));
+                    throw new Exception($"POST Content-Length({contentLen}) too big!");
                 }
                 var buf = new byte[BufSize];
                 var toRead = contentLen;
