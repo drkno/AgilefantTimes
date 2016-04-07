@@ -31,6 +31,11 @@ namespace AgilefantTimes
                 }
                 ParseOptions(args, ref _config);
 
+                if (_config.DebugMode)
+                {
+                    Debug.Listeners.Add(new TextWriterTraceListener(Console.Out));
+                }
+
                 var server = new RestApiClient(_config, _config.Port, _config.WebRoot);
                 Console.Write("Starting server... ");
                 server.Start();

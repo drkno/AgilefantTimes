@@ -25,6 +25,7 @@ namespace AgilefantTimes.API.Restful
         public Hashtable HttpCookies { get; private set; }
         public Hashtable HttpResponseSetCookies { get; private set; }
         public string HttpPostData { get; private set; }
+        public string HttpGetData { get; private set; }
         public bool ResponseWritten { get; private set; }
 
         private const int MaxPostSize = 10485760;
@@ -176,6 +177,18 @@ namespace AgilefantTimes.API.Restful
                 case "trace": HttpMethod = HttpMethod.Trace; break;
                 case "options": HttpMethod = HttpMethod.Options; break;
                 default: goto case "trace";
+            }
+
+            tokens[1] = Uri.UnescapeDataString(tokens[1]);
+            var index = tokens[1].IndexOf('?');
+            if (index >= 0)
+            {
+                var getParams = tokens[1].Substring(index);
+                tokens[1] = tokens[1].Substring(0, index);
+                if (getParams.Length > 1)
+                {
+                    HttpGetData = getParams.Substring(1);
+                }
             }
 
             HttpUrl = tokens[1];
