@@ -1,7 +1,6 @@
 # AgilefantTimes
 
 Getting the hours spent for all members in Agilefant is a time consuming process and difficult, expecially when you just want an overview. This project is to create a simple web-based dashboard that can display times for users and some simple statistics regarding their hours.
-[A demo can be seen here](http://times.sws.nz/).
 
 ## Download
 Release versions can be found [here](https://github.com/mrkno/AgilefantTimes/releases).<br>
@@ -27,6 +26,9 @@ Inside the file paste the following configuration, edited where appropriate:<br>
 	"DisplayUsercode":false // optional, will replace Names with UserCodes.
 }
 ```
+
+> A full list of avaible options and their defaults if not provided can be found [here](https://github.com/mrkno/AgilefantTimes/blob/master/AgilefantTimes/Config.cs).
+
 To run the program, just double click the `AgilefantTimes.exe` executable, and, provided everything is setup correctly and you did not encounter a bug it will run.<br>
 The program supports command line arguments, to view these start the application with the `-h` or `--help` option. Command line arguments override values in the configuration file.<br>
 On platforms other than Windows the executable **should** be able to be run using Mono, provided the version being used supports all the features used in the program. To do this run from within a shell:<br>
