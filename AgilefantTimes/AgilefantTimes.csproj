@@ -9,7 +9,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>AgilefantTimes</RootNamespace>
     <AssemblyName>AgilefantTimes</AssemblyName>
-    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <IsWebBootstrapper>false</IsWebBootstrapper>
     <TargetFrameworkProfile />
@@ -68,6 +68,7 @@
     <Compile Include="API\Agilefant\AgilefantBacklogProductSummary.cs" />
     <Compile Include="API\Agilefant\AgilefantClient.cs" />
     <Compile Include="API\Agilefant\AgilefantEffortEntry.cs" />
+    <Compile Include="API\Agilefant\AgilefantMenuData.cs" />
     <Compile Include="API\Agilefant\AgilefantResponsible.cs" />
     <Compile Include="API\Agilefant\AgilefantSession.cs" />
     <Compile Include="API\Agilefant\AgilefantSprint.cs" />

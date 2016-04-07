@@ -9,7 +9,7 @@ namespace AgilefantTimes.API.Agilefant
 {
     public class AgilefantTeam
     {
-        public AgilefantTeam(string name, string description, int id, AgilefantResponsible[] members, Sprint[] sprints)
+        private AgilefantTeam(string name, string description, int id, AgilefantResponsible[] members, Sprint[] sprints)
         {
             Name = name;
             Description = description;
@@ -31,18 +31,15 @@ namespace AgilefantTimes.API.Agilefant
 
             var json = await response.Content.ReadAsStringAsync();
             var summaries = JsonConvert.DeserializeObject<AgilefantBacklogProductSummary[]>(json);
+            var menu = await AgilefantMenuData.GetMenuData(session);
             var teams = new List<AgilefantTeam>();
             foreach (var summary in summaries)
             {
-                if (!summary.Name.Contains(":")) continue;
-                var sprintData = await AgilefantSprint.GetSprints(summary.Id + 6, session);
+                var data = menu.FirstOrDefault(menuData => menuData.Title == summary.Name);
+                if (data == null) continue;
+                var sprintData = await AgilefantSprint.GetSprints(data.Children[0].Id, session);
 
-                var sprints = new List<Sprint>();
-                foreach (var sprint in sprintData)
-                {
-                    var s = new Sprint(sprint.Name, sprint.Description, sprint.Id, sprint.StartDate, sprint.EndTime);
-                    sprints.Add(s);
-                }
+                var sprints = sprintData.Select(sprint => new Sprint(sprint.Name, sprint.Description, sprint.Id, sprint.StartDate, sprint.EndTime)).ToList();
 
                 sprints.Sort((a, b) =>
                              {
@@ -60,7 +57,14 @@ namespace AgilefantTimes.API.Agilefant
                     assignees = sprintData[i].Assignees;    // sprint 0 sometimes does not have assignees
                 }
 
-                teams.Add(new AgilefantTeam(summary.Name.Substring(2), summary.Description, summary.Id, assignees, sprints.ToArray()));
+                var name = summary.Name;
+                var match = Regex.Match(name, @"^\s*[0-9]+\s*[.:]");
+                if (match.Success)
+                {
+                    name = name.Substring(match.Length);
+                }
+
+                teams.Add(new AgilefantTeam(name.Trim(), summary.Description, summary.Id, assignees, sprints.ToArray()));
             }
             return teams.ToArray();
         }
