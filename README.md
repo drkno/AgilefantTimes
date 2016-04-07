@@ -42,6 +42,22 @@ On platforms other than Windows the executable **should** be able to be run usin
 .NET 4.5 or Mono 3.12.1 (see above).
 This application is currently targeted at the .NET 4.5 runtime so you either need that installed or a compatible version of .NET/Mono.
 
+## Development
+To setup a development environment run the following commands:
+```
+git clone https://github.com/mrkno/AgilefantTimes.git AgilefantTimes
+cd AgilefantTimes
+git submodule init
+git submodule update
+cd www
+bower install
+mklink /D ./bower_components ./app/bower_components
+cd ..
+```
+then create an `aftimes.conf` configuration file in the same directory.
+
+The Visual Studio .sln file has only been tested with Visual Studio 2015.
+
 ## License and Contributions
 This program is licensed under the MIT license. Pull requests and contributions welcome.
 

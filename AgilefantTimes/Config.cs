@@ -65,7 +65,7 @@ namespace AgilefantTimes
 #endif
 
             if (string.IsNullOrWhiteSpace(config.WebRoot))
-                config.WebRoot = Path.Combine(Environment.CurrentDirectory, "www");
+                config.WebRoot = Path.Combine(Environment.CurrentDirectory, "www/app/");
             if (config.Port == 0)
                 config.Port = 80;
             if (config.SprintNumber == 0)
