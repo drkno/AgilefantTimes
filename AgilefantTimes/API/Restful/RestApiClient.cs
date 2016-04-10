@@ -91,7 +91,7 @@ namespace AgilefantTimes.API.Restful
                 p.WriteSuccess(json);
             });
 
-            _server += new RestfulUrlHandler("/rest/[a-z]{3}[0-9]{2,3}/sprint/[0-9]+/?", (p, s) =>
+            _server += new RestfulUrlHandler("/rest/(([^0-9/]+)|([a-z]{3}[0-9]{2,3}))/sprint/[0-9]+/?", (p, s) =>
             {
                 var session = GetClientSession(p);
                 if (session == null) return;
@@ -111,10 +111,15 @@ namespace AgilefantTimes.API.Restful
                 }
                 if (userId < 0)
                 {
-                    var userTeam = (from team in session.GetTeams().Result
-                        from member in team.Members
-                        where member.Initials == userCode.ToLower(CultureInfo.InvariantCulture)
-                        select team).FirstOrDefault();
+                    AgilefantTeam userTeam = null;
+                    foreach (var team in session.GetTeams().Result)
+                        foreach (var member in team.Members.Where(member =>
+                            member.Initials.ToLower(CultureInfo.InvariantCulture) == userCode.ToLower(CultureInfo.InvariantCulture)))
+                        {
+                            userTeam = team;
+                            userId = member.Id;
+                            break;
+                        }
 
                     if (userTeam == null)
                     {
@@ -123,10 +128,6 @@ namespace AgilefantTimes.API.Restful
                     }
 
                     backlogs = session.GetBacklogs(userTeam.Id);
-                    userId =
-                        (from member in userTeam.Members
-                            where member.Initials == userCode.ToLower(CultureInfo.InvariantCulture)
-                            select member.Id).First();
                     name = userCode;
                 }
                 
@@ -238,50 +239,62 @@ namespace AgilefantTimes.API.Restful
 
             _server += new RestfulUrlHandler("/rest/?", (p, s) =>
             {
-                var methods = new List<object>();
-                methods.Add(new
+                var methods = new List<object>
                 {
-                    url = "/rest/{{teamNumber?}}/sprint/summary/{{sprintNumber?}}",
-                    fields = new [] { "teamNumber, optional, the team number", "sprintNumber, optional, the sprint number" },
-                    description = "Gets summary details about a sprint for a team."
-                });
-                methods.Add(new
-                {
-                    url = "/rest/{{teamNumber?}}/sprint/{{sprintNumber?}}",
-                    fields = new[] { "teamNumber, optional, the team number", "sprintNumber, optional, the sprint number" },
-                    description = "Gets full, uninterpreted details about a sprint for a team."
-                });
-                methods.Add(new
-                {
-                    url = "/rest/{{userCode}}/sprint/{{sprintNumber}}",
-                    fields = new[] { "userCode, required, the username of the user", "sprintNumber, required, the sprint number" },
-                    description = "Gets all activity of a user for a sprint."
-                });
-                methods.Add(new
-                {
-                    url = "/rest/teams",
-                    fields = new string[0],
-                    description = "Gets the details about all teams, their sprints and members (where the current authentication allows)."
-                });
-                methods.Add(new
-                {
-                    url = "/rest/team/{{teamNumber}}",
-                    fields = new[] { "teamNumber, required, the number of the team" },
-                    description = "Gets the details about a team, its sprints and members (where the current authentication allows)."
-                });
-                methods.Add(new
-                {
-                    url = "/rest/login",
-                    fields = new string[0],
-                    description = "Logs the user in. Accepts optional post parameters username and password. A logged in user " +
-                                  "will use their own account instead of the global account."
-                });
-                methods.Add(new
-                {
-                    url = "/rest",
-                    fields = new string[0],
-                    description = "Gets this help text about the avalible URLs."
-                });
+                    new
+                    {
+                        url = "/rest/{{teamNumber?}}/sprint/summary/{{sprintNumber?}}",
+                        fields =
+                            new[] {"teamNumber, optional, the team number", "sprintNumber, optional, the sprint number"},
+                        description = "Gets summary details about a sprint for a team."
+                    },
+                    new
+                    {
+                        url = "/rest/{{teamNumber?}}/sprint/{{sprintNumber?}}",
+                        fields =
+                            new[] {"teamNumber, optional, the team number", "sprintNumber, optional, the sprint number"},
+                        description = "Gets full, uninterpreted details about a sprint for a team."
+                    },
+                    new
+                    {
+                        url = "/rest/{{userCode}}/sprint/{{sprintNumber}}",
+                        fields =
+                            new[]
+                            {
+                                "userCode, required, the username of the user",
+                                "sprintNumber, required, the sprint number"
+                            },
+                        description = "Gets all activity of a user for a sprint."
+                    },
+                    new
+                    {
+                        url = "/rest/teams",
+                        fields = new string[0],
+                        description =
+                            "Gets the details about all teams, their sprints and members (where the current authentication allows)."
+                    },
+                    new
+                    {
+                        url = "/rest/team/{{teamNumber}}",
+                        fields = new[] {"teamNumber, required, the number of the team"},
+                        description =
+                            "Gets the details about a team, its sprints and members (where the current authentication allows)."
+                    },
+                    new
+                    {
+                        url = "/rest/login",
+                        fields = new string[0],
+                        description =
+                            "Logs the user in. Accepts optional post parameters username and password. A logged in user " +
+                            "will use their own account instead of the global account."
+                    },
+                    new
+                    {
+                        url = "/rest",
+                        fields = new string[0],
+                        description = "Gets this help text about the avalible URLs."
+                    }
+                };
                 p.WriteSuccess(JsonConvert.SerializeObject(methods, Formatting.Indented));
             });
         }
@@ -294,7 +307,7 @@ namespace AgilefantTimes.API.Restful
         public void Stop()
         {
             _server.Stop();
-            if (_client != null) _client.Session.Logout();
+            _client?.Session.Logout();
         }
 
         private AgilefantClient GetClientSession(HttpRequestProcessor processor)
