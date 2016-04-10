@@ -50,7 +50,7 @@ namespace AgilefantTimes
             }
         }
 
-        public static Config Load(string location)
+        private static Config Load(string location)
         {
             if (!File.Exists(location))
             {

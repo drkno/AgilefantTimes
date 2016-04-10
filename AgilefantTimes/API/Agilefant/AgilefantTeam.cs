@@ -4,6 +4,9 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
+// ReSharper disable UnusedMember.Global
+// ReSharper disable MemberCanBePrivate.Global
+// ReSharper disable UnusedAutoPropertyAccessor.Global
 
 namespace AgilefantTimes.API.Agilefant
 {
@@ -71,20 +74,20 @@ namespace AgilefantTimes.API.Agilefant
 
         public class Sprint
         {
+            // ReSharper disable once UnusedParameter.Local
             public Sprint(string name, string description, int id, DateTime startDate, DateTime endDate)
             {
                 Name = name;
-                //todo: Description = description;
                 Id = id;
                 StartDate = startDate;
                 EndDate = endDate;
             }
 
-            public string Name { get; private set; }
-            public string Description { get; private set; }
-            public int Id { get; private set; }
-            public DateTime StartDate { get; private set; }
-            public DateTime EndDate { get; private set; }
+            public string Name { get; }
+            public string Description { get; } = "<Description Temporarily Disabled>";
+            public int Id { get; }
+            public DateTime StartDate { get; }
+            public DateTime EndDate { get; }
         }
     }
 }

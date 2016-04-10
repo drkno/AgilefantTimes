@@ -3,13 +3,14 @@ using System.Linq;
 using System.Threading.Tasks;
 using AgilefantTimes.API.Agilefant.Task;
 using Newtonsoft.Json;
+// ReSharper disable UnusedMember.Global
 
 namespace AgilefantTimes.API.Agilefant
 {
     public class AgilefantClient
     {
         [JsonProperty("session")]
-        public AgilefantSession Session { get; private set; }
+        public AgilefantSession Session { get; }
 
         /// <summary>
         /// Creates a new Agilefant Client

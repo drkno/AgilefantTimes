@@ -1,5 +1,4 @@
-﻿using System.Threading.Tasks;
-using AgilefantTimes.API.Agilefant.Common;
+﻿using AgilefantTimes.API.Agilefant.Common;
 using AgilefantTimes.API.Agilefant.Task;
 using Newtonsoft.Json;
 

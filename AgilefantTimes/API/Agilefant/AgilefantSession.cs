@@ -3,12 +3,11 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
-using System.Net;
 using System.Security;
-using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
+// ReSharper disable MemberCanBePrivate.Global
+// ReSharper disable UnusedMember.Local
 
 #endregion
 
@@ -94,7 +93,7 @@ namespace AgilefantTimes.API.Agilefant
         /// <param name="username">The username to log in with.</param>
         /// <param name="password">The password to log in with.</param>
         /// <exception cref="SecurityException">If credentials are incorrect.</exception>
-        /// <exception cref="WebException">If there was an error connecting to Agilefant.</exception>
+        /// <exception>If there was an error connecting to Agilefant.</exception>
         /// <returns>A new Agilefant session.</returns>
         public static async Task<AgilefantSession> Login(string username, string password)
         {
@@ -121,7 +120,7 @@ namespace AgilefantTimes.API.Agilefant
         /// <param name="username">The username to log in with.</param>
         /// <param name="password">The password to log in with.</param>
         /// <exception cref="SecurityException">If credentials are incorrect.</exception>
-        /// <exception cref="WebException">If there was an error connecting to Agilefant.</exception>
+        /// <exception>If there was an error connecting to Agilefant.</exception>
         /// <returns>A new Agilefant session.</returns>
         public static async Task<AgilefantSession> LoginTemporary(string username, string password)
         {
@@ -147,7 +146,7 @@ namespace AgilefantTimes.API.Agilefant
         /// <param name="username">The username to log in with.</param>
         /// <param name="password">The password to log in with.</param>
         /// <exception cref="SecurityException">If credentials are incorrect.</exception>
-        /// <exception cref="WebException">If there was an error connecting to Agilefant.</exception>
+        /// <exception>If there was an error connecting to Agilefant.</exception>
         /// <exception cref="InvalidOperationException">If currently logged in.</exception>
         public void ReLogin(string username, string password)
         {
@@ -163,7 +162,7 @@ namespace AgilefantTimes.API.Agilefant
         /// Logs in to Agilefant using the same credentials as the last login.
         /// </summary>
         /// <exception cref="SecurityException">If credentials are incorrect.</exception>
-        /// <exception cref="WebException">If there was an error connecting to Agilefant.</exception>
+        /// <exception>If there was an error connecting to Agilefant.</exception>
         /// <exception cref="InvalidOperationException">If currently logged in.</exception>
         public void ReLogin()
         {
@@ -230,7 +229,10 @@ namespace AgilefantTimes.API.Agilefant
         private void EnsureLoggedIn()
         {
             return; // todo
+#pragma warning disable 162
+            // ReSharper disable once HeuristicUnreachableCode
             if (!_loggedIn) throw new SecurityException("User is not logged in.");
+#pragma warning restore 162
         }
 
         #endregion

@@ -40,20 +40,8 @@ namespace AgilefantTimes
 
         private static readonly char[] ArgumentSeparators = { '=', ':' };
 
-        private static bool _optionStyleCanChange = true;
-        private static OptionStyle _optionsStyle = OptionStyle.Nix;
-        public static OptionStyle OptionsStyle
-        {
-            get { return _optionsStyle; }
-            set
-            {
-                if (!_optionStyleCanChange)
-                {
-                    throw new Exception("After an option has been added the options style cannot be changed.");
-                }
-                _optionsStyle = value;
-            }
-        }
+        private static OptionStyle OptionsStyle { get; } = OptionStyle.Nix;
+
         /// <summary>
         /// Option prefixes for use with various option styles.
         /// </summary>
@@ -99,10 +87,9 @@ namespace AgilefantTimes
                         _lookupDictionary.Remove(op);
                     }
                     _options.Remove(option);
-                    throw new OptionException("Option " + opt + " already specified for another option.", e, opt);
+                    throw new OptionException("Option " + opt + " already specified for another option.", e);
                 }
             }
-            _optionStyleCanChange = false;
         }
 
         /// <summary>
@@ -111,7 +98,7 @@ namespace AgilefantTimes
         /// </summary>
         /// <param name="arguments">Arguments to parse.</param>
         /// <returns>List of arguments that parsing failed for.</returns>
-        public List<string> Parse(IEnumerable<string> arguments)
+        private List<string> Parse(IEnumerable<string> arguments)
         {
             var optionsInError = new List<string>();
             var temp = new List<string>();
@@ -132,7 +119,7 @@ namespace AgilefantTimes
                             arg = arg.Trim();
                             if (arg.Length == 0 && _options[optionRead].ExpectsArguments)
                             {
-                                throw new OptionException("Option expects arguments and none provided.", arg);
+                                throw new OptionException("Option expects arguments and none provided.");
                             }
                             try
                             {
@@ -140,7 +127,7 @@ namespace AgilefantTimes
                             }
                             catch (Exception)
                             {
-                                throw new OptionException("Invalid value for option.", arg);
+                                throw new OptionException("Invalid value for option.");
                             }
                         }
                         catch (OptionException)
@@ -199,19 +186,15 @@ namespace AgilefantTimes
             if (result.Count <= 0) return;
             var options = "";
             options = result.Aggregate(options, (current, r) => current + (" " + r));
-            throw new OptionException("An error occured with option" + (result.Count > 1 ? "s" : "") + " " + options, result.ToArray());
+            throw new OptionException("An error occured with option" + (result.Count > 1 ? "s" : "") + " " + options);
         }
 
         /// <summary>
         /// Style of options to use.
         /// </summary>
-        public enum OptionStyle
+        private enum OptionStyle
         {
-            Nix = 0,
-            Linux = Nix,
-            Unix = Nix,
-            Osx = Nix,
-            Windows = 2
+            Nix = 0
         }
 
         /// <summary>
@@ -248,23 +231,23 @@ namespace AgilefantTimes
             /// <summary>
             /// Arguments that this option provides.
             /// </summary>
-            public string[] Arguments { get; private set; }
+            public string[] Arguments { get; }
             /// <summary>
             /// Words to be displayed as options.
             /// </summary>
-            public string[] Options { get; private set; }
+            public string[] Options { get; }
             /// <summary>
             /// Specifies if this option requires arguments to be passed to it.
             /// </summary>
-            public bool ExpectsArguments { get; private set; }
+            public bool ExpectsArguments { get; }
             /// <summary>
             /// Description of this option.
             /// </summary>
-            public string Description { get; private set; }
+            public string Description { get; }
             /// <summary>
             /// Action to perform when this option is specified.
             /// </summary>
-            public Action<string> Action { get; private set; }
+            public Action<string> Action { get; }
         }
 
         #region Help Text
@@ -494,11 +477,9 @@ namespace AgilefantTimes
         /// Create a new OptionException.
         /// </summary>
         /// <param name="errorText">The description of this exception.</param>
-        /// <param name="errorArguments">Arguments that were in error.</param>
-        public OptionException(string errorText, params string[] errorArguments)
+        public OptionException(string errorText)
             : base(errorText)
         {
-            ErrorArguments = errorArguments;
         }
 
         /// <summary>
@@ -506,16 +487,9 @@ namespace AgilefantTimes
         /// </summary>
         /// <param name="errorText">The description of this exception.</param>
         /// <param name="innerException">The inner exception that caused this one to occur.</param>
-        /// <param name="errorArguments">Arguments that were in error.</param>
-        public OptionException(string errorText, Exception innerException, params string[] errorArguments)
+        public OptionException(string errorText, Exception innerException)
             : base(errorText, innerException)
         {
-            ErrorArguments = errorArguments;
         }
-
-        /// <summary>
-        /// Arguments that were in error.
-        /// </summary>
-        public string[] ErrorArguments { get; private set; }
     }
 }

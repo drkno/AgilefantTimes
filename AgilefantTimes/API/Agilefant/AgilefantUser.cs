@@ -4,6 +4,10 @@ using System.Linq;
 using System.Threading.Tasks;
 using AgilefantTimes.API.Agilefant.Common;
 using Newtonsoft.Json;
+// ReSharper disable UnusedMember.Global
+// ReSharper disable UnusedAutoPropertyAccessor.Local
+// ReSharper disable MemberCanBePrivate.Global
+// ReSharper disable ClassNeverInstantiated.Global
 
 #endregion
 
@@ -49,7 +53,6 @@ namespace AgilefantTimes.API.Agilefant
 
         public AgilefantUser()
         {
-
         }
 
         internal AgilefantUser(int id)
@@ -68,10 +71,7 @@ namespace AgilefantTimes.API.Agilefant
             return (from wrapper in wrappers select wrapper.OriginalObject).ToArray();
         }
 
-        public override string ToString()
-        {
-            return $"{LoginName}: {Name}";
-        }
+        public override string ToString() => $"{LoginName}: {Name}";
 
         protected class AgilefantUserWrapper
         {

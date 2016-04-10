@@ -5,6 +5,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+// ReSharper disable AutoPropertyCanBeMadeGetOnly.Global
+// ReSharper disable MemberCanBePrivate.Global
+// ReSharper disable UnusedAutoPropertyAccessor.Global
 
 #endregion
 
@@ -18,20 +21,11 @@ namespace AgilefantTimes.API.Agilefant
             Tasks = tasks;
         }
 
-        public double TotalHours
-        {
-            get { return StoryHours + TaskHours; }
-        }
+        public double TotalHours => StoryHours + TaskHours;
 
-        public double StoryHours
-        {
-            get { return Stories.Sum(story => story.Time); }
-        }
+        public double StoryHours => Stories.Sum(story => story.Time);
 
-        public double TaskHours
-        {
-            get { return Tasks.Sum(task => task.Time); }
-        }
+        public double TaskHours => Tasks.Sum(task => task.Time);
 
         public AgilefantElementTime[] Stories { get; protected set; }
         public AgilefantElementTime[] Tasks { get; protected set; }

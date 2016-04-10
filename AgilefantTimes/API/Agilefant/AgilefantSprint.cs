@@ -5,6 +5,10 @@ using System.Threading.Tasks;
 using AgilefantTimes.API.Agilefant.Common;
 using AgilefantTimes.API.Agilefant.Story;
 using Newtonsoft.Json;
+// ReSharper disable ClassNeverInstantiated.Global
+// ReSharper disable MemberCanBePrivate.Global
+// ReSharper disable UnusedMember.Global
+// ReSharper disable UnusedAutoPropertyAccessor.Local
 
 namespace AgilefantTimes.API.Agilefant
 {
@@ -78,13 +82,8 @@ namespace AgilefantTimes.API.Agilefant
         public string Description { get; private set; }
         [JsonProperty("endDate")]
         private long EndDateLong { get; set; }
-        public DateTime EndTime
-        {
-            get
-            {
-                return new DateTime(1970, 1, 1).AddMilliseconds(EndDateLong);
-            }
-        }
+        public DateTime EndTime => new DateTime(1970, 1, 1).AddMilliseconds(EndDateLong);
+
         [JsonProperty("name")]
         public string Name { get; private set; }
         [JsonProperty("product")]
@@ -101,13 +100,8 @@ namespace AgilefantTimes.API.Agilefant
         public bool StandAlone { get; private set; }
         [JsonProperty("startDate")]
         private long StartDateLong { get; set; }
-        public DateTime StartDate
-        {
-            get
-            {
-                return new DateTime(1970, 1, 1).AddMilliseconds(StartDateLong);
-            }
-        }
+        public DateTime StartDate => new DateTime(1970, 1, 1).AddMilliseconds(StartDateLong);
+
         [JsonProperty("tasks")]
         public System.Threading.Tasks.Task[] Tasks { get; private set; }
     }

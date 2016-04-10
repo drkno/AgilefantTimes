@@ -5,6 +5,10 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using AgilefantTimes.API.Agilefant.Common;
 using Newtonsoft.Json;
+// ReSharper disable ClassNeverInstantiated.Global
+// ReSharper disable UnusedAutoPropertyAccessor.Local
+// ReSharper disable UnusedMember.Global
+// ReSharper disable MemberCanBePrivate.Global
 
 #endregion
 
@@ -24,10 +28,7 @@ namespace AgilefantTimes.API.Agilefant
         [JsonProperty("endDate")]
         protected long EndDateLong { get; private set; }
 
-        public DateTime EndDate
-        {
-            get { return new DateTime(1970, 1, 1).AddMilliseconds(EndDateLong); }
-        }
+        public DateTime EndDate => new DateTime(1970, 1, 1).AddMilliseconds(EndDateLong);
 
         [JsonProperty("name")]
         public string Name { get; private set; }
@@ -47,10 +48,7 @@ namespace AgilefantTimes.API.Agilefant
         [JsonProperty("startDate")]
         protected long StartDateLong { get; private set; }
 
-        public DateTime StartDate
-        {
-            get { return new DateTime(1970, 1, 1).AddMilliseconds(StartDateLong); }
-        }
+        public DateTime StartDate => new DateTime(1970, 1, 1).AddMilliseconds(StartDateLong);
 
         /// <summary>
         /// Gets an array of sprints available 

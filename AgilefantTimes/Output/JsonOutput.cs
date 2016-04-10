@@ -1,8 +1,6 @@
 ﻿using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Runtime.Serialization;
-using System.Runtime.Serialization.Json;
 
 namespace AgilefantTimes.Output
 {
@@ -66,22 +64,6 @@ namespace AgilefantTimes.Output
                 MedianLowerHours = hours.IndexOf(sorted.ElementAt(hours.Count / 2 - 1));
                 TotalHours = hours.Sum(h => h.TotalHours);
             }
-        }
-
-        /// <summary>
-        /// Converts this object to JSON data.
-        /// </summary>
-        /// <returns>JSON data.</returns>
-        public string ToJson()
-        {
-            var serializer = new DataContractJsonSerializer(typeof(JsonOutput));
-            var memoryStream = new MemoryStream();
-            serializer.WriteObject(memoryStream, this);
-            memoryStream.Position = 0;
-            var streamReader = new StreamReader(memoryStream);
-            var result = streamReader.ReadToEnd();
-            streamReader.Close();
-            return result;
         }
     }
 }

@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using AgilefantTimes.API.Agilefant.Task;
 using Newtonsoft.Json;
+// ReSharper disable MemberCanBePrivate.Global
+// ReSharper disable UnusedAutoPropertyAccessor.Global
+#pragma warning disable 169
 
 namespace AgilefantTimes.API.Agilefant
 {
@@ -29,8 +30,8 @@ namespace AgilefantTimes.API.Agilefant
         public double[] DailyHours { get; private set; }
         public double LongestDay { get; private set; }
         public double ShortestDay { get; private set; }
-        public Dictionary<string, double> ProgrammedWithHours { get; private set; }
-        public Dictionary<string, double> PerformedTasks { get; private set; } 
+        public Dictionary<string, double> ProgrammedWithHours { get; }
+        public Dictionary<string, double> PerformedTasks { get; } 
         public string UserCode { get; private set; }
 
         public UserPerformed(int userId, string userCode, string name, AgilefantTaskHourEntry[] tasks, int numDays)

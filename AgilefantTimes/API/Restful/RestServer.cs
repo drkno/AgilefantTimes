@@ -6,7 +6,6 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
-using System.Runtime.Caching;
 using System.Threading;
 
 namespace AgilefantTimes.API.Restful
@@ -49,25 +48,9 @@ namespace AgilefantTimes.API.Restful
             _filesCache.TryRemove(fileSystemEventArgs.FullPath, out removed);
         }
 
-        public void AddHandler(RestfulUrlHandler handler)
+        private void AddHandler(RestfulUrlHandler handler)
         {
             _handlers.Add(handler);
-        }
-
-        public void RemoveHandler(RestfulUrlHandler handler)
-        {
-            _handlers.Remove(handler);
-        }
-
-        public void RemoveHandler(int index)
-        {
-            _handlers.RemoveAt(index);
-        }
-
-        public RestfulUrlHandler this[int index]
-        {
-            get { return _handlers[index]; }
-            set { _handlers[index] = value; }
         }
 
         public static RestServer operator +(RestServer e, RestfulUrlHandler f)
@@ -150,7 +133,7 @@ namespace AgilefantTimes.API.Restful
             }
         }
 
-        public void Start()
+        private void Start()
         {
             if (_listenThread != null && _isActive)
             {

@@ -4,6 +4,10 @@ using System.Linq;
 using System.Threading.Tasks;
 using AgilefantTimes.API.Agilefant.Common;
 using Newtonsoft.Json;
+// ReSharper disable UnusedMember.Global
+// ReSharper disable MemberCanBePrivate.Global
+// ReSharper disable AutoPropertyCanBeMadeGetOnly.Local
+// ReSharper disable UnusedAutoPropertyAccessor.Global
 
 namespace AgilefantTimes.API.Agilefant
 {
@@ -109,8 +113,7 @@ namespace AgilefantTimes.API.Agilefant
             content.AddRange(users.Select(user => new KeyValuePair<string, string>("userIds", user.ToString())));
 
             var postData = new FormUrlEncodedContent(content);
-
-            var response = await session.Post("ajax/logTaskEffort.action", postData);
+            await session.Post("ajax/logTaskEffort.action", postData);
         }
 
         /// <summary>

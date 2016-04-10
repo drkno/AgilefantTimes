@@ -1,5 +1,8 @@
 ﻿using AgilefantTimes.API.Agilefant.Common;
 using Newtonsoft.Json;
+// ReSharper disable ClassNeverInstantiated.Global
+// ReSharper disable UnusedAutoPropertyAccessor.Local
+// ReSharper disable UnusedMember.Global
 
 namespace AgilefantTimes.API.Agilefant
 {

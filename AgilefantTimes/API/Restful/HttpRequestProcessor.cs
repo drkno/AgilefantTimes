@@ -8,6 +8,8 @@ using System.Text;
 using System.Threading;
 using AgilefantTimes.API.Agilefant;
 using Ionic.Zlib;
+// ReSharper disable MemberCanBePrivate.Global
+// ReSharper disable UnusedAutoPropertyAccessor.Global
 
 namespace AgilefantTimes.API.Restful
 {
@@ -274,11 +276,6 @@ namespace AgilefantTimes.API.Restful
                 HttpResponseHeaders["WWW-Authenticate"] = "Basic realm=\"" + loginMessage + "\"";
             }
             WriteResponse("401 Not Authorized", errorMessage, contentType);
-        }
-
-        public void WriteFailure(string errorMessage = "<b>404, I think it was over there somewhere...</b>")
-        {
-            WriteResponse("404 File Not Found", errorMessage);
         }
 
         private void WriteServerFailure(string errorMessage = "<b>500, Oh fiddlesticks! That's an error and it is all YOUR fault.</b>")

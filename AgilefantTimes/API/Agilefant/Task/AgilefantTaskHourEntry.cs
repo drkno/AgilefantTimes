@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using AgilefantTimes.API.Agilefant.Common;
 using Newtonsoft.Json;
+// ReSharper disable UnusedAutoPropertyAccessor.Global
+// ReSharper disable UnusedAutoPropertyAccessor.Local
+// ReSharper disable ClassNeverInstantiated.Global
 
 namespace AgilefantTimes.API.Agilefant.Task
 {
@@ -32,6 +35,7 @@ namespace AgilefantTimes.API.Agilefant.Task
         }
 
         [JsonProperty("date")]
+        // ReSharper disable once UnusedMember.Local
         private long DateLong
         {
             set

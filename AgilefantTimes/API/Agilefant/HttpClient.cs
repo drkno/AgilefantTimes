@@ -28,9 +28,11 @@ namespace AgilefantTimes.API.Agilefant
             }
             webRequest.UserAgent = "Testing Agent";
             webRequest.AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip;
-            var message = new HttpResponseMessage();
-            message.Content = new HttpResponseContent();
-            message.Headers = new HttpHeaders();
+            var message = new HttpResponseMessage
+            {
+                Content = new HttpResponseContent(),
+                Headers = new HttpHeaders()
+            };
             using (var response = (HttpWebResponse)webRequest.GetResponse())
             {
                 message.StatusCode = response.StatusCode;
@@ -66,7 +68,7 @@ namespace AgilefantTimes.API.Agilefant
             return task;
         }
 
-        public HttpResponseMessage Post(string url, HttpContent content)
+        private HttpResponseMessage Post(string url, HttpContent content)
         {
             var webRequest = (HttpWebRequest) WebRequest.Create(url);
             webRequest.AllowAutoRedirect = _clientHandler.AllowAutoRedirect;
@@ -83,9 +85,11 @@ namespace AgilefantTimes.API.Agilefant
                 stream.Write(Encoding.UTF8.GetBytes(postData), 0, postData.Length);
             }
             webRequest.ContentType = "application/x-www-form-urlencoded";
-            var message = new HttpResponseMessage();
-            message.Content = new HttpResponseContent();
-            message.Headers = new HttpHeaders();
+            var message = new HttpResponseMessage
+            {
+                Content = new HttpResponseContent(),
+                Headers = new HttpHeaders()
+            };
             using (var resp = (HttpWebResponse) webRequest.GetResponse())
             {
                 message.StatusCode = resp.StatusCode;
@@ -190,7 +194,7 @@ namespace AgilefantTimes.API.Agilefant
             }
         }
 
-        public HttpStatusCode StatusCode { get; set; }
+        public HttpStatusCode StatusCode { private get; set; }
         public HttpResponseContent Content { get; set; }
         public HttpHeaders Headers { get; set; }
     }
