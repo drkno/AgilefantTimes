@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -79,7 +78,7 @@ namespace AgilefantTimes.API.Restful
                 // The server died due to a bug in mono
                 if (e.Message.Contains("The socket has been shut down"))
                 {
-                    Debug.WriteLine("Mono shutdown the server. Please use .NET Core whenever it starts supporting your platform to avoid this.");
+                    Logger.Log("Mono shutdown the server. Please use .NET Core whenever it starts supporting your platform to avoid this.", LogLevel.Error);
                     return false;
                 }
                 if (e.SocketErrorCode == SocketError.Interrupted) return true;

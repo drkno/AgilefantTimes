@@ -1,6 +1,5 @@
 using System;
 using System.Collections;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net.Sockets;
@@ -96,7 +95,7 @@ namespace AgilefantTimes.API.Restful
                     ReadHeaders();
                     ReadCookies();
 
-                    Debug.WriteLine("[" + Thread.CurrentThread.ManagedThreadId + "] " + HttpMethod + " " + HttpUrl);
+                    Logger.Log("<Thread " + Thread.CurrentThread.ManagedThreadId + "> " + HttpMethod + " " + HttpUrl, LogLevel.Info);
                     switch (HttpMethod)
                     {
                         case HttpMethod.Put:
@@ -128,7 +127,7 @@ namespace AgilefantTimes.API.Restful
                     if (e is SocketException || e is IOException)
                     {
                         // Either Mono died (likely) or someone is using IE/Edge
-                        Debug.WriteLine("Connection to client terminated without proper shutdown.");
+                        Logger.Log("Connection to client terminated without proper shutdown.", LogLevel.Error);
                         return;
                     }
 
@@ -143,7 +142,7 @@ namespace AgilefantTimes.API.Restful
                         // Could not tell the user. Ignore the exception because there is not much we can do with it.
                     }
                     
-                    Debug.WriteLine(e.StackTrace);
+                    Logger.Log(e.StackTrace, LogLevel.Error);
                     break;  // 500 internal server error? probably happened here...
                 }
             }
@@ -156,7 +155,7 @@ namespace AgilefantTimes.API.Restful
             }
             catch (Exception e)
             {
-                Debug.WriteLine(e.Message);
+                Logger.Log(e.Message, LogLevel.Error);
             }
         }
 
@@ -305,8 +304,8 @@ namespace AgilefantTimes.API.Restful
         {
             if (ResponseWritten) throw new Exception("Cannot send new response after response has been sent.");
             ResponseWritten = true;
-            
-            Debug.WriteLine("[" + Thread.CurrentThread.ManagedThreadId + "] Response: " + status);
+
+            Logger.Log("<Thread " + Thread.CurrentThread.ManagedThreadId + "> Response: " + status, status.StartsWith("2") ? LogLevel.Success : LogLevel.Warn);
             byte[] encodedBytes = null;
             var length = string.IsNullOrWhiteSpace(response) ? 0 : Encoding.UTF8.GetByteCount(response);
             if (HttpHeaders.ContainsKey("Accept-Encoding") && ((string)HttpHeaders["Accept-Encoding"]).Contains("gzip") && response != null)

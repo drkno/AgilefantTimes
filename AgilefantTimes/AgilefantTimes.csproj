@@ -90,6 +90,7 @@
     <Compile Include="API\Restful\RestServer.cs" />
     <Compile Include="API\Restful\RestServer.Mime.cs" />
     <Compile Include="Config.cs" />
+    <Compile Include="Log.cs" />
     <Compile Include="Options.cs" />
     <Compile Include="Output\JsonOutput.cs" />
     <Compile Include="Output\JsonOutputTime.cs" />

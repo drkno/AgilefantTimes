@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Security;
@@ -345,7 +344,7 @@ namespace AgilefantTimes.API.Restful
             }
             catch (Exception e)
             {
-                Debug.WriteLine(e);
+                e.Log(LogLevel.Error);
                 try
                 {
                     if(index != -1)

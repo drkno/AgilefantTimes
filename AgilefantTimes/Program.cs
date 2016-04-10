@@ -23,42 +23,45 @@ namespace AgilefantTimes
         {
             try
             {
+                Console.WriteLine(
+                    "____ ____ _ _    ____ ____ ____ _  _ ___   ___ _ _  _ ____ ____ \n" +
+                    "|__| | __ | |    |___ |___ |__| |\\ |  |     |  | |\\/| |___ [__  \n" +
+                    "|  | |__] | |___ |___ |    |  | | \\|  |     |  | |  | |___ ___] \n" +
+                    "----------------------------------------------------------------");
+                                                              
+                Logger.Log("Loading configuration file...", LogLevel.Write);
                 if (!Config.TryLoad("aftimes.conf", out _config) && args.Length == 0)
                 {
                     throw new Exception("Could not load configuration file.");
                 }
+                Logger.Log("Parsing options...", LogLevel.Write);
                 ParseOptions(args, ref _config);
 
-                if (_config.DebugMode)
-                {
-                    Debug.Listeners.Add(new TextWriterTraceListener(Console.Out));
-                }
-                
+                Logger.Enabled = _config.DebugMode;
                 Console.CancelKeyPress += Console_CancelKeyPress;
 
                 _server = new RestApiClient(_config, _config.Port, _config.WebRoot);
-                Console.Write("Starting server... ");
+                Logger.Log("Starting server...", LogLevel.Write);
                 _server.Start();
-                Console.WriteLine("complete.");
+                Logger.Log("Server has started. Press CTRL+C (^C) to terminate.", LogLevel.Write);
             }
             catch (Exception e)
             {
                 if (e is OptionException)
                 {
                     var name = AppDomain.CurrentDomain.FriendlyName;
-                    Console.Error.WriteLine(name + ": " + e.Message);
+                    Logger.Log(name + ": " + e.Message, LogLevel.Write);
                 }
                 else
                 {
-                    Console.Error.WriteLine("An error occured at runtime: \r\n" + e.Message);
+                    Logger.Log("An error occured at runtime: \r\n" + e.Message, LogLevel.Write);
                 }
 
+                
                 if (_config.DebugMode)
                 {
-                    Console.Error.WriteLine(e.StackTrace);
-                    #if DEBUG
+                    e.StackTrace.Log(LogLevel.Error);
                     throw;
-                    #endif
                 }
             }
 
@@ -72,25 +75,34 @@ namespace AgilefantTimes
         /// <param name="e1">Caller event arguments.</param>
         private static void Console_CancelKeyPress(object sender, ConsoleCancelEventArgs e1)
         {
+            var exitCode = 0;
             try
             {
-                Console.Write("Shutting down... ");
+                Logger.Log("Server shutting down...", LogLevel.Write);
                 _server.Stop();
-                Console.WriteLine("complete.");
-                if (_config.DebugMode)
-                {
-                    Console.ReadKey();
-                }
+                Logger.Log("Server shutdown complete.", LogLevel.Write);
+                
             }
             catch (Exception e)
             {
-                Console.Error.WriteLine("\n" + (_config.DebugMode ? e.StackTrace : "Clean shutdown failed. Aborting..."));
                 if (_config.DebugMode)
                 {
-                    Console.ReadKey();
+                    Logger.Log("Clean shutdown failed. Aborting...", LogLevel.Write);
                 }
-                Environment.Exit(-1);
+                else
+                {
+                    Logger.Log(e.StackTrace, LogLevel.Error);
+                }
+                exitCode = -1;
             }
+
+            if (_config.DebugMode)
+            {
+                Logger.Log("Press any key to terminate the program.", LogLevel.Write);
+                Console.ReadKey();
+            }
+            Logger.ShouldLog = false;
+            Environment.Exit(exitCode);
         }
 
         /// <summary>

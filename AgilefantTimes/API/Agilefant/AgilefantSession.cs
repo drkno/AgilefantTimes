@@ -2,7 +2,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Security;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
@@ -108,7 +107,7 @@ namespace AgilefantTimes.API.Agilefant
             }
             catch (Exception e)
             {
-                Debug.WriteLine("Login Exception:\n" + e.StackTrace);
+                Logger.Log("Login Exception:\n" + e.StackTrace, LogLevel.Error);
                 return null;
             }
         }
@@ -135,7 +134,7 @@ namespace AgilefantTimes.API.Agilefant
             }
             catch (Exception e)
             {
-                Debug.WriteLine("Login Exception:\n" + e.StackTrace);
+                Logger.Log("Login Exception:\n" + e.StackTrace, LogLevel.Error);
                 return null;
             }
         }
@@ -205,12 +204,10 @@ namespace AgilefantTimes.API.Agilefant
             }
             catch (Exception e)
             {
-                Debug.WriteLine(e.Message);
-                Debug.WriteLine("InternalLogin Exception:\n" + e.StackTrace);
+                Logger.Log(e.Message, LogLevel.Error);
+                Logger.Log("InternalLogin Exception:\n" + e.StackTrace, LogLevel.Error);
                 return null;
             }
-
-            
         }
 
         /// <summary>
