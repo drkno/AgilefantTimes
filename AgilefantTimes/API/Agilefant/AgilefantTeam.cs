@@ -27,7 +27,7 @@ namespace AgilefantTimes.API.Agilefant
         public AgilefantResponsible[] Members { get; private set; }
         public Sprint[] Sprints { get; private set; }
 
-        public static async Task<AgilefantTeam[]> GetTeams(AgilefantSession session)
+        public static async Task<Dictionary<int, AgilefantTeam>> GetTeams(AgilefantSession session)
         {
             var response = await session.Get("ajax/retrieveAllProductsWithStandalone.action");
             response.EnsureSuccessStatusCode();
@@ -35,7 +35,7 @@ namespace AgilefantTimes.API.Agilefant
             var json = await response.Content.ReadAsStringAsync();
             var summaries = JsonConvert.DeserializeObject<AgilefantBacklogProductSummary[]>(json);
             var menu = await AgilefantMenuData.GetMenuData(session);
-            var teams = new List<AgilefantTeam>();
+            var teams = new Dictionary<int, AgilefantTeam>();
             foreach (var summary in summaries)
             {
                 var data = menu.FirstOrDefault(menuData => menuData.Title == summary.Name);
@@ -67,9 +67,9 @@ namespace AgilefantTimes.API.Agilefant
                     name = name.Substring(match.Length);
                 }
 
-                teams.Add(new AgilefantTeam(name.Trim(), summary.Description, summary.Id, assignees, sprints.ToArray()));
+                teams.Add(summary.Id, new AgilefantTeam(name.Trim(), summary.Description, summary.Id, assignees, sprints.ToArray()));
             }
-            return teams.ToArray();
+            return teams;
         }
 
         public class Sprint
@@ -88,6 +88,11 @@ namespace AgilefantTimes.API.Agilefant
             public int Id { get; }
             public DateTime StartDate { get; }
             public DateTime EndDate { get; }
+        }
+
+        public override string ToString()
+        {
+            return Id.ToString();
         }
     }
 }

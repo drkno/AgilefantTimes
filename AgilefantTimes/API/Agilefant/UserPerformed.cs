@@ -15,6 +15,7 @@ namespace AgilefantTimes.API.Agilefant
         private bool _success = true;
         public AgilefantTaskHourEntry[] Tasks { get; private set; }
         public int Id { get; private set; }
+        public int TeamId { get; private set; }
         public string Name { get; private set; }
         public bool HasUnitTested { get; private set; }
         public bool HasAcceptanceTested { get; private set; }
@@ -34,7 +35,7 @@ namespace AgilefantTimes.API.Agilefant
         public Dictionary<string, double> PerformedTasks { get; } 
         public string UserCode { get; private set; }
 
-        public UserPerformed(int userId, string userCode, string name, AgilefantTaskHourEntry[] tasks, int numDays)
+        public UserPerformed(int userId, string userCode, string name, AgilefantTaskHourEntry[] tasks, int numDays, int teamId)
         {
             Array.Sort(tasks, (a,b) => a.Date.CompareTo(b.Date));
 
@@ -42,6 +43,7 @@ namespace AgilefantTimes.API.Agilefant
             Tasks = tasks;
             Name = name;
             UserCode = userCode;
+            TeamId = teamId;
 
             PerformedTasks = new Dictionary<string, double>();
             ProgrammedWithHours = new Dictionary<string, double>();
