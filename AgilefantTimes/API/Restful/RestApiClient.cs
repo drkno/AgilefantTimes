@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Security;
@@ -39,7 +40,7 @@ namespace AgilefantTimes.API.Restful
                 var backlogsTask = session.GetBacklogs(teamNumber);
                 
                 var teams = teamsTask.Result;
-                var users = teams[teamNumber - 1].Members;
+                var users = teams[teamNumber].Members;
                 Array.Sort(users, (a, b) =>
                                   {
                                       if (string.IsNullOrWhiteSpace(a.Name) || string.IsNullOrWhiteSpace(b.Name))
@@ -66,7 +67,7 @@ namespace AgilefantTimes.API.Restful
                 var hours = (from user in users
                              let tasks = session.GetTime(teamNumber, backlogs[0].Id, sprintSummary.Id, user.Id).Result
                              select new JsonOutputTime((_config.DisplayUsercode ? user.Initials : user.Name), tasks)).ToList();
-                var jsonOutput = new JsonOutput(backlogs[0].Name, sprintSummary.Name, hours, sprint);
+                var jsonOutput = new JsonOutput(teams[teamNumber].Name, sprintSummary.Name, hours, sprint);
                 var json = JsonConvert.SerializeObject(jsonOutput, Formatting.Indented);
                 p.WriteSuccess(json);
             });
@@ -102,6 +103,7 @@ namespace AgilefantTimes.API.Restful
                 var users = session.GetUsers().Result;
                 var userId = -1;
                 var name = "";
+                AgilefantTeam userTeam = null;
                 foreach (var user in users.Where(user => user.UserCode == userCode))
                 {
                     userId = user.Id;
@@ -110,12 +112,12 @@ namespace AgilefantTimes.API.Restful
                 }
                 if (userId < 0)
                 {
-                    AgilefantTeam userTeam = null;
+                    
                     foreach (var team in session.GetTeams().Result)
-                        foreach (var member in team.Members.Where(member =>
+                        foreach (var member in team.Value.Members.Where(member =>
                             member.Initials.ToLower(CultureInfo.InvariantCulture) == userCode.ToLower(CultureInfo.InvariantCulture)))
                         {
-                            userTeam = team;
+                            userTeam = team.Value;
                             userId = member.Id;
                             break;
                         }
@@ -136,7 +138,8 @@ namespace AgilefantTimes.API.Restful
                 var days = (sprintSummary.EndDate.DayOfYear <= DateTime.Now.DayOfYear ? sprintSummary.EndDate.DayOfYear : DateTime.Now.DayOfYear)
                             - sprintSummary.StartDate.DayOfYear;
                 if (days < 0) days = 0;
-                var stats = new UserPerformed(userId, userCode, name, times.Result, days);
+                Debug.Assert(userTeam != null, "userTeam != null");
+                var stats = new UserPerformed(userId, userCode, name, times.Result, days, userTeam.Id);
                 p.WriteSuccess(JsonConvert.SerializeObject(stats, Formatting.Indented));
             });
 
@@ -147,7 +150,7 @@ namespace AgilefantTimes.API.Restful
 
                 var teams = session.GetTeams().Result;
                 var u = session.GetUsers().Result.ToDictionary(user => user.Initials, user => user.Name);
-                foreach (var member in teams.SelectMany(team => team.Members))
+                foreach (var member in teams.Values.SelectMany(team => team.Members))
                 {
                     string name;
                     if (u.TryGetValue(member.Initials, out name))
@@ -156,7 +159,7 @@ namespace AgilefantTimes.API.Restful
                     }
                 }
 
-                var json = JsonConvert.SerializeObject(teams, Formatting.Indented);
+                var json = JsonConvert.SerializeObject(teams.Values.ToArray(), Formatting.Indented);
                 p.WriteSuccess(json);
             });
 
@@ -169,7 +172,7 @@ namespace AgilefantTimes.API.Restful
                 var teams = session.GetTeams().Result;
 
                 int teamNumber;
-                if (!int.TryParse(s[2], out teamNumber) || teamNumber < 0 || teamNumber >= teams.Length)
+                if (!int.TryParse(s[2], out teamNumber) || teamNumber < 0 || teamNumber >= teams.Count)
                 {
                     return;
                 }

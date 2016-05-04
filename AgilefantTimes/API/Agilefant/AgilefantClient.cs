@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using AgilefantTimes.API.Agilefant.Task;
 using Newtonsoft.Json;
@@ -116,7 +118,7 @@ namespace AgilefantTimes.API.Agilefant
         /// Gets all teams that are accessable.
         /// </summary>
         /// <returns>Avalible Agilefant teams.</returns>
-        public Task<AgilefantTeam[]> GetTeams()
+        public Task<Dictionary<int, AgilefantTeam>> GetTeams()
         {
             return AgilefantTeam.GetTeams(Session);
         }
@@ -133,7 +135,7 @@ namespace AgilefantTimes.API.Agilefant
 
             if (sprintNumber >= 0)
             {
-                foreach (var sprint in sprintPool.Where(sprint => sprint.Name.Contains(sprintNumber.ToString())))
+                foreach (var sprint in sprintPool.Where(sprint => FindSprintNumber(sprint.Name) == sprintNumber))
                 {
                     return sprint;
                 }
@@ -157,6 +159,21 @@ namespace AgilefantTimes.API.Agilefant
                 }
             }
             return closest;
+        }
+
+        /// <summary>
+        /// Given a sprint name checks to see if it contains the sprint number.
+        /// </summary>
+        /// <param name="name">The name of the sprint.</param>
+        /// <returns>The sprint number, or -1 if not found.</returns>
+        private static int FindSprintNumber(string name)
+        {
+            var match = Regex.Match(name, @"^\s*[0-9]+(?=\s*[.:])");
+            if (match.Success)
+            {
+                return int.Parse(match.Value.Trim());
+            }
+            return -1;
         }
     }
 }
