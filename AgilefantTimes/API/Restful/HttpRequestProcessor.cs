@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net.Sockets;
@@ -207,6 +208,19 @@ namespace AgilefantTimes.API.Restful
             }
         }
 
+        public Dictionary<string, string> ParseGetParameters()
+        {
+            var items = HttpGetData.Split('&');
+            var dict = new Dictionary<string, string>();
+            foreach (var item in items)
+            {
+                var name = Uri.UnescapeDataString(item.Substring(0, item.IndexOf('=')));
+                var val = Uri.UnescapeDataString(item.Substring(name.Length + 1));
+                dict[name] = val;
+            }
+            return dict;
+        }
+
         private void ReadHeaders()
         {
             string line;
@@ -275,6 +289,12 @@ namespace AgilefantTimes.API.Restful
                 HttpResponseHeaders["WWW-Authenticate"] = "Basic realm=\"" + loginMessage + "\"";
             }
             WriteResponse("401 Not Authorized", errorMessage, contentType);
+        }
+
+        public void WriteRedirect(string location, string data = "{\"success\":true}", string contentType = "application/json")
+        {
+            HttpResponseHeaders["Location"] = location;
+            WriteResponse("302 Found", data, contentType);
         }
 
         private void WriteServerFailure(string errorMessage = "<b>500, Oh fiddlesticks! That's an error and it is all YOUR fault.</b>")

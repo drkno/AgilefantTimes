@@ -16,13 +16,13 @@ namespace AgilefantTimes.API.Restful
         private readonly RestServer _server;
         private AgilefantClient _client;
         private readonly Config _config;
-        private readonly List<AgilefantClient> _logins;
+        private readonly TimeoutList<AgilefantClient> _logins;
 
         public RestApiClient(Config config, int port = 8080, string serverDirectory = null)
         {
             _config = config;
             _server = new RestServer(port, serverDirectory);
-            _logins = new List<AgilefantClient>();
+            _logins = new TimeoutList<AgilefantClient>(TimeSpan.FromMinutes(120));
 
             _server += new RestfulUrlHandler("/rest/([0-9]+/)?sprint/summary(/([0-9]+/?)?)?", (p, s) =>
             {
@@ -193,6 +193,9 @@ namespace AgilefantTimes.API.Restful
 
             _server += new RestfulUrlHandler("/rest/login/?", (p, s) =>
             {
+                string redirectUrl;
+                p.ParseGetParameters().TryGetValue("returnUrl", out redirectUrl);
+
                 if (p.HttpHeaders.ContainsKey("Authorization") || p.HttpPostData.Length != 0)
                 {
                     string username, password;
@@ -219,10 +222,17 @@ namespace AgilefantTimes.API.Restful
                         }
                         var client = new AgilefantClient(session);
                         
-                        _logins.Add(client);
-                        var data = _logins.Count - 1;
+                        var data = _logins.AddAndGetId(client);
                         p.HttpResponseSetCookies.Add("aft-session", data);
-                        p.WriteSuccess("{\"success\":true}");
+
+                        if (redirectUrl != null)
+                        {
+                            p.WriteRedirect(redirectUrl);
+                        }
+                        else
+                        {
+                            p.WriteSuccess("{\"success\":true}");
+                        }
                     }
                     catch (Exception)
                     {
@@ -231,7 +241,14 @@ namespace AgilefantTimes.API.Restful
                 }
                 else if (p.HttpCookies.ContainsKey("aft-session"))
                 {
-                    p.WriteSuccess("{\"success\":true}");
+                    if (redirectUrl != null)
+                    {
+                        p.WriteRedirect(redirectUrl);
+                    }
+                    else
+                    {
+                        p.WriteSuccess("{\"success\":true}");
+                    }
                 }
                 else
                 {
@@ -314,19 +331,14 @@ namespace AgilefantTimes.API.Restful
 
         private AgilefantClient GetClientSession(HttpRequestProcessor processor)
         {
-            AgilefantClient client = _client;
-            int index = -1;
+            var client = _client;
+            var index = -1;
             try
             {
                 if (processor.HttpCookies.ContainsKey("aft-session"))
                 {
-                    var b64 = (string)processor.HttpCookies["aft-session"];
-                   
-                    if (!int.TryParse(b64, out index))
-                    {
-                        index = -1;
-                        throw new SecurityException("You are not logged in");
-                    }
+                    var id = (string)processor.HttpCookies["aft-session"];
+                    index = _logins.LookupId(id);
                     client = _logins[index];
                 }
 
@@ -341,13 +353,18 @@ namespace AgilefantTimes.API.Restful
                     return client;
                 }
 
+                if (string.IsNullOrWhiteSpace(_config.Username) && string.IsNullOrWhiteSpace(_config.Password))
+                {
+                    throw new SecurityException("No login credentials provided");
+                }
+
                 var session = AgilefantSession.Login(_config.Username, _config.Password).Result;
                 _client = new AgilefantClient(session);
                 return _client;
             }
-            catch (Exception e)
+            catch (Exception)
             {
-                e.Log(LogLevel.Error);
+                Logger.Log("Re-authentication is required.", LogLevel.Warn);
                 try
                 {
                     if(index != -1)
@@ -360,12 +377,11 @@ namespace AgilefantTimes.API.Restful
                 }
                 catch (Exception)
                 {
-                    if (index  != -1)
+                    if (index  != -1 && _logins.Count > index)
                     {
-                        _logins.RemoveAt(index);
+                        _logins.RemoveIndex(index);
                     }
-                    processor.HttpResponseHeaders["Location"] = "/rest/login";
-                    processor.WriteResponse("302 Found");
+                    processor.WriteRedirect("/rest/login?returnUrl=" + Uri.EscapeDataString(processor.HttpUrl), "{\"success\":false}");
                     return null;
                 }
             }
